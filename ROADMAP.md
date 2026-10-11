@@ -14,7 +14,7 @@ progression and difficulty model that every item must respect.
 
 - [x] **Module split** - split `game.js` into `js/` files (config, util, audio, terrain, units, projectiles, game, ui, main) loaded by plain `<script>` tags; no behaviour change. Add `tools/smoke-test.js` (headless Chromium via Playwright: loads the page, runs a few seconds, fails on console errors).
 - [x] **Save system** - versioned `localStorage` save (`eggwars.save.v1`) with defaults, migration hook, corruption fallback, try/catch around storage, autosave after every round. Persist gold, stage, unlocks, wins/losses.
-- [ ] **Player level & XP** - XP from wins, losses and kills; level curve from DESIGN.md; XP bar in HUD; level-up banner.
+- [x] **Player level & XP** - XP from wins, losses and kills; level curve from DESIGN.md; XP bar in HUD; level-up banner.
 - [ ] **Smooth difficulty curve** - replace the linear per-stage enemy HP/fire scaling with the logarithmic `D(n)` model; enemy armies built from a point budget instead of fixed maximums.
 - [ ] **Comeback assist** - loss-streak tracking; after 2+ losses in a row grant the "Rally" assist (bonus gold, extra starting unit, smaller enemy budget) per DESIGN.md. Cleared on a win; never affects winning players.
 - [ ] **Scene system & menus** - title screen, pause menu (Esc / P), settings screen (volume, mute, color scheme, speech bubbles, screen shake), all saved.

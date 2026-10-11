@@ -72,6 +72,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/config.js` - canvas, colors and tunable settings
 - `js/util.js` - small math/color helpers
 - `js/save.js` - versioned localStorage save with migrations
+- `js/progression.js` - difficulty, XP, level and reward formulas (see DESIGN.md)
 - `js/audio.js` - sound effects
 - `js/terrain.js` - terrain generation
 - `js/draw.js` - shared drawing helpers

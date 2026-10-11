@@ -40,6 +40,7 @@ class Game {
     this.stage = data.profile.stage;
     this.unlockedNames = [...data.profile.unlockedNames];
     this.score = { blue: data.stats.wins, red: data.stats.losses };
+    this.profile = data.profile;
     // Stage-based unlocks from the original rules (also repairs older saves).
     this.updateUnlocks();
     this.lastUnlock = "";
@@ -91,6 +92,8 @@ class Game {
     this.powerUpCooldown = 0;
     this.noticeBubble = null;
     this.selectedGameplayHint = "";
+    this.roundKills = 0;
+    this.roundRewards = null;
     this.spawn();
     audio.play("start_reveille");
   }
@@ -217,9 +220,26 @@ class Game {
       }
       this.score.red++;
     }
+    this.grantProgress(blueWon);
     SaveManager.data.stats.roundsPlayed++;
     this.saveProfile();
     audio.play(blueWon ? "end_jingle" : "sad_jingle");
+  }
+
+  // XP and Golden Eggs for the round just finished (DESIGN.md sections 6-7).
+  grantProgress(blueWon) {
+    const p = this.profile;
+    const playedStage = blueWon ? this.stage - 1 : this.stage;
+    p.lossStreak = blueWon ? 0 : p.lossStreak + 1;
+    const xp = Progression.roundXp(playedStage, blueWon) + this.roundKills;
+    const levelBefore = p.level;
+    const levelsGained = Progression.addXp(p, xp);
+    let goldenEggs = blueWon ? Progression.winGoldenEggs(playedStage) : Progression.lossGoldenEggs(p.lossStreak);
+    goldenEggs += levelsGained * Progression.goldenEggsPerLevel;
+    p.goldenEggs += goldenEggs;
+    SaveManager.data.stats.kills += this.roundKills;
+    this.roundRewards = { xp, kills: this.roundKills, goldenEggs, levelBefore, levelsGained };
+    if (levelsGained) this.levelUpTimer = 3.5;
   }
 
   addMany(side, type, count) {
@@ -256,6 +276,7 @@ class Game {
     });
     this.updateWreckage(dt);
     this.titleTimer = Math.max(0, this.titleTimer - dt);
+    this.levelUpTimer = Math.max(0, (this.levelUpTimer || 0) - dt);
     if (this.noticeBubble) this.noticeBubble.timer = Math.max(0, this.noticeBubble.timer - dt);
     this.units.forEach((u) => {
       if (u.labelTimer !== undefined) u.labelTimer = Math.max(0, u.labelTimer - dt);
@@ -295,6 +316,7 @@ class Game {
           t.takeHit();
           this.maybeSay(t, settings.speechHitComments, 1.05);
           if (t.dead) {
+            this.onUnitKilled(t);
             this.playUnitDestroyed(t);
             this.addWreckage(t);
           } else {
@@ -323,6 +345,7 @@ class Game {
     this.maybeSay(target, settings.speechHitComments, 1.05);
     this.playUnitHit(target);
     if (target.dead) {
+      this.onUnitKilled(target);
       this.playUnitDestroyed(target);
       this.addWreckage(target);
     }
@@ -340,6 +363,10 @@ class Game {
         drone.side,
       ));
     }
+  }
+
+  onUnitKilled(unit) {
+    if (unit.side === LEFT && !this.winner) this.roundKills++;
   }
 
   addWreckage(unit) {
@@ -572,6 +599,7 @@ class Game {
     this.drawNoticeBubble();
     this.drawStartTitle();
     if (this.winner) this.drawEnd();
+    this.drawLevelUpBanner();
     drawScreenBorder();
   }
 
@@ -622,10 +650,66 @@ class Game {
     ctx.font = "bold 18px Courier New";
     const power = this.powerUpCooldown <= 0 ? "YOLK DROP READY" : `YOLK DROP ${this.powerUpCooldown.toFixed(1)}s`;
     centerText(`Tap battlefield: ${power}`, H - 22);
+    this.drawXpBar(W / 2 - 210, 116, 420);
     if (this.lastUnlock && !this.winner) {
       ctx.font = "bold 20px Courier New";
-      centerText(`UNLOCKED: ${this.lastUnlock}`, 132);
+      centerText(`UNLOCKED: ${this.lastUnlock}`, 160);
     }
+  }
+
+  drawXpBar(x, y, width) {
+    const p = this.profile;
+    const need = Progression.xpToNext(p.level);
+    const frac = clamp(p.xp / need, 0, 1);
+    ctx.font = "bold 16px Courier New";
+    ctx.fillStyle = LINE;
+    const label = `LV ${p.level}`;
+    ctx.fillText(label, x, y + 13);
+    const labelW = ctx.measureText(label + " ").width;
+    const geText = ` ${p.goldenEggs} GE`;
+    const geW = ctx.measureText(geText).width;
+    const barX = x + labelW;
+    const barW = width - labelW - geW - 26;
+    ctx.fillStyle = rgbaFromHex(YOLK, 0.85);
+    ctx.fillRect(barX, y + 2, barW * frac, 12);
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(barX, y + 2, barW, 12);
+    ctx.fillStyle = LINE;
+    this.drawGoldenEggIcon(barX + barW + 14, y + 8, 7);
+    ctx.fillText(geText, barX + barW + 20, y + 13);
+  }
+
+  drawGoldenEggIcon(x, y, r) {
+    ctx.fillStyle = YOLK;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(x, y, r * 0.8, r, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = LINE;
+  }
+
+  drawLevelUpBanner() {
+    if (!this.levelUpTimer || !this.roundRewards || !this.roundRewards.levelsGained) return;
+    const t = this.levelUpTimer;
+    const pop = 1 + Math.max(0, t - 3.1) * 1.2;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, t / 0.6);
+    ctx.translate(W / 2, 150);
+    ctx.scale(pop, pop);
+    ctx.font = "bold 34px Courier New";
+    const text = `LEVEL UP!  LV ${this.profile.level}`;
+    const w = ctx.measureText(text).width + 40;
+    ctx.fillStyle = YOLK;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 3;
+    ctx.fillRect(-w / 2, -30, w, 44);
+    ctx.strokeRect(-w / 2, -30, w, 44);
+    ctx.fillStyle = LINE;
+    ctx.fillText(text, -w / 2 + 20, 4);
+    ctx.restore();
   }
 
   drawUnitLabels() {
@@ -703,10 +787,21 @@ class Game {
     const scoreText = settings.showScore ? `   SCORE ${this.points}` : "";
     const shownStage = this.resultMode === "won" ? this.stage - 1 : this.stage;
     centerText(`STAGE ${shownStage}   GOLD $ ${this.gold}${scoreText}${rewardText}`, H / 2 + 32);
-    centerText(`TOTAL WINS  BLUE ${this.score.blue}   RED ${this.score.red}`, H / 2 + 64);
-    if (this.resultMode === "won" && this.lastUnlock) centerText(`NEW UNIT: ${this.lastUnlock}`, H / 2 + 96);
+    let lineY = H / 2 + 64;
+    const r = this.roundRewards;
+    if (r) {
+      const geText = r.goldenEggs ? `   GOLDEN EGGS +${r.goldenEggs}` : "";
+      centerText(`XP +${r.xp} (${r.kills} kills)   LV ${this.profile.level}  ${this.profile.xp}/${Progression.xpToNext(this.profile.level)}${geText}`, lineY);
+      lineY += 32;
+    }
+    centerText(`TOTAL WINS  BLUE ${this.score.blue}   RED ${this.score.red}`, lineY);
+    lineY += 32;
+    if (this.resultMode === "won" && this.lastUnlock) {
+      centerText(`NEW UNIT: ${this.lastUnlock}`, lineY);
+      lineY += 34;
+    }
     const prompt = this.resultMode === "lost" ? "Click to Try Again" : "Click for Next Stage";
-    centerText(prompt, H / 2 + (this.resultMode === "won" && this.lastUnlock ? 130 : 96));
+    centerText(prompt, lineY);
     this.drawEndTextPanel("Unit Keys", settings.unitLegend, 52, 206, 300);
     this.drawEndTextPanel("Battle Tip", [this.selectedGameplayHint], W - 345, 206, 285);
     ctx.font = "bold 14px Courier New";

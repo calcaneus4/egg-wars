@@ -14,12 +14,17 @@ function defaultSave() {
       gold: 0,
       stage: 1,
       unlockedNames: [],
+      level: 1,
+      xp: 0,
+      goldenEggs: 0,
+      lossStreak: 0,
     },
     settings: {},
     stats: {
       wins: 0,
       losses: 0,
       roundsPlayed: 0,
+      kills: 0,
     },
     flags: {},
   };
@@ -58,6 +63,10 @@ function validateSave(data) {
   const p = data.profile;
   p.gold = Number.isFinite(p.gold) ? Math.max(0, Math.floor(p.gold)) : 0;
   p.stage = Number.isFinite(p.stage) ? Math.max(1, Math.floor(p.stage)) : 1;
+  p.level = Number.isFinite(p.level) ? Math.max(1, Math.floor(p.level)) : 1;
+  p.xp = Number.isFinite(p.xp) ? Math.max(0, Math.floor(p.xp)) : 0;
+  p.goldenEggs = Number.isFinite(p.goldenEggs) ? Math.max(0, Math.floor(p.goldenEggs)) : 0;
+  p.lossStreak = Number.isFinite(p.lossStreak) ? Math.max(0, Math.floor(p.lossStreak)) : 0;
   p.unlockedNames = Array.isArray(p.unlockedNames) ? p.unlockedNames.filter((n) => typeof n === "string") : [];
   for (const key of Object.keys(data.stats)) {
     if (!Number.isFinite(data.stats[key])) data.stats[key] = 0;
