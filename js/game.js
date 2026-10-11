@@ -74,8 +74,7 @@ class Game {
   }
 
   nextRoundLimit() {
-    const stageBonus = Math.max(0, this.stage) * settings.roundSecondsPerStage;
-    return rand(settings.roundMinSeconds + stageBonus, settings.roundMaxSeconds + stageBonus);
+    return Progression.roundSeconds(this.stage);
   }
 
   startStage() {
@@ -108,14 +107,7 @@ class Game {
     this.addMany(RIGHT, "drone", this.count(settings.maxLeftDrones));
     this.addMany(RIGHT, "castle", this.count(settings.maxLeftCastles));
     this.addMany(RIGHT, "soldier", this.count(settings.maxLeftSoldiers));
-    this.addMany(LEFT, "tank", this.count(settings.maxRightTanks));
-    this.addMany(LEFT, "motorcycle", this.count(settings.maxRightMotorcycles));
-    this.addMany(LEFT, "airplane", this.aircraftCount(settings.maxRightAirplanes));
-    this.addMany(LEFT, "bomber", this.aircraftCount(settings.maxRightBombers));
-    this.addMany(LEFT, "helicopter", this.aircraftCount(settings.maxRightHelicopters));
-    this.addMany(LEFT, "drone", this.count(settings.maxRightDrones));
-    this.addMany(LEFT, "castle", this.count(settings.maxRightCastles));
-    this.addMany(LEFT, "soldier", this.count(settings.maxRightSoldiers));
+    this.spawnEnemyArmy();
     this.addUnlockedPlayerUnits();
     this.scaleEnemiesForStage();
     const blue = this.living(RIGHT);
@@ -167,9 +159,28 @@ class Game {
     }
   }
 
+  enemyCaps() {
+    return {
+      tank: settings.maxRightTanks,
+      motorcycle: settings.maxRightMotorcycles,
+      airplane: settings.maxRightAirplanes,
+      bomber: settings.maxRightBombers,
+      helicopter: settings.maxRightHelicopters,
+      drone: settings.maxRightDrones,
+      castle: settings.maxRightCastles,
+      soldier: settings.maxRightSoldiers,
+    };
+  }
+
+  spawnEnemyArmy() {
+    const budget = Progression.enemyBudget(this.stage);
+    const counts = Progression.buildArmy(budget, settings.enemyBalancedWeights, this.enemyCaps());
+    for (const [type, count] of Object.entries(counts)) this.addMany(LEFT, type, count);
+  }
+
   scaleEnemiesForStage() {
-    const hpScale = 1 + (this.stage - 1) * settings.enemyHpScalePerStage;
-    const fireScale = 1 + (this.stage - 1) * settings.enemyFireScalePerStage;
+    const hpScale = Progression.enemyHpScale(this.stage);
+    const fireScale = Progression.enemyFireScale(this.stage);
     this.units.forEach((u) => {
       if (u.side !== LEFT) return;
       u.hp = Math.max(1, Math.ceil(u.hp * hpScale));
@@ -205,7 +216,7 @@ class Game {
         this.lastGoldBonus = settings.fullDestructionGoldBonus;
         reward += this.lastGoldBonus;
       }
-      const bonus = settings.scoreWinBase * this.stage + Math.round(this.armyScore(this.living(RIGHT)) * 4);
+      const bonus = settings.scoreWinBase * this.stage + Math.round(Math.sqrt(this.armyScore(this.living(RIGHT))) * settings.survivorGoldFactor);
       reward += bonus;
       this.gold += reward;
       this.lastGoldReward = reward;
@@ -214,10 +225,9 @@ class Game {
       this.stage++;
       this.updateUnlocks();
     } else {
-      if (settings.goldLossConsolation > 0) {
-        this.gold += settings.goldLossConsolation;
-        this.lastGoldReward = settings.goldLossConsolation;
-      }
+      const consolation = settings.goldLossBase + settings.goldLossPerStage * this.stage;
+      this.gold += consolation;
+      this.lastGoldReward = consolation;
       this.score.red++;
     }
     this.grantProgress(blueWon);

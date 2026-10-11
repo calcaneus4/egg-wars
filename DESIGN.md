@@ -44,19 +44,22 @@ The slope is `0.45 / (n + 3)`, so the step from one stage to the next is at most
 Enemy stats come from `D(n)`:
 
 ```
-enemy HP multiplier        h(n) = 1 + 0.60 * (D(n) - 1)
-enemy fire-rate multiplier f(n) = 1 + 0.30 * (D(n) - 1)
-enemy army point budget    B(n) = 60 * D(n)            (see section 4)
-round time limit           T(n) = 35 + 10 * (D(n) - 1)  seconds (+/- 5 s random)
+enemy HP multiplier        h(n) = 1 + 0.35 * (D(n) - 1)
+enemy fire-rate multiplier f(n) = 1 + 0.15 * (D(n) - 1)
+enemy army size multiplier b(n) = 1 + 0.25 * (D(n) - 1)
+enemy army point budget    B(n) = 120 * b(n)                 (see section 4)
+round time limit           T(n) = 38 + 10 * (D(n) - 1) seconds (+/- 5 s random)
 ```
 
-HP is rounded up per unit (`ceil`), never below the base HP.
+HP is rounded up per unit (`ceil`), never below the base HP. The total enemy strength is
+`E(n) = h(n) * f(n) * b(n)`: 1.00 at stage 1, 1.45 at stage 10, 1.71 at stage 20, 2.52 at
+stage 100. The constants are in `js/config.js` (`enemy*FromDifficulty`, `enemyBaseBudget`).
 
 **Boss stages** (every 5th stage) use the same `D(n)`. The boss replaces about 40% of the
 point budget, so a boss stage is not harder overall than a normal stage.
 
 **Comparison with the original game**, which scaled HP linearly by +18% per stage: at stage 20
-the original enemy had 4.4x HP. Under this model it has `h(20) = 1.47x`.
+the original enemy had 4.4x HP. Under this model it has `h(20) = 1.28x`.
 
 ## 4. Enemy army budget
 
@@ -66,9 +69,18 @@ Each unit type has a point cost (roughly its threat):
 |---|---|---|---|---|---|---|---|
 | 3 | 2 | 6 | 10 | 10 | 12 | 16 | 20 |
 
-The enemy buys units from the budget `B(n)` using its **personality** template weights
-(Balanced, Rusher, Turtle, Air Force, Artillery; see the roadmap). Caps per type keep the
-battlefield readable. Stage 1 is always Balanced.
+The enemy always takes its castle first (as in the original game), then buys random units
+from the budget `B(n)`, using its **personality** template weights. The personalities are
+Balanced, Rusher, Turtle, Air Force and Artillery; see the roadmap. Stage 1 is always Balanced.
+
+| Balanced weights | soldier 3 | tank 2 | motorcycle 1.5 | drone 1.5 | airplane 1 | helicopter 0.6 | bomber 0.5 |
+|---|---|---|---|---|---|---|---|
+
+Caps per type keep the battlefield readable (12 soldiers, 4 tanks, 3 motorcycles, 5 drones,
+3 airplanes, 1 helicopter, 1 bomber, 1 castle = 182 points). Once `B(n)` passes that, the
+leftover budget is dropped, which is a natural soft cap on army size.
+
+`B(1) = 120` is about the average size of the original game's random army (about 127 points).
 
 ## 5. Player power and upgrades
 
@@ -98,26 +110,31 @@ P = (1 + 0.08 k_hp) * (1 + 0.05 k_rate) * (1 + 0.04 k_dmg)
 Enemy power from difficulty is:
 
 ```
-E(n) = h(n) * f(n)
+E(n) = h(n) * f(n) * b(n)
 ```
 
 ### No-wall guarantee
 
-Simulation (`tools/balance-sim.js` once the module split lands): a player who wins every
-stage, and spends only **half** of their Golden Eggs on the three combat tracks, spread evenly:
+Simulation (`node tools/balance-sim.js`, which loads the real game formulas): a player wins
+every stage, gets about 8 kills per round, and spends only **half** of their Golden Eggs on
+the three combat tracks, spread evenly and capped at 20:
 
-| stage n | level | GE earned | combat levels (hp/rate/dmg) | P | E(n) |
-|---|---|---|---|---|---|
-| 3 | 2 | 7 | 1/1/1 | 1.18 | 1.17 |
-| 5 | 3 | 14 | 2/2/1 | 1.33 | 1.30 |
-| 10 | 5 | 30 | 3/3/2 | 1.54 | 1.53 |
-| 20 | 9 | 72 | 5/4/4 | 1.95 | 1.82 |
-| 50 | 16 | 243 | 9/8/8 | 3.18 | 2.29 |
-| 100 | 24 | 717 | 15/15/14 | 6.01 | 2.70 |
+| stage n | level | GE earned | combat levels (hp/rate/dmg) | P | E(n) | P/E |
+|---|---|---|---|---|---|---|
+| 3 | 2 | 7 | 1/1/1 | 1.18 | 1.14 | 1.03 |
+| 5 | 3 | 14 | 2/2/1 | 1.33 | 1.25 | 1.06 |
+| 10 | 5 | 30 | 3/3/2 | 1.54 | 1.45 | 1.06 |
+| 20 | 9 | 72 | 5/4/4 | 1.95 | 1.71 | 1.14 |
+| 50 | 16 | 243 | 9/8/8 | 3.18 | 2.13 | 1.49 |
+| 100 | 24 | 717 | 15/15/14 | 6.01 | 2.52 | 2.39 |
+| 200 | 35 | 2400 | 20/20/20 | 9.36 | 2.95 | 3.17 |
+
+The script exits non-zero if `P < E(n)` at any checked stage from 3 on. Run it after changing
+any balance constant.
 
 `E(n)` grows like `ln(n)^2`, while GE income grows faster than linearly in `n`. So `P / E`
-rises over time, and losing players earn GE too (section 6). Even with every track maxed, P
-stays ahead until stage ~10^6. Unlocked units, abilities and egg types are additional power on top of `P`;
+rises over time, and losing players earn GE too (section 6). With every track maxed
+(`P = 9.36`), `E(n)` would only catch up around stage 10^6. Unlocked units, abilities and egg types are additional power on top of `P`;
 they are the margin that lets the "spend half on other tracks" player keep pace too.
 
 ## 6. Rewards per round
@@ -134,7 +151,9 @@ lost:
           (so a losing player can still buy upgrades)
 ```
 
-`survivorBonus` is the original army-score bonus (4 gold per surviving HP point).
+`survivorBonus = round(3 * sqrt(armyScore))`, where `armyScore` is the surviving player HP
+(+4 per aircraft, +5 per castle). This is usually 20-35 gold. The original game paid 4 gold
+per point, often 300+ gold per win, which made reinforcement prices meaningless.
 
 ## 7. Player level
 
@@ -194,7 +213,7 @@ player units start with + a temporary shield hit (absorbs one hit each), at a >=
   prompt waits for the action or 8 seconds. All are skippable, and replayable from settings.
 - **Contextual tips:** the first time a mechanic appears (new unit, new biome hazard, boss,
   Rally), a one-line tip shows once, and is recorded in the save.
-- Stage 1 enemy budget is `B(1) = 60`, about the original average army, and the round is
+- Stage 1 enemy budget is `B(1) = 120`, about the original average army, and the round is
   fully playable without buying anything.
 
 ## 11. Save format

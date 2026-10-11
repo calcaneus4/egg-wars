@@ -45,7 +45,7 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 
 ## Progression
 
-Enemy units become stronger as stages increase, and the round timer grows longer at higher stages. Special blue units unlock as you advance:
+Enemy armies grow slowly and smoothly with each stage (a logarithmic curve, see `DESIGN.md`), and the round timer grows a little longer too. Special blue units unlock as you advance:
 
 - Stage 2: **Mega Knight**
 - Stage 4: **Fire Wizard**
@@ -81,6 +81,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/game.js` - the `Game` class (rules, battle loop, HUD)
 - `js/main.js` - startup, input and the frame loop
 - `tools/smoke-test.js` - headless check: `NODE_PATH=$(npm root -g) node tools/smoke-test.js`
+- `tools/balance-sim.js` - checks player power keeps up with difficulty: `node tools/balance-sim.js`
 
 See `ROADMAP.md`, `DESIGN.md` and `CHANGELOG.md` for the improvement plan.
 

@@ -7,6 +7,52 @@ const Progression = {
     return 1 + 0.45 * Math.log(1 + (Math.max(1, stage) - 1) / 4);
   },
 
+  // DESIGN.md section 3: enemy multipliers derived from D(n).
+  enemyHpScale(stage) {
+    return 1 + settings.enemyHpScaleFromDifficulty * (this.difficulty(stage) - 1);
+  },
+
+  enemyFireScale(stage) {
+    return 1 + settings.enemyFireScaleFromDifficulty * (this.difficulty(stage) - 1);
+  },
+
+  enemyBudget(stage) {
+    return settings.enemyBaseBudget * (1 + settings.enemyBudgetScaleFromDifficulty * (this.difficulty(stage) - 1));
+  },
+
+  roundSeconds(stage) {
+    const base = settings.roundBaseSeconds + settings.roundSecondsPerDifficulty * (this.difficulty(stage) - 1);
+    return base + rand(-settings.roundJitterSeconds, settings.roundJitterSeconds);
+  },
+
+  // Picks enemy unit types from a point budget. Returns a map type -> count.
+  buildArmy(budget, weights, caps) {
+    const costs = settings.unitThreatPoints;
+    const counts = {};
+    const add = (type) => {
+      counts[type] = (counts[type] || 0) + 1;
+      budget -= costs[type];
+    };
+    // The enemy always fields its castle when it can afford one (as in the original game).
+    if ((caps.castle || 0) > 0 && budget >= costs.castle) add("castle");
+    for (;;) {
+      const options = Object.keys(weights).filter((type) => costs[type] <= budget && (counts[type] || 0) < (caps[type] || 0));
+      if (!options.length) break;
+      const total = options.reduce((sum, type) => sum + weights[type], 0);
+      let roll = Math.random() * total;
+      let picked = options[options.length - 1];
+      for (const type of options) {
+        roll -= weights[type];
+        if (roll <= 0) {
+          picked = type;
+          break;
+        }
+      }
+      add(picked);
+    }
+    return counts;
+  },
+
   // DESIGN.md section 7: XP needed to go from level L to L + 1.
   xpToNext(level) {
     return 60 + 30 * (Math.max(1, level) - 1);
