@@ -93,7 +93,10 @@ class Game {
     this.selectedGameplayHint = "";
     this.roundKills = 0;
     this.roundRewards = null;
+    this.rally = Progression.rallyLevel(this.profile.lossStreak);
+    this.rallyTimer = this.rally ? 4 : 0;
     this.spawn();
+    this.applyRally();
     audio.play("start_reveille");
   }
 
@@ -172,8 +175,25 @@ class Game {
     };
   }
 
+  // Comeback assist (DESIGN.md section 9). Only active after 2+ losses in a row.
+  applyRally() {
+    if (!this.rally) return;
+    const p = this.profile;
+    // Bonus gold is paid once per loss streak value, so restarting a stage can't farm it.
+    if (p.rallyGoldStreak !== p.lossStreak) {
+      p.rallyGoldStreak = p.lossStreak;
+      this.rallyGold = Progression.rallyBonusGold(this.rally);
+      this.gold += this.rallyGold;
+      this.saveProfile();
+    } else {
+      this.rallyGold = 0;
+    }
+    this.addUnit(RIGHT, "tank");
+    if (this.rally >= 2) this.living(RIGHT).forEach((u) => { u.shield = 1; });
+  }
+
   spawnEnemyArmy() {
-    const budget = Progression.enemyBudget(this.stage);
+    const budget = Progression.enemyBudget(this.stage) * Progression.rallyBudgetScale(this.rally || 0);
     const counts = Progression.buildArmy(budget, settings.enemyBalancedWeights, this.enemyCaps());
     for (const [type, count] of Object.entries(counts)) this.addMany(LEFT, type, count);
   }
@@ -287,6 +307,10 @@ class Game {
     this.updateWreckage(dt);
     this.titleTimer = Math.max(0, this.titleTimer - dt);
     this.levelUpTimer = Math.max(0, (this.levelUpTimer || 0) - dt);
+    this.rallyTimer = Math.max(0, (this.rallyTimer || 0) - dt);
+    this.units.forEach((u) => {
+      if (u.shieldFlash > 0) u.shieldFlash = Math.max(0, u.shieldFlash - dt);
+    });
     if (this.noticeBubble) this.noticeBubble.timer = Math.max(0, this.noticeBubble.timer - dt);
     this.units.forEach((u) => {
       if (u.labelTimer !== undefined) u.labelTimer = Math.max(0, u.labelTimer - dt);
@@ -603,6 +627,7 @@ class Game {
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
       if (this.canSpeak(u)) drawSpeechBubble(u);
     });
+    this.drawShields();
     this.drawUnitLabels();
     this.drawProgressHud();
     this.drawTally();
@@ -610,6 +635,7 @@ class Game {
     this.drawStartTitle();
     if (this.winner) this.drawEnd();
     this.drawLevelUpBanner();
+    this.drawRallyBanner();
     drawScreenBorder();
   }
 
@@ -699,6 +725,42 @@ class Game {
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = LINE;
+  }
+
+  drawShields() {
+    ctx.save();
+    ctx.lineWidth = 2;
+    for (const u of this.units) {
+      if (!(u.shield > 0) && !(u.shieldFlash > 0)) continue;
+      const r = u.radius() + s(6);
+      ctx.strokeStyle = u.shieldFlash > 0 ? LINE : YOLK;
+      ctx.globalAlpha = u.shield > 0 ? 0.75 : u.shieldFlash / 0.35;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.arc(u.x, u.y - s(4), r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  drawRallyBanner() {
+    if (!this.rallyTimer || this.winner) return;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, this.rallyTimer / 0.6);
+    ctx.font = "bold 26px Courier New";
+    const goldText = this.rallyGold ? `  +$${this.rallyGold}` : "";
+    const shieldText = this.rally >= 2 ? "  +SHIELDS" : "";
+    const text = `RALLY! Your troops are fired up${goldText}  +1 TANK${shieldText}`;
+    const w = ctx.measureText(text).width + 32;
+    const x = (W - w) / 2;
+    ctx.fillStyle = PAPER;
+    ctx.strokeStyle = BLUE;
+    ctx.lineWidth = 3;
+    ctx.fillRect(x, 182, w, 40);
+    ctx.strokeRect(x, 182, w, 40);
+    ctx.fillStyle = BLUE;
+    ctx.fillText(text, x + 16, 210);
+    ctx.restore();
   }
 
   drawLevelUpBanner() {

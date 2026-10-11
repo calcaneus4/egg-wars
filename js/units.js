@@ -71,6 +71,11 @@ class Unit {
   }
 
   takeHit() {
+    if (this.shield > 0) {
+      this.shield--;
+      this.shieldFlash = 0.35;
+      return;
+    }
     this.hp -= 1;
     this.dead = this.hp <= 0;
   }

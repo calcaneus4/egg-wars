@@ -76,6 +76,19 @@ const Progression = {
 
   goldenEggsPerLevel: 3,
 
+  // DESIGN.md section 9: comeback assist level from the current loss streak (0 = none).
+  rallyLevel(lossStreak) {
+    return lossStreak >= 2 ? Math.min(3, lossStreak - 1) : 0;
+  },
+
+  rallyBudgetScale(rally) {
+    return 1 - 0.08 * rally;
+  },
+
+  rallyBonusGold(rally) {
+    return 15 * rally;
+  },
+
   // Adds XP to a profile ({ level, xp }) and returns the number of levels gained.
   addXp(profile, amount) {
     profile.xp += Math.max(0, Math.round(amount));

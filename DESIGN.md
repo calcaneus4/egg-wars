@@ -198,8 +198,9 @@ Let `s` be the number of losses in a row, and let `a = min(3, s - 1)` when `s >=
 
 ```
 enemy budget x (1 - 0.08 a)
-starting bonus gold + 15 a
-player units start with + a temporary shield hit (absorbs one hit each), at a >= 2
+starting bonus gold + 15 a      (paid once per streak value; restarting a stage doesn't repay it)
+one free extra tank             (a >= 1)
+every player unit starts with a shield that absorbs one hit   (a >= 2)
 ```
 
 - It is shown as "RALLY! Your troops are fired up" so it reads as encouragement, not pity.
