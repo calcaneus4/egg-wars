@@ -13,6 +13,7 @@ class Game {
     this.points = 0;
     this.stage = 1;
     this.unlockedNames = [];
+    this.scene = "title";
     this.loadProfile();
     this.lastUnlock = "";
     this.roundTime = 0;
@@ -36,6 +37,7 @@ class Game {
 
   loadProfile() {
     const data = SaveManager.load();
+    applyPlayerSettings();
     this.gold = data.profile.gold;
     this.stage = data.profile.stage;
     this.unlockedNames = [...data.profile.unlockedNames];
@@ -57,10 +59,25 @@ class Game {
   }
 
   newGame() {
+    const prefs = SaveManager.data.settings;
     SaveManager.reset();
+    SaveManager.data.settings = prefs;
+    SaveManager.save();
     this.loadProfile();
-    this.titleTimer = 2;
+    this.titleTimer = 0;
     this.startStage();
+  }
+
+  startBattle() {
+    this.scene = "battle";
+    this.titleTimer = 0;
+    this.startStage();
+  }
+
+  togglePause() {
+    if (this.scene === "battle") this.scene = "paused";
+    else if (this.scene === "paused") this.scene = "battle";
+    else if (this.scene === "settings") this.scene = Menus.returnScene;
   }
 
   count(max) {
@@ -304,6 +321,7 @@ class Game {
       c.x += c.speed * dt;
       if (c.x - 100 * c.scale > W) c.x = -100 * c.scale;
     });
+    if (this.scene !== "battle") return;
     this.updateWreckage(dt);
     this.titleTimer = Math.max(0, this.titleTimer - dt);
     this.levelUpTimer = Math.max(0, (this.levelUpTimer || 0) - dt);
@@ -629,18 +647,21 @@ class Game {
     });
     this.drawShields();
     this.drawUnitLabels();
-    this.drawProgressHud();
-    this.drawTally();
+    if (this.scene !== "title") {
+      this.drawProgressHud();
+      this.drawTally();
+    }
     this.drawNoticeBubble();
     this.drawStartTitle();
     if (this.winner) this.drawEnd();
     this.drawLevelUpBanner();
     this.drawRallyBanner();
+    if (this.scene !== "battle") Menus.draw(this);
     drawScreenBorder();
   }
 
   drawStartTitle() {
-    if (this.titleTimer <= 0 || this.winner) return;
+    if (this.titleTimer <= 0 || this.winner || this.scene !== "battle") return;
     ctx.save();
     ctx.globalAlpha = Math.min(1, this.titleTimer / 0.8);
     ctx.fillStyle = LINE;

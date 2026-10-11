@@ -17,9 +17,10 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 - Click the battlefield when `YOLK DROP READY` is active to drop a special egg attack.
 - Click the end-game screen to continue to the next stage or try again.
 - Press `R` to restart the current stage.
-- Press `Shift+N` to start a new game (erases saved progress).
+- Press `Esc` or `P` to pause (resume, restart, settings, title screen).
+- Press `M` to mute or unmute.
+- Settings (title screen or pause menu): volume, mute, color scheme, speech bubbles, screen shake, and New Game (erases saved progress).
 - Progress (stage, gold, unlocks, wins/losses) is saved automatically in the browser.
-- Press `Esc` to quit or pause, depending on version.
 
 ## Unit Buttons
 
@@ -78,6 +79,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/draw.js` - shared drawing helpers
 - `js/units.js` - unit classes
 - `js/projectiles.js` - eggs and splats
+- `js/menus.js` - title, pause and settings screens
 - `js/game.js` - the `Game` class (rules, battle loop, HUD)
 - `js/main.js` - startup, input and the frame loop
 - `tools/smoke-test.js` - headless check: `NODE_PATH=$(npm root -g) node tools/smoke-test.js`

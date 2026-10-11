@@ -37,7 +37,7 @@ class AudioFx {
   }
 
   tone(freq, duration, type = "square", volume = 0.05) {
-    if (!this.ctx || !this.unlocked || this.ctx.state === "suspended") return;
+    if (!this.ctx || !this.unlocked || this.ctx.state === "suspended" || settings.soundVolume <= 0) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = type;
@@ -54,8 +54,9 @@ class AudioFx {
     const soundName = this.aliases[name] || name;
     const sound = this.sounds[soundName];
     if (sound) {
+      if (settings.soundVolume <= 0) return;
       const player = sound.cloneNode();
-      player.volume = sound.volume;
+      player.volume = Math.min(1, settings.soundVolume / 3);
       player.play().catch(() => this.playFallback(soundName));
       return;
     }

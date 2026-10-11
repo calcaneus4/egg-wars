@@ -33,7 +33,7 @@ function clearHoldAdd() {
 }
 
 function addHeldButton() {
-  if (!holdAdd.button || game.winner) return;
+  if (!holdAdd.button || game.winner || game.scene !== "battle") return;
   game.buyUnit(holdAdd.button);
 }
 
@@ -50,6 +50,10 @@ canvas.addEventListener("pointerdown", (event) => {
   audio.ensure();
   clearHoldAdd();
   const point = canvasPoint(event);
+  if (game.scene !== "battle") {
+    Menus.click(game, point.x, point.y);
+    return;
+  }
   const button = game.buttonAt(point.x, point.y);
   if (!button || game.winner) {
     game.click(point.x, point.y);
@@ -71,9 +75,17 @@ canvas.addEventListener("lostpointercapture", clearHoldAdd);
 
 window.addEventListener("keydown", (event) => {
   unlockAudio();
-  if (event.key === "r" || event.key === "R") game.restart();
-  if (event.key === "Escape") game.winner = "PAUSED";
-  if (event.key === "N" && event.shiftKey && window.confirm("Start a new game? This erases your saved progress.")) game.newGame();
+  if (event.key === "Escape" || event.key === "p" || event.key === "P") {
+    clearHoldAdd();
+    game.togglePause();
+  }
+  if (event.key === "m" || event.key === "M") {
+    SaveManager.data.settings.muted = !SaveManager.data.settings.muted;
+    applyPlayerSettings();
+    SaveManager.save();
+  }
+  if ((event.key === "r" || event.key === "R") && game.scene === "battle") game.restart();
+  if ((event.key === "Enter" || event.key === " ") && game.scene === "title") game.startBattle();
 });
 
 requestAnimationFrame(frame);

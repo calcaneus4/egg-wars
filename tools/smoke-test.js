@@ -18,6 +18,9 @@ const { chromium } = require("playwright");
   const url = "file://" + path.resolve(__dirname, "..", "index.html");
   await page.goto(url);
   await page.waitForTimeout(500);
+  // Leave the title screen through its PLAY/CONTINUE button.
+  await page.evaluate(() => Menus.buttons[0].action());
+  await page.waitForTimeout(200);
   const box = await page.locator("canvas").boundingBox();
   for (let i = 0; i < seconds * 2; i++) {
     await page.mouse.click(box.x + box.width * (0.2 + 0.6 * Math.random()), box.y + box.height * 0.5);
