@@ -1,0 +1,781 @@
+"use strict";
+
+class Game {
+  constructor() {
+    this.terrain = new Terrain();
+    this.units = [];
+    this.eggs = [];
+    this.splats = [];
+    this.wreckage = [];
+    this.buttons = [];
+    this.score = { blue: 0, red: 0 };
+    this.gold = 0;
+    this.points = 0;
+    this.stage = 1;
+    this.unlockedNames = [];
+    this.lastUnlock = "";
+    this.roundTime = 0;
+    this.roundLimit = this.nextRoundLimit();
+    this.powerUpCooldown = 0;
+    this.resultMode = "battle";
+    this.lastGoldReward = 0;
+    this.lastGoldBonus = 0;
+    this.noticeBubble = null;
+    this.selectedGameplayHint = "";
+    this.titleTimer = 2;
+    this.winner = null;
+    this.endGameTitle = "";
+    this.clouds = [
+      { x: 305, y: 164, scale: 1, speed: 8 },
+      { x: 780, y: 156, scale: 0.86, speed: 5.5 },
+      { x: 1030, y: 214, scale: 0.72, speed: 6.8 },
+    ];
+    this.startStage();
+  }
+
+  count(max) {
+    return Math.ceil(max * (1 - rand(0, settings.countReduction)));
+  }
+
+  aircraftCount(max) {
+    const low = Math.max(0, Math.floor(settings.aircraftCountMin));
+    const high = Math.max(low, Math.floor(max));
+    return low + Math.floor(Math.random() * (high - low + 1));
+  }
+
+  nextRoundLimit() {
+    const stageBonus = Math.max(0, this.stage) * settings.roundSecondsPerStage;
+    return rand(settings.roundMinSeconds + stageBonus, settings.roundMaxSeconds + stageBonus);
+  }
+
+  startStage() {
+    this.terrain.regenerate();
+    this.units = [];
+    this.eggs = [];
+    this.splats = [];
+    this.wreckage = [];
+    this.winner = null;
+    this.endGameTitle = "";
+    this.resultMode = "battle";
+    this.roundTime = 0;
+    this.roundLimit = this.nextRoundLimit();
+    this.powerUpCooldown = 0;
+    this.noticeBubble = null;
+    this.selectedGameplayHint = "";
+    this.spawn();
+    audio.play("start_reveille");
+  }
+
+  spawn() {
+    this.units = [];
+    this.addMany(RIGHT, "tank", this.count(settings.maxLeftTanks));
+    this.addMany(RIGHT, "motorcycle", this.count(settings.maxLeftMotorcycles));
+    this.addMany(RIGHT, "airplane", this.aircraftCount(settings.maxLeftAirplanes));
+    this.addMany(RIGHT, "bomber", this.aircraftCount(settings.maxLeftBombers));
+    this.addMany(RIGHT, "helicopter", this.aircraftCount(settings.maxLeftHelicopters));
+    this.addMany(RIGHT, "drone", this.count(settings.maxLeftDrones));
+    this.addMany(RIGHT, "castle", this.count(settings.maxLeftCastles));
+    this.addMany(RIGHT, "soldier", this.count(settings.maxLeftSoldiers));
+    this.addMany(LEFT, "tank", this.count(settings.maxRightTanks));
+    this.addMany(LEFT, "motorcycle", this.count(settings.maxRightMotorcycles));
+    this.addMany(LEFT, "airplane", this.aircraftCount(settings.maxRightAirplanes));
+    this.addMany(LEFT, "bomber", this.aircraftCount(settings.maxRightBombers));
+    this.addMany(LEFT, "helicopter", this.aircraftCount(settings.maxRightHelicopters));
+    this.addMany(LEFT, "drone", this.count(settings.maxRightDrones));
+    this.addMany(LEFT, "castle", this.count(settings.maxRightCastles));
+    this.addMany(LEFT, "soldier", this.count(settings.maxRightSoldiers));
+    this.addUnlockedPlayerUnits();
+    this.scaleEnemiesForStage();
+    const blue = this.living(RIGHT);
+    const red = this.living(LEFT);
+    if (!blue.length || !red.length) this.finishRound(blue.length > 0, red.length === 0);
+  }
+
+  addUnlockedPlayerUnits() {
+    if (this.unlockedNames.includes("Mega Knight")) {
+      const knight = new Tank(s(315), RIGHT, this.terrain);
+      knight.hp += 6;
+      knight.fireRate *= 1.6;
+      knight.label = "Mega Knight";
+      knight.labelTimer = settings.specialUnitLabelSeconds;
+      this.scaleSpecialUnit(knight);
+      this.units.push(knight);
+    }
+    if (this.unlockedNames.includes("Fire Wizard")) {
+      const wizard = new Soldier(s(185), RIGHT, this.terrain);
+      wizard.hp = 3;
+      wizard.fireRate = 0.42;
+      wizard.label = "Fire Wizard";
+      wizard.labelTimer = settings.specialUnitLabelSeconds;
+      this.scaleSpecialUnit(wizard);
+      this.units.push(wizard);
+    }
+    if (this.unlockedNames.includes("Yolk Bomber")) {
+      const bomber = new Bomber(-s(240), RIGHT, this.terrain, 3);
+      bomber.hp += 2;
+      bomber.bombBurst += 6;
+      bomber.label = "Yolk Bomber";
+      bomber.labelTimer = settings.specialUnitLabelSeconds;
+      this.scaleSpecialUnit(bomber);
+      this.units.push(bomber);
+    }
+  }
+
+  scaleSpecialUnit(unit) {
+    const scale = settings.specialUnitVisualScale;
+    unit.visualScale = scale;
+    unit.size *= scale;
+    if (unit.wheelOffsets) {
+      unit.wheelOffsets = unit.wheelOffsets.map((offset) => offset * scale);
+      unit.wheelRadius *= scale;
+      unit.maxWheelSpan *= scale;
+      unit.visualWheelYs = unit.targetWheelYs();
+      unit.visualAngle = unit.targetBodyAngle();
+      unit.visualCenterY = unit.targetCenterY();
+    }
+  }
+
+  scaleEnemiesForStage() {
+    const hpScale = 1 + (this.stage - 1) * settings.enemyHpScalePerStage;
+    const fireScale = 1 + (this.stage - 1) * settings.enemyFireScalePerStage;
+    this.units.forEach((u) => {
+      if (u.side !== LEFT) return;
+      u.hp = Math.max(1, Math.ceil(u.hp * hpScale));
+      u.fireRate *= fireScale;
+    });
+  }
+
+  updateUnlocks() {
+    this.lastUnlock = "";
+    settings.unlocks.forEach((unlock) => {
+      if (this.stage >= unlock.stage && !this.unlockedNames.includes(unlock.name)) {
+        this.unlockedNames.push(unlock.name);
+        this.lastUnlock = unlock.name;
+      }
+    });
+  }
+
+  armyScore(units) {
+    return units.reduce((sum, u) => sum + Math.max(0, u.hp) + (u instanceof Airplane ? 4 : 0) + (u instanceof Castle ? 5 : 0), 0);
+  }
+
+  finishRound(blueWon, fullDestruction = false) {
+    if (this.winner) return;
+    this.resultMode = blueWon ? "won" : "lost";
+    this.winner = blueWon ? "BLUE TEAM WINS" : "RED TEAM WINS";
+    this.endGameTitle = settings.endGameTitles.length ? choice(settings.endGameTitles) : "";
+    this.selectedGameplayHint = settings.gameplayHints.length ? choice(settings.gameplayHints) : "";
+    this.lastGoldReward = 0;
+    this.lastGoldBonus = 0;
+    if (blueWon) {
+      let reward = settings.goldWinBase + this.stage * settings.goldPerStage;
+      if (fullDestruction) {
+        this.lastGoldBonus = settings.fullDestructionGoldBonus;
+        reward += this.lastGoldBonus;
+      }
+      const bonus = settings.scoreWinBase * this.stage + Math.round(this.armyScore(this.living(RIGHT)) * 4);
+      reward += bonus;
+      this.gold += reward;
+      this.lastGoldReward = reward;
+      if (settings.showScore) this.points += bonus;
+      this.score.blue++;
+      this.stage++;
+      this.updateUnlocks();
+    } else {
+      if (settings.goldLossConsolation > 0) {
+        this.gold += settings.goldLossConsolation;
+        this.lastGoldReward = settings.goldLossConsolation;
+      }
+      this.score.red++;
+    }
+    audio.play(blueWon ? "end_jingle" : "sad_jingle");
+  }
+
+  addMany(side, type, count) {
+    for (let i = 0; i < count; i++) this.addUnit(side, type);
+  }
+
+  addUnit(side, type) {
+    const n = this.units.filter((u) => u.side === side && unitType(u) === type).length;
+    if (side === RIGHT) {
+      if (type === "tank") this.units.push(new Tank(s(255) - n * s(64), side, this.terrain));
+      if (type === "motorcycle") this.units.push(new Motorcycle(s(197) - n * s(46), side, this.terrain));
+      if (type === "airplane") this.units.push(new Airplane(-s(70) - n * s(125), side, this.terrain, n));
+      if (type === "bomber") this.units.push(new Bomber(-s(150) - n * s(145), side, this.terrain, n));
+      if (type === "helicopter") this.units.push(new Helicopter(s(120) - n * s(95), side, this.terrain, n));
+      if (type === "drone") this.units.push(new Drone(s(72) - n * s(18), side, this.terrain, n));
+      if (type === "castle") this.units.push(new Castle(s(86) - n * s(76), side, this.terrain));
+      if (type === "soldier") this.units.push(new Soldier(s(140) - n * s(18), side, this.terrain));
+    } else {
+      if (type === "tank") this.units.push(new Tank(W - s(255) + n * s(64), side, this.terrain));
+      if (type === "motorcycle") this.units.push(new Motorcycle(W - s(197) + n * s(46), side, this.terrain));
+      if (type === "airplane") this.units.push(new Airplane(W + s(70) + n * s(125), side, this.terrain, n));
+      if (type === "bomber") this.units.push(new Bomber(W + s(150) + n * s(145), side, this.terrain, n));
+      if (type === "helicopter") this.units.push(new Helicopter(W - s(120) + n * s(95), side, this.terrain, n));
+      if (type === "drone") this.units.push(new Drone(W - s(72) + n * s(18), side, this.terrain, n));
+      if (type === "castle") this.units.push(new Castle(W - s(86) + n * s(76), side, this.terrain));
+      if (type === "soldier") this.units.push(new Soldier(W - s(140) + n * s(18), side, this.terrain));
+    }
+  }
+
+  update(dt) {
+    this.clouds.forEach((c) => {
+      c.x += c.speed * dt;
+      if (c.x - 100 * c.scale > W) c.x = -100 * c.scale;
+    });
+    this.updateWreckage(dt);
+    this.titleTimer = Math.max(0, this.titleTimer - dt);
+    if (this.noticeBubble) this.noticeBubble.timer = Math.max(0, this.noticeBubble.timer - dt);
+    this.units.forEach((u) => {
+      if (u.labelTimer !== undefined) u.labelTimer = Math.max(0, u.labelTimer - dt);
+    });
+    if (this.winner) return;
+    this.roundTime += dt;
+    this.powerUpCooldown = Math.max(0, this.powerUpCooldown - dt);
+
+    const blue = this.living(RIGHT);
+    const red = this.living(LEFT);
+    if (!blue.length || !red.length) {
+      this.finishRound(blue.length > 0, red.length === 0);
+      return;
+    }
+    if (this.roundTime >= this.roundLimit) {
+      this.finishRound(this.armyScore(blue) >= this.armyScore(red), false);
+      return;
+    }
+
+    for (const u of this.living()) {
+      const enemies = u.side === RIGHT ? red : blue;
+      if (this.canSpeak(u)) u.updateSpeech(dt);
+      u.move(dt, enemies);
+      if (u instanceof Drone && u.impactTarget) {
+        this.detonateDrone(u, u.impactTarget);
+        continue;
+      }
+      if (u instanceof Drone) continue;
+      if (u.ready(dt)) this.fire(u, enemies);
+    }
+
+    for (const e of [...this.eggs]) {
+      e.update(dt);
+      const enemies = e.side === RIGHT ? red : blue;
+      for (const t of enemies) {
+        if (dist(e.x, e.y, t.x, t.y) <= e.radius + t.radius()) {
+          t.takeHit();
+          this.maybeSay(t, settings.speechHitComments, 1.05);
+          if (t.dead) {
+            this.playUnitDestroyed(t);
+            this.addWreckage(t);
+          } else {
+            this.playUnitHit(t);
+          }
+          if (e.burst) this.burst(e, e.x, e.y, false);
+          this.removeEgg(e);
+          break;
+        }
+      }
+      if (!this.eggs.includes(e)) continue;
+      if (e.vy > 0 && e.y + e.radius >= this.terrain.yAt(e.x)) {
+        if (e.burst) this.burst(e, e.x, this.terrain.yAt(e.x), true);
+        else this.addTerrainSplat(e.x);
+        this.removeEgg(e);
+      }
+      if (e.x < -80 || e.x > W + 80 || e.y > H + 80) this.removeEgg(e);
+    }
+
+    this.units = this.units.filter((u) => !u.dead);
+  }
+
+  detonateDrone(drone, target) {
+    if (drone.dead || target.dead) return;
+    target.takeHit();
+    this.maybeSay(target, settings.speechHitComments, 1.05);
+    this.playUnitHit(target);
+    if (target.dead) {
+      this.playUnitDestroyed(target);
+      this.addWreckage(target);
+    }
+    drone.dead = true;
+    this.playUnitDestroyed(drone);
+    this.addWreckage(drone);
+    for (let i = 0; i < drone.bombBurst; i++) {
+      const angle = (145 - i * 70) * Math.PI / 180;
+      const speed = rand(105, 145);
+      this.eggs.push(new Egg(
+        drone.x,
+        drone.y,
+        Math.cos(angle) * speed,
+        -Math.abs(Math.sin(angle) * speed) - rand(10, 45),
+        drone.side,
+      ));
+    }
+  }
+
+  addWreckage(unit) {
+    if (!settings.showWreckage) return;
+    if (unit instanceof Airplane) {
+      this.addAircraftDebris(unit);
+      return;
+    }
+    let kind = null;
+    if (unit instanceof Tank) kind = "tank";
+    if (unit instanceof Motorcycle) kind = "motorcycle";
+    if (unit instanceof Castle) kind = "castle";
+    if (!kind) return;
+    this.wreckage.push({ kind, x: unit.x, y: this.terrain.yAt(unit.x) });
+    this.wreckage = this.wreckage.slice(-80);
+  }
+
+  addAircraftDebris(unit) {
+    const count = unit instanceof Drone ? 3 : unit instanceof Bomber ? 7 : 5;
+    const baseSpeed = unit.speed * unit.direction();
+    for (let i = 0; i < count; i++) {
+      this.wreckage.push({
+        kind: "air_debris",
+        x: unit.x + rand(-s(18), s(18)),
+        y: unit.y + rand(-s(10), s(10)),
+        vx: baseSpeed * rand(0.25, 0.75) + rand(-55, 55),
+        vy: rand(-80, 25),
+        angle: rand(0, Math.PI * 2),
+        spin: rand(-4.5, 4.5),
+        length: rand(14, 34),
+        landed: false,
+      });
+    }
+    this.wreckage = this.wreckage.slice(-100);
+  }
+
+  updateWreckage(dt) {
+    if (!settings.showWreckage) return;
+    for (const w of this.wreckage) {
+      if (w.kind !== "air_debris" || w.landed) continue;
+      w.x += w.vx * dt;
+      w.y += w.vy * dt;
+      w.vy += GRAVITY * dt;
+      w.angle += w.spin * dt;
+      const surfaceY = this.terrain.yAt(w.x);
+      if (w.y >= surfaceY) {
+        w.y = surfaceY;
+        w.vx = 0;
+        w.vy = 0;
+        w.spin = 0;
+        w.landed = true;
+      }
+    }
+  }
+
+  living(side = null) {
+    return this.units.filter((u) => !u.dead && (side === null || u.side === side));
+  }
+
+  canSpeak(u) {
+    return settings.speechBubbleFrequency > 0 && !(u instanceof Airplane);
+  }
+
+  maybeSay(u, comments, duration = 1.2) {
+    if (comments.length && this.canSpeak(u) && Math.random() < Math.min(1, settings.speechBubbleFrequency)) {
+      u.say(choice(comments), duration);
+    }
+  }
+
+  fire(u, enemies) {
+    if (!enemies.length) return;
+    if (u instanceof Helicopter) {
+      const enemyAir = enemies.filter((e) => e instanceof Airplane);
+      const enemyGroundGone = !enemies.some((e) => e instanceof Castle || e instanceof Tank || e instanceof Motorcycle || e instanceof Soldier);
+      if (enemyAir.length && enemyGroundGone) return this.shootAir(u, enemyAir);
+      return this.dropHelicopterBomb(u, enemies);
+    }
+    if (u instanceof Airplane) {
+      const enemyAir = enemies.filter((e) => e instanceof Airplane);
+      const enemyGroundGone = !enemies.some((e) => e instanceof Castle || e instanceof Tank || e instanceof Motorcycle || e instanceof Soldier);
+      if (enemyAir.length && enemyGroundGone) return this.shootAir(u, enemyAir);
+      return this.dropBomb(u, enemies);
+    }
+    const targets = this.targetsInRangeFor(u, enemies);
+    if (!targets.length) {
+      u.fireClock = 0.08;
+      return;
+    }
+    const target = targets.reduce((a, b) => Math.abs(a.x - u.x) < Math.abs(b.x - u.x) ? a : b);
+    const [sx, sy] = u.muzzle();
+    const tx = target.x + rand(-16, 16);
+    const ty = target.y - target.size * 0.55 + rand(-12, 10);
+    const t = clamp(Math.abs(tx - sx) / rand(215, 275), 0.85, 2.6);
+    const vx = (tx - sx) / t;
+    const vy = (ty - sy - 0.5 * GRAVITY * t * t) / t;
+    if (u.aim) u.aim(vx, vy);
+    this.eggs.push(new Egg(sx, sy, vx, vy, u.side, u instanceof Castle ? u.bombBurst : u instanceof Tank ? 3 : 0));
+    this.maybeSay(u, settings.speechFireComments, 0.95);
+    audio.play("fire");
+  }
+
+  projectileRangeMultiplierFor(u) {
+    if (u instanceof Motorcycle) return settings.motorcycleProjectileRangeMultiplier;
+    if (u instanceof Soldier) return settings.soldierProjectileRangeMultiplier;
+    return 1;
+  }
+
+  targetsInRangeFor(u, enemies) {
+    const rangeMultiplier = this.projectileRangeMultiplierFor(u);
+    if (rangeMultiplier >= 1) return enemies;
+    const maxRange = W * rangeMultiplier;
+    return enemies.filter((enemy) => Math.abs(enemy.x - u.x) <= maxRange);
+  }
+
+  dropHelicopterBomb(u, enemies) {
+    const ground = enemies.filter((e) => e instanceof Castle || e instanceof Tank || e instanceof Motorcycle || e instanceof Soldier);
+    const targets = ground.length ? ground : enemies;
+    const [sx, sy] = u.bombBay();
+    const target = targets.reduce((a, b) => Math.abs(a.x - sx) + Math.abs(a.y - sy) < Math.abs(b.x - sx) + Math.abs(b.y - sy) ? a : b);
+    const dx = target.x + rand(-s(12), s(12)) - sx;
+    const dy = target.y - target.size * 0.25 - sy;
+    const time = clamp(Math.sqrt(Math.abs(dy) / GRAVITY) * 1.45, 0.6, 1.8);
+    const vx = clamp(dx / time, -u.bombSpeed, u.bombSpeed);
+    const vy = (dy - 0.5 * GRAVITY * time * time) / time;
+    this.eggs.push(new Egg(sx, sy, vx, vy, u.side, u.bombBurst));
+    this.maybeSay(u, settings.speechFireComments, 0.95);
+    audio.play("fire");
+  }
+
+  dropBomb(u, enemies) {
+    const [sx, sy] = u.bombBay();
+    const vx = u.side * u.bombSpeed;
+    const ground = enemies.filter((e) => e instanceof Castle || e instanceof Tank || e instanceof Motorcycle || e instanceof Soldier);
+    const targets = ground.length ? ground : enemies;
+    const candidates = targets.map((target) => {
+      const dx = target.x - sx;
+      if (dx * u.side <= 0) return null;
+      const time = dx / vx;
+      const vy = (target.y - sy - 0.5 * GRAVITY * time * time) / time;
+      return vy >= -55 && vy <= 95 ? { vy, score: Math.abs(vy - 20) } : null;
+    }).filter(Boolean);
+    if (!candidates.length) {
+      u.fireClock = 0.08;
+      return;
+    }
+    candidates.sort((a, b) => a.score - b.score);
+    this.eggs.push(new Egg(sx, sy, vx, candidates[0].vy, u.side, u.bombBurst));
+    this.maybeSay(u, settings.speechFireComments, 0.95);
+    audio.play("fire");
+  }
+
+  shootAir(u, enemies) {
+    const close = enemies.filter((e) => dist(e.x, e.y, u.x, u.y) <= settings.airplaneFireRange);
+    if (!close.length) {
+      u.fireClock = 0.08;
+      return;
+    }
+    const target = close[0];
+    const [sx, sy] = u.muzzle();
+    const tx = target.x + rand(-settings.airplaneShotSpread, settings.airplaneShotSpread);
+    const ty = target.y + rand(-settings.airplaneShotSpread * 0.6, settings.airplaneShotSpread * 0.6);
+    const d = Math.max(1, Math.hypot(tx - sx, ty - sy));
+    this.eggs.push(new Egg(sx, sy, (tx - sx) / d * settings.airplaneShotSpeed, (ty - sy) / d * settings.airplaneShotSpeed, u.side));
+    this.maybeSay(u, settings.speechFireComments, 0.95);
+    audio.play("fire");
+  }
+
+  burst(egg, x, y, leaveSplat) {
+    if (leaveSplat) this.splats.push(new Splat(x, y + rand(0, s(10)), this.terrain.slopeAt(x)));
+    for (let i = 0; i < egg.burst; i++) {
+      const p = i / Math.max(1, egg.burst - 1);
+      const angle = (160 - p * 140) * Math.PI / 180;
+      const speed = rand(115, 175);
+      this.eggs.push(new Egg(x, y - egg.radius, Math.cos(angle) * speed, -Math.abs(Math.sin(angle) * speed) - rand(20, 65), egg.side));
+    }
+    audio.play("egg_splat");
+  }
+
+  addTerrainSplat(x) {
+    const surfaceY = this.terrain.yAt(x);
+    this.splats.push(new Splat(x, surfaceY + rand(0, s(10)), this.terrain.slopeAt(x)));
+    this.splats = this.splats.slice(-90);
+    audio.play("egg_splat");
+  }
+
+  playUnitDestroyed(unit) {
+    if (unit instanceof Soldier) audio.play("soldier_destroyed");
+    else audio.play("tank_destroyed");
+  }
+
+  playUnitHit(unit) {
+    if (unit instanceof Soldier) audio.play("soldier_hit");
+    else audio.play("tank_hit");
+  }
+
+  dropPowerUp(x) {
+    if (this.winner || this.powerUpCooldown > 0) return false;
+    const targetX = clamp(x, s(40), W - s(40));
+    this.eggs.push(new Egg(targetX, 72, rand(-18, 18), 30, RIGHT, settings.powerUpBurst));
+    this.powerUpCooldown = settings.powerUpCooldown;
+    audio.play("fire");
+    return true;
+  }
+
+  removeEgg(e) {
+    const i = this.eggs.indexOf(e);
+    if (i >= 0) this.eggs.splice(i, 1);
+  }
+
+  draw() {
+    ctx.fillStyle = PAPER;
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(1010, 130, 36, 0, Math.PI * 2);
+    ctx.stroke();
+    this.clouds.forEach((c) => drawCloud(c.x, c.y, c.scale));
+    this.terrain.draw();
+    this.splats.forEach((splat) => splat.draw());
+    if (settings.showWreckage) this.wreckage.forEach((w) => drawWreckage(w));
+    this.eggs.forEach((e) => e.draw());
+    this.units.sort((a, b) => a.y - b.y).forEach((u) => u.draw());
+    this.units.sort((a, b) => a.y - b.y).forEach((u) => {
+      if (this.canSpeak(u)) drawSpeechBubble(u);
+    });
+    this.drawUnitLabels();
+    this.drawProgressHud();
+    this.drawTally();
+    this.drawNoticeBubble();
+    this.drawStartTitle();
+    if (this.winner) this.drawEnd();
+    drawScreenBorder();
+  }
+
+  drawStartTitle() {
+    if (this.titleTimer <= 0 || this.winner) return;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, this.titleTimer / 0.8);
+    ctx.fillStyle = LINE;
+    ctx.font = "bold 54px Courier New";
+    centerText("EGG WARS", H / 2);
+    ctx.restore();
+  }
+
+  drawNoticeBubble() {
+    if (!this.noticeBubble || this.noticeBubble.timer <= 0) return;
+    ctx.font = "bold 18px Courier New";
+    const padX = 8;
+    const padY = 5;
+    const text = this.noticeBubble.text;
+    const textW = ctx.measureText(text).width;
+    const bubbleW = textW + padX * 2;
+    const bubbleH = 30;
+    const x = clamp(this.noticeBubble.x - bubbleW / 2, 8, W - bubbleW - 8);
+    const y = clamp(this.noticeBubble.y, 8, H - bubbleH - 8);
+    ctx.fillStyle = PAPER;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 2;
+    ctx.fillRect(x, y, bubbleW, bubbleH);
+    ctx.strokeRect(x, y, bubbleW, bubbleH);
+    const tailX = clamp(this.noticeBubble.x, x + 8, x + bubbleW - 8);
+    ctx.beginPath();
+    ctx.moveTo(tailX - 5, y + 1);
+    ctx.lineTo(tailX + 5, y + 1);
+    ctx.lineTo(tailX, y - 7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = LINE;
+    ctx.fillText(text, x + padX, y + bubbleH - padY - 4);
+  }
+
+  drawProgressHud() {
+    ctx.font = "bold 20px Courier New";
+    ctx.fillStyle = LINE;
+    const timeLeft = Math.max(0, Math.ceil(this.roundLimit - this.roundTime));
+    const scoreText = settings.showScore ? `   SCORE ${this.points}` : "";
+    centerText(`STAGE ${this.stage}   GOLD $ ${this.gold}${scoreText}   TIME ${timeLeft}`, 104);
+    ctx.font = "bold 18px Courier New";
+    const power = this.powerUpCooldown <= 0 ? "YOLK DROP READY" : `YOLK DROP ${this.powerUpCooldown.toFixed(1)}s`;
+    centerText(`Tap battlefield: ${power}`, H - 22);
+    if (this.lastUnlock && !this.winner) {
+      ctx.font = "bold 20px Courier New";
+      centerText(`UNLOCKED: ${this.lastUnlock}`, 132);
+    }
+  }
+
+  drawUnitLabels() {
+    ctx.font = "bold 14px Courier New";
+    ctx.fillStyle = LINE;
+    this.units.forEach((u) => {
+      if (!u.label || !u.labelTimer) return;
+      const width = ctx.measureText(u.label).width;
+      ctx.fillText(u.label, u.x - width / 2, u.y - u.radius() - 12);
+    });
+  }
+
+  drawTally() {
+    this.buttons = [];
+    this.drawTeamTally("BLUE", RIGHT, 24, 20, true);
+    this.drawTeamTally("RED", LEFT, W - this.tallyWidth("RED", false) - 24, 20, false);
+  }
+
+  drawTeamTally(label, side, x, y, buttons) {
+    const rows = [
+      [["C", "castle"], ["B", "bomber"], ["H", "helicopter"], ["A", "airplane"]],
+      [["T", "tank"], ["M", "motorcycle"], ["S", "soldier"], ["D", "drone"]],
+    ];
+    drawText(label, x, y);
+    const labelWidth = ctx.measureText(label + "  ").width;
+    rows.forEach((types, row) => {
+      let rowX = row === 0 ? x + labelWidth : x;
+      const rowY = y + row * 28;
+      for (const [letter, type] of types) {
+        const rect = { x: rowX, y: rowY - 17, w: 28, h: 28, side, type };
+        if (buttons) {
+          ctx.strokeStyle = LINE;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+          drawText(letter, rowX + 8, rowY);
+          this.buttons.push(rect);
+          rowX += rect.w + 8;
+          const meta = ` ${this.units.filter((u) => u.side === side && unitType(u) === type).length} $${settings.unitSpawnCosts[type]} `;
+          drawText(meta, rowX, rowY);
+          rowX += ctx.measureText(meta).width + 18;
+        } else {
+          const meta = `${letter}:${this.units.filter((u) => u.side === side && unitType(u) === type).length} `;
+          drawText(meta, rowX, rowY);
+          rowX += ctx.measureText(meta).width + 14;
+        }
+      }
+    });
+  }
+
+  tallyWidth(label, buttons = true) {
+    ctx.font = "bold 22px Courier New";
+    const rows = [
+      [["C", "castle"], ["B", "bomber"], ["H", "helicopter"], ["A", "airplane"]],
+      [["T", "tank"], ["M", "motorcycle"], ["S", "soldier"], ["D", "drone"]],
+    ];
+    const rowWidth = (types) => types.reduce((width, [letter, type]) => {
+      if (!buttons) return width + ctx.measureText(`${letter}:00 `).width + 14;
+      return width + 28 + 8 + ctx.measureText(` 00 $${settings.unitSpawnCosts[type]} `).width + 18;
+    }, 0);
+    const firstRow = ctx.measureText(label + "  ").width + rowWidth(rows[0]);
+    const secondRow = rowWidth(rows[1]);
+    return Math.max(firstRow, secondRow);
+  }
+
+  drawEnd() {
+    ctx.fillStyle = rgbaFromHex(PAPER, 0.9);
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = LINE;
+    ctx.font = "bold 44px Courier New";
+    centerText(this.winner, H / 2 - 62);
+    ctx.font = "bold 22px Courier New";
+    if (this.endGameTitle) centerText(this.endGameTitle, H / 2 - 12);
+    const bonusText = this.lastGoldBonus ? `   WIPEOUT BONUS +${this.lastGoldBonus}` : "";
+    const rewardText = this.lastGoldReward ? `   REWARD +${this.lastGoldReward}${bonusText}` : "";
+    const scoreText = settings.showScore ? `   SCORE ${this.points}` : "";
+    const shownStage = this.resultMode === "won" ? this.stage - 1 : this.stage;
+    centerText(`STAGE ${shownStage}   GOLD $ ${this.gold}${scoreText}${rewardText}`, H / 2 + 32);
+    centerText(`TOTAL WINS  BLUE ${this.score.blue}   RED ${this.score.red}`, H / 2 + 64);
+    if (this.resultMode === "won" && this.lastUnlock) centerText(`NEW UNIT: ${this.lastUnlock}`, H / 2 + 96);
+    const prompt = this.resultMode === "lost" ? "Click to Try Again" : "Click for Next Stage";
+    centerText(prompt, H / 2 + (this.resultMode === "won" && this.lastUnlock ? 130 : 96));
+    this.drawEndTextPanel("Unit Keys", settings.unitLegend, 52, 206, 300);
+    this.drawEndTextPanel("Battle Tip", [this.selectedGameplayHint], W - 345, 206, 285);
+    ctx.font = "bold 14px Courier New";
+    ctx.fillStyle = LINE;
+    const credit = "EGG WARS © copyright 2026. Created by Michael K. Davis, MD.";
+    ctx.fillText(credit, W - ctx.measureText(credit).width - 18, H - 18);
+  }
+
+  drawEndTextPanel(title, lines, x, y, maxWidth = 300) {
+    ctx.font = "bold 22px Courier New";
+    ctx.fillStyle = LINE;
+    drawText(title, x, y);
+    ctx.font = "bold 18px Courier New";
+    let lineY = y + 34;
+    lines.forEach((line) => {
+      this.wrapText(line, maxWidth).forEach((wrappedLine) => {
+        drawText(wrappedLine, x, lineY);
+        lineY += 28;
+      });
+    });
+  }
+
+  wrapText(text, maxWidth) {
+    const words = String(text || "").split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+    const lines = [];
+    let current = "";
+    for (const word of words) {
+      if (ctx.measureText(word).width > maxWidth) {
+        if (current) {
+          lines.push(current);
+          current = "";
+        }
+        lines.push(...this.splitLongWord(word, maxWidth));
+        continue;
+      }
+      if (!current) {
+        current = word;
+        continue;
+      }
+      const candidate = `${current} ${word}`;
+      if (ctx.measureText(candidate).width <= maxWidth) current = candidate;
+      else {
+        lines.push(current);
+        current = word;
+      }
+    }
+    if (current) lines.push(current);
+    return lines;
+  }
+
+  splitLongWord(word, maxWidth) {
+    const parts = [];
+    let current = "";
+    for (const char of word) {
+      const candidate = current + char;
+      if (current && ctx.measureText(candidate).width > maxWidth) {
+        parts.push(current);
+        current = char;
+      } else {
+        current = candidate;
+      }
+    }
+    if (current) parts.push(current);
+    return parts;
+  }
+
+  click(x, y) {
+    if (this.winner) {
+      this.startStage();
+      return;
+    }
+    const b = this.buttonAt(x, y);
+    if (b) this.buyUnit(b);
+    else this.dropPowerUp(x);
+  }
+
+  buyUnit(button) {
+    if (button.side !== RIGHT) return;
+    const cost = settings.unitSpawnCosts[button.type] || 0;
+    if (this.gold < cost) {
+      const bubbleX = Number.isFinite(button.x) ? button.x + button.w / 2 : 120;
+      const bubbleY = Number.isFinite(button.y) ? button.y + button.h + 8 : 72;
+      this.noticeBubble = {
+        text: "Not enough gold.",
+        x: bubbleX,
+        y: bubbleY,
+        timer: 1.25,
+      };
+      return;
+    }
+    this.gold -= cost;
+    this.addUnit(button.side, button.type);
+  }
+
+  buttonAt(x, y) {
+    return this.buttons.find((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
+  }
+
+  restart() {
+    this.startStage();
+  }
+}

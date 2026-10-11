@@ -53,30 +53,32 @@ Fast full-destruction victories earn bonus gold.
 
 ## Style and Features
 
-Egg Wars uses simple line-art visuals, randomly generated terrain, moving clouds, retro sound effects, egg splatter residue, wreckage debris, speech bubbles, and configurable color schemes. Settings can be edited in `egg_wars/settings.py` for the Python version and in `web_egg_wars/game.js` for the browser version.
+Egg Wars uses simple line-art visuals, randomly generated terrain, moving clouds, retro sound effects, egg splatter residue, wreckage debris, speech bubbles, and configurable color schemes. Settings can be edited in `js/config.js`.
 
 ## Running the Game
 
-Python version:
+Open `index.html` in a browser. No build step or server is needed. You can also serve the folder:
 
 ```bash
-python3 egg_wars_line_game.py
-```
-
-Web version:
-
-Serve the `web_egg_wars` folder with a local web server, then open it in a browser.
-
-```bash
-cd web_egg_wars
 python3 -m http.server 8001
 ```
 
-Then visit:
+Then visit `http://127.0.0.1:8001/`.
 
-```text
-http://127.0.0.1:8001/
-```
+## Code Layout
+
+- `js/config.js` - canvas, colors and tunable settings
+- `js/util.js` - small math/color helpers
+- `js/audio.js` - sound effects
+- `js/terrain.js` - terrain generation
+- `js/draw.js` - shared drawing helpers
+- `js/units.js` - unit classes
+- `js/projectiles.js` - eggs and splats
+- `js/game.js` - the `Game` class (rules, battle loop, HUD)
+- `js/main.js` - startup, input and the frame loop
+- `tools/smoke-test.js` - headless check: `NODE_PATH=$(npm root -g) node tools/smoke-test.js`
+
+See `ROADMAP.md`, `DESIGN.md` and `CHANGELOG.md` for the improvement plan.
 
 ## Credits
 
