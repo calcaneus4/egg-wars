@@ -46,11 +46,14 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 
 ## Progression
 
-Enemy armies grow slowly and smoothly with each stage (a logarithmic curve, see `DESIGN.md`), and the round timer grows a little longer too. Special blue units unlock as you advance:
+Enemy armies grow slowly and smoothly with each stage (a logarithmic curve, see `DESIGN.md`), and the round timer grows a little longer too. You earn XP every round (more for wins and kills) and level up. New units, special units and
+features unlock by player level, and the HUD always shows what comes next. Some highlights:
 
-- Stage 2: **Mega Knight**
-- Stage 4: **Fire Wizard**
-- Stage 6: **Yolk Bomber**
+- Level 2: **Airplane** and the **Armory** (permanent upgrades bought with Golden Eggs)
+- Level 3: **Mega Knight**
+- Level 5: **Helicopter** and **Fire Wizard**
+- Level 8: **Bomber** and **Yolk Bomber**
+- Level 10: buy extra **Castles**
 
 Fast full-destruction victories earn bonus gold.
 
@@ -81,6 +84,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/projectiles.js` - eggs and splats
 - `js/menus.js` - title, pause and settings screens
 - `js/armory.js` - permanent Golden Egg upgrades and the Armory screen
+- `js/unlocks.js` - level-based unlock table and enemy roster gating
 - `js/game.js` - the `Game` class (rules, battle loop, HUD)
 - `js/main.js` - startup, input and the frame loop
 - `tools/smoke-test.js` - headless check: `NODE_PATH=$(npm root -g) node tools/smoke-test.js`

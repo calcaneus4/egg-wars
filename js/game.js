@@ -15,7 +15,7 @@ class Game {
     this.unlockedNames = [];
     this.scene = "title";
     this.loadProfile();
-    this.lastUnlock = "";
+    this.newUnlocks = [];
     this.roundTime = 0;
     this.roundLimit = this.nextRoundLimit();
     this.powerUpCooldown = 0;
@@ -43,9 +43,7 @@ class Game {
     this.unlockedNames = [...data.profile.unlockedNames];
     this.score = { blue: data.stats.wins, red: data.stats.losses };
     this.profile = data.profile;
-    // Stage-based unlocks from the original rules (also repairs older saves).
-    this.updateUnlocks();
-    this.lastUnlock = "";
+    this.newUnlocks = [];
   }
 
   saveProfile() {
@@ -81,16 +79,6 @@ class Game {
     else if (this.scene === "armory") this.scene = Menus.armoryReturn;
   }
 
-  count(max) {
-    return Math.ceil(max * (1 - rand(0, settings.countReduction)));
-  }
-
-  aircraftCount(max) {
-    const low = Math.max(0, Math.floor(settings.aircraftCountMin));
-    const high = Math.max(low, Math.floor(max));
-    return low + Math.floor(Math.random() * (high - low + 1));
-  }
-
   nextRoundLimit() {
     return Progression.roundSeconds(this.stage);
   }
@@ -120,14 +108,7 @@ class Game {
 
   spawn() {
     this.units = [];
-    this.addMany(RIGHT, "tank", this.count(settings.maxLeftTanks));
-    this.addMany(RIGHT, "motorcycle", this.count(settings.maxLeftMotorcycles));
-    this.addMany(RIGHT, "airplane", this.aircraftCount(settings.maxLeftAirplanes));
-    this.addMany(RIGHT, "bomber", this.aircraftCount(settings.maxLeftBombers));
-    this.addMany(RIGHT, "helicopter", this.aircraftCount(settings.maxLeftHelicopters));
-    this.addMany(RIGHT, "drone", this.count(settings.maxLeftDrones));
-    this.addMany(RIGHT, "castle", this.count(settings.maxLeftCastles));
-    this.addMany(RIGHT, "soldier", this.count(settings.maxLeftSoldiers));
+    this.spawnPlayerArmy();
     this.spawnEnemyArmy();
     this.addUnlockedPlayerUnits();
     this.living(RIGHT).forEach((u) => Armory.upgradeUnit(this.profile, u));
@@ -138,7 +119,7 @@ class Game {
   }
 
   addUnlockedPlayerUnits() {
-    if (this.unlockedNames.includes("Mega Knight")) {
+    if (Unlocks.specialUnlocked(this.profile, "Mega Knight")) {
       const knight = new Tank(s(315), RIGHT, this.terrain);
       knight.hp += 6;
       knight.fireRate *= 1.6;
@@ -147,7 +128,7 @@ class Game {
       this.scaleSpecialUnit(knight);
       this.units.push(knight);
     }
-    if (this.unlockedNames.includes("Fire Wizard")) {
+    if (Unlocks.specialUnlocked(this.profile, "Fire Wizard")) {
       const wizard = new Soldier(s(185), RIGHT, this.terrain);
       wizard.hp = 3;
       wizard.fireRate = 0.42;
@@ -156,7 +137,7 @@ class Game {
       this.scaleSpecialUnit(wizard);
       this.units.push(wizard);
     }
-    if (this.unlockedNames.includes("Yolk Bomber")) {
+    if (Unlocks.specialUnlocked(this.profile, "Yolk Bomber")) {
       const bomber = new Bomber(-s(240), RIGHT, this.terrain, 3);
       bomber.hp += 2;
       bomber.bombBurst += 6;
@@ -211,9 +192,36 @@ class Game {
     if (this.rally >= 2) this.living(RIGHT).forEach((u) => { u.shield = 1; });
   }
 
+  playerCaps() {
+    return {
+      tank: settings.maxLeftTanks,
+      motorcycle: settings.maxLeftMotorcycles,
+      airplane: settings.maxLeftAirplanes,
+      bomber: settings.maxLeftBombers,
+      helicopter: settings.maxLeftHelicopters,
+      drone: settings.maxLeftDrones,
+      castle: settings.maxLeftCastles,
+      soldier: settings.maxLeftSoldiers,
+    };
+  }
+
+  // The player's free army: a fixed budget of unlocked unit types (power grows via the Armory).
+  spawnPlayerArmy() {
+    const weights = {};
+    for (const [type, weight] of Object.entries(settings.enemyBalancedWeights)) {
+      if (Unlocks.unitUnlocked(this.profile, type)) weights[type] = weight;
+    }
+    const counts = Progression.buildArmy(settings.playerArmyBudget, weights, this.playerCaps());
+    for (const [type, count] of Object.entries(counts)) this.addMany(RIGHT, type, count);
+  }
+
   spawnEnemyArmy() {
     const budget = Progression.enemyBudget(this.stage) * Progression.rallyBudgetScale(this.rally || 0);
-    const counts = Progression.buildArmy(budget, settings.enemyBalancedWeights, this.enemyCaps());
+    const weights = {};
+    for (const [type, weight] of Object.entries(settings.enemyBalancedWeights)) {
+      if (Unlocks.enemyTypeAllowed(type, this.stage)) weights[type] = weight;
+    }
+    const counts = Progression.buildArmy(budget, weights, this.enemyCaps());
     for (const [type, count] of Object.entries(counts)) this.addMany(LEFT, type, count);
   }
 
@@ -224,16 +232,6 @@ class Game {
       if (u.side !== LEFT) return;
       u.hp = Math.max(1, Math.ceil(u.hp * hpScale));
       u.fireRate *= fireScale;
-    });
-  }
-
-  updateUnlocks() {
-    this.lastUnlock = "";
-    settings.unlocks.forEach((unlock) => {
-      if (this.stage >= unlock.stage && !this.unlockedNames.includes(unlock.name)) {
-        this.unlockedNames.push(unlock.name);
-        this.lastUnlock = unlock.name;
-      }
     });
   }
 
@@ -263,7 +261,6 @@ class Game {
       if (settings.showScore) this.points += bonus;
       this.score.blue++;
       this.stage++;
-      this.updateUnlocks();
     } else {
       const consolation = Math.round((settings.goldLossBase + settings.goldLossPerStage * this.stage) * Armory.goldScale(this.profile));
       this.gold += consolation;
@@ -289,6 +286,7 @@ class Game {
     p.goldenEggs += goldenEggs;
     SaveManager.data.stats.kills += this.roundKills;
     this.roundRewards = { xp, kills: this.roundKills, goldenEggs, levelBefore, levelsGained };
+    this.newUnlocks = levelsGained ? Unlocks.between(p, levelBefore, p.level) : [];
     if (levelsGained) this.levelUpTimer = 3.5;
   }
 
@@ -720,9 +718,11 @@ class Game {
     const power = this.powerUpCooldown <= 0 ? "YOLK DROP READY" : `YOLK DROP ${this.powerUpCooldown.toFixed(1)}s`;
     centerText(`Tap battlefield: ${power}`, H - 22);
     this.drawXpBar(W / 2 - 210, 116, 420);
-    if (this.lastUnlock && !this.winner) {
-      ctx.font = "bold 20px Courier New";
-      centerText(`UNLOCKED: ${this.lastUnlock}`, 160);
+    const teaser = Unlocks.nextText(this.profile);
+    if (teaser && !this.winner) {
+      ctx.font = "bold 14px Courier New";
+      ctx.fillStyle = LINE;
+      centerText(teaser, 150);
     }
   }
 
@@ -846,14 +846,20 @@ class Game {
       for (const [letter, type] of types) {
         const rect = { x: rowX, y: rowY - 17, w: 28, h: 28, side, type };
         if (buttons) {
+          const locked = !Unlocks.unitUnlocked(this.profile, type);
+          ctx.save();
+          if (locked) ctx.globalAlpha = 0.4;
           ctx.strokeStyle = LINE;
           ctx.lineWidth = 2;
           ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
           drawText(letter, rowX + 8, rowY);
+          rect.locked = locked;
           this.buttons.push(rect);
           rowX += rect.w + 8;
-          const meta = ` ${this.units.filter((u) => u.side === side && unitType(u) === type).length} $${Armory.unitCost(this.profile, type)} `;
+          const count = this.units.filter((u) => u.side === side && unitType(u) === type).length;
+          const meta = locked ? ` LV${Unlocks.unitUnlockLevel(type)} ` : ` ${count} $${Armory.unitCost(this.profile, type)} `;
           drawText(meta, rowX, rowY);
+          ctx.restore();
           rowX += ctx.measureText(meta).width + 18;
         } else {
           const meta = `${letter}:${this.units.filter((u) => u.side === side && unitType(u) === type).length} `;
@@ -901,9 +907,16 @@ class Game {
     }
     centerText(`TOTAL WINS  BLUE ${this.score.blue}   RED ${this.score.red}`, lineY);
     lineY += 32;
-    if (this.resultMode === "won" && this.lastUnlock) {
-      centerText(`NEW UNIT: ${this.lastUnlock}`, lineY);
-      lineY += 34;
+    if (this.newUnlocks.length) {
+      centerText(`UNLOCKED: ${this.newUnlocks.map((u) => u.name).join(", ")}`, lineY);
+      lineY += 32;
+    }
+    const teaser = Unlocks.nextText(this.profile);
+    if (teaser) {
+      ctx.font = "bold 18px Courier New";
+      centerText(teaser, lineY);
+      ctx.font = "bold 22px Courier New";
+      lineY += 32;
     }
     const prompt = this.resultMode === "lost" ? "Click to Try Again" : "Click for Next Stage";
     centerText(prompt, lineY);
@@ -1005,6 +1018,15 @@ class Game {
 
   buyUnit(button) {
     if (button.side !== RIGHT) return;
+    if (!Unlocks.unitUnlocked(this.profile, button.type)) {
+      this.noticeBubble = {
+        text: `Unlocks at level ${Unlocks.unitUnlockLevel(button.type)}.`,
+        x: button.x + button.w / 2,
+        y: button.y + button.h + 8,
+        timer: 1.5,
+      };
+      return;
+    }
     const cost = Armory.unitCost(this.profile, button.type);
     if (this.gold < cost) {
       const bubbleX = Number.isFinite(button.x) ? button.x + button.w / 2 : 120;

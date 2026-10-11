@@ -194,8 +194,20 @@ rounds. Each level-up grants **3 GE** and is often an unlock (section 8).
 Biomes unlock by **stage**, not level: Meadow 1, Desert 6, Snowfield 11, Volcano 16, Kitchen
 Counter 21, then they rotate. A boss appears every 5th stage.
 
+The table lives in `js/unlocks.js`, and only content that already exists is listed. Each
+feature adds its row when it ships. The HUD and the results screen always show the next
+unlock ("NEXT AT LV 5: Helicopter, Fire Wizard"), and the results screen lists what a level-up
+just unlocked. Locked unit buttons are greyed out with their unlock level.
+
+**Armies.** The player's free army is built from a fixed budget of 120 points
+(`playerArmyBudget`), using only unlocked unit types. Player power grows through the Armory
+and specials, not through a bigger free army. Each army always gets its home castle. The enemy
+can field a unit type from stage `2 * unlockLevel - 1`, which is roughly when a typical player
+unlocks it (player level is about `n / 2`, section 5). So stage 1 is a simple ground battle,
+and air units arrive gradually.
+
 Migration: saves that already reached stage 2, 4 or 6 under the original rules keep Mega
-Knight, Fire Wizard and Yolk Bomber, whatever their level.
+Knight, Fire Wizard and Yolk Bomber, whatever their level (the `unlockedNames` save field).
 
 ## 9. Comeback assist ("Rally")
 

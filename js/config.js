@@ -80,8 +80,6 @@ const settings = {
   maxRightDrones: 5,
   maxRightCastles: 1,
   maxRightSoldiers: 12,
-  countReduction: 0.5,
-  aircraftCountMin: 0,
   fireRate: 0.1,
   tankFireRate: 0.1,
   motorcycleFireRate: 0.1,
@@ -273,6 +271,8 @@ const settings = {
   enemyFireScaleFromDifficulty: 0.15,
   enemyBudgetScaleFromDifficulty: 0.25,
   enemyBaseBudget: 120,
+  // The player's free army is built from a fixed budget of unlocked unit types.
+  playerArmyBudget: 120,
   // Threat points per unit type, used to build enemy armies (DESIGN.md section 4).
   unitThreatPoints: {
     soldier: 3,
@@ -304,11 +304,6 @@ const settings = {
     bomber: 40,
     castle: 50,
   },
-  unlocks: [
-    { stage: 2, name: "Mega Knight" },
-    { stage: 4, name: "Fire Wizard" },
-    { stage: 6, name: "Yolk Bomber" },
-  ],
   specialUnitLabelSeconds: 10,
   specialUnitVisualScale: 1.2,
 };

@@ -19,7 +19,7 @@ progression and difficulty model that every item must respect.
 - [x] **Comeback assist** - loss-streak tracking; after 2+ losses in a row grant the "Rally" assist (bonus gold, extra starting unit, smaller enemy budget) per DESIGN.md. Cleared on a win; never affects winning players.
 - [x] **Scene system & menus** - title screen, pause menu (Esc / P), settings screen (volume, mute, color scheme, speech bubbles, screen shake), all saved.
 - [x] **Armory upgrade tree** - permanent upgrades bought with Golden Eggs (HP, fire rate, egg damage, starting gold, yolk-drop cooldown, unit cost discount) with costs/effects from DESIGN.md.
-- [ ] **Unlock schedule** - level-based unlock table (something new every 1-3 levels); "Next unlock at level N" teaser on HUD and results screen; existing stage unlocks (Mega Knight, Fire Wizard, Yolk Bomber) migrated.
+- [x] **Unlock schedule** - level-based unlock table (something new every 1-3 levels); "Next unlock at level N" teaser on HUD and results screen; existing stage unlocks (Mega Knight, Fire Wizard, Yolk Bomber) migrated.
 - [ ] **Tutorial & tips** - short guided first battle (buy a unit, use Yolk Drop, win) with skippable prompts; contextual tips the first time each mechanic appears.
 
 ## 2. Graphics
