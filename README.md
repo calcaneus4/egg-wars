@@ -16,7 +16,9 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 - Press and hold a unit button to repeatedly buy that unit while you have enough gold.
 - Click the battlefield when `YOLK DROP READY` is active to drop a special egg attack.
 - Click the end-game screen to continue to the next stage or try again.
-- Press `R` to restart.
+- Press `R` to restart the current stage.
+- Press `Shift+N` to start a new game (erases saved progress).
+- Progress (stage, gold, unlocks, wins/losses) is saved automatically in the browser.
 - Press `Esc` to quit or pause, depending on version.
 
 ## Unit Buttons
@@ -69,6 +71,7 @@ Then visit `http://127.0.0.1:8001/`.
 
 - `js/config.js` - canvas, colors and tunable settings
 - `js/util.js` - small math/color helpers
+- `js/save.js` - versioned localStorage save with migrations
 - `js/audio.js` - sound effects
 - `js/terrain.js` - terrain generation
 - `js/draw.js` - shared drawing helpers

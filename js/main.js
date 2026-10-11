@@ -73,6 +73,7 @@ window.addEventListener("keydown", (event) => {
   unlockAudio();
   if (event.key === "r" || event.key === "R") game.restart();
   if (event.key === "Escape") game.winner = "PAUSED";
+  if (event.key === "N" && event.shiftKey && window.confirm("Start a new game? This erases your saved progress.")) game.newGame();
 });
 
 requestAnimationFrame(frame);

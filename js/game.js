@@ -13,6 +13,7 @@ class Game {
     this.points = 0;
     this.stage = 1;
     this.unlockedNames = [];
+    this.loadProfile();
     this.lastUnlock = "";
     this.roundTime = 0;
     this.roundLimit = this.nextRoundLimit();
@@ -30,6 +31,34 @@ class Game {
       { x: 780, y: 156, scale: 0.86, speed: 5.5 },
       { x: 1030, y: 214, scale: 0.72, speed: 6.8 },
     ];
+    this.startStage();
+  }
+
+  loadProfile() {
+    const data = SaveManager.load();
+    this.gold = data.profile.gold;
+    this.stage = data.profile.stage;
+    this.unlockedNames = [...data.profile.unlockedNames];
+    this.score = { blue: data.stats.wins, red: data.stats.losses };
+    // Stage-based unlocks from the original rules (also repairs older saves).
+    this.updateUnlocks();
+    this.lastUnlock = "";
+  }
+
+  saveProfile() {
+    const data = SaveManager.data;
+    data.profile.gold = this.gold;
+    data.profile.stage = this.stage;
+    data.profile.unlockedNames = [...this.unlockedNames];
+    data.stats.wins = this.score.blue;
+    data.stats.losses = this.score.red;
+    SaveManager.save();
+  }
+
+  newGame() {
+    SaveManager.reset();
+    this.loadProfile();
+    this.titleTimer = 2;
     this.startStage();
   }
 
@@ -188,6 +217,8 @@ class Game {
       }
       this.score.red++;
     }
+    SaveManager.data.stats.roundsPlayed++;
+    this.saveProfile();
     audio.play(blueWon ? "end_jingle" : "sad_jingle");
   }
 
@@ -769,6 +800,7 @@ class Game {
     }
     this.gold -= cost;
     this.addUnit(button.side, button.type);
+    this.saveProfile();
   }
 
   buttonAt(x, y) {
