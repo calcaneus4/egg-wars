@@ -1,0 +1,206 @@
+# Egg Wars Design: Progression & Difficulty
+
+This document is the contract every feature must follow. Numbers live in code as named
+constants (in `js/config.js` once the module split lands) and must match the formulas here.
+
+Notation: `n` = stage number (1, 2, 3, ...), `L` = player level, `ln` = natural log.
+
+> Code note: in the source, the player's (blue) army uses the constant `RIGHT` because it
+> marches to the right; the enemy (red) army uses `LEFT`.
+
+## 1. Goals
+
+1. **Difficulty rises slowly and smoothly.** No stage is ever much harder than the one before.
+2. **Player power outgrows difficulty.** Upgrades and unlocks earned by playing always add up to
+   more than the extra difficulty, so there is never a wall.
+3. **Losing still pays.** Every round, won or lost, gives XP and gold.
+4. **Help after a losing streak**, without punishing players who win.
+5. **Something new every few levels.**
+6. **Quick to learn**, through a short guided first battle and tips.
+
+## 2. Currencies
+
+| Currency | Earned by | Spent on | Persists |
+|---|---|---|---|
+| **Gold** ($) | Every round (win or loss) | Reinforcements during battle | Yes |
+| **XP** | Every round, kills | Raises player level automatically | Yes |
+| **Golden Eggs** (GE) | Wins, level-ups, objectives, achievements | Permanent Armory upgrades | Yes |
+
+## 3. Difficulty curve
+
+The single difficulty factor for stage `n`:
+
+```
+D(n) = 1 + 0.45 * ln(1 + (n - 1) / 4)
+```
+
+| n | 1 | 2 | 5 | 10 | 20 | 50 | 100 | 500 |
+|---|---|---|---|---|---|---|---|---|
+| D(n) | 1.00 | 1.10 | 1.31 | 1.53 | 1.79 | 2.16 | 2.46 | 3.18 |
+
+The slope is `0.45 / (n + 3)`, so the step from one stage to the next is at most +10% (stage
+1 to 2) and below +2% after stage 20. The curve never jumps.
+
+Enemy stats come from `D(n)`:
+
+```
+enemy HP multiplier        h(n) = 1 + 0.60 * (D(n) - 1)
+enemy fire-rate multiplier f(n) = 1 + 0.30 * (D(n) - 1)
+enemy army point budget    B(n) = 60 * D(n)            (see section 4)
+round time limit           T(n) = 35 + 10 * (D(n) - 1)  seconds (+/- 5 s random)
+```
+
+HP is rounded up per unit (`ceil`), never below the base HP.
+
+**Boss stages** (every 5th stage) use the same `D(n)`. The boss replaces about 40% of the
+point budget, so a boss stage is not harder overall than a normal stage.
+
+**Comparison with the original game**, which scaled HP linearly by +18% per stage: at stage 20
+the original enemy had 4.4x HP. Under this model it has `h(20) = 1.47x`.
+
+## 4. Enemy army budget
+
+Each unit type has a point cost (roughly its threat):
+
+| soldier | drone | motorcycle | tank | airplane | helicopter | bomber | castle |
+|---|---|---|---|---|---|---|---|
+| 3 | 2 | 6 | 10 | 10 | 12 | 16 | 20 |
+
+The enemy buys units from the budget `B(n)` using its **personality** template weights
+(Balanced, Rusher, Turtle, Air Force, Artillery; see the roadmap). Caps per type keep the
+battlefield readable. Stage 1 is always Balanced.
+
+## 5. Player power and upgrades
+
+### Armory tracks
+
+Each track has levels `k = 0..20`. Buying level `k` costs `cost(k) = 1 + k` Golden Eggs
+(1, 2, 3, ... 20, or 210 GE for a whole track).
+
+| Track | Effect at level k |
+|---|---|
+| Thick Shells | player unit HP x `(1 + 0.08k)` (rounded up) |
+| Rapid Lobbing | player fire rate x `(1 + 0.05k)` |
+| Hard-Boiled Eggs | each player egg hit has a `0.04k` chance to deal 2 damage |
+| War Chest | starting gold `+10k`, round gold reward x `(1 + 0.05k)` |
+| Quick Yolk | ability cooldowns x `1 / (1 + 0.06k)` |
+| Bulk Orders | reinforcement prices x `1 / (1 + 0.04k)` |
+
+### Effective power
+
+Combat power in a duel scales roughly with `HP x damage-per-second`. The player's power from
+the Armory is:
+
+```
+P = (1 + 0.08 k_hp) * (1 + 0.05 k_rate) * (1 + 0.04 k_dmg)
+```
+
+Enemy power from difficulty is:
+
+```
+E(n) = h(n) * f(n)
+```
+
+### No-wall guarantee
+
+Simulation (`tools/balance-sim.js` once the module split lands): a player who wins every
+stage, and spends only **half** of their Golden Eggs on the three combat tracks, spread evenly:
+
+| stage n | level | GE earned | combat levels (hp/rate/dmg) | P | E(n) |
+|---|---|---|---|---|---|
+| 3 | 2 | 7 | 1/1/1 | 1.18 | 1.17 |
+| 5 | 3 | 14 | 2/2/1 | 1.33 | 1.30 |
+| 10 | 5 | 30 | 3/3/2 | 1.54 | 1.53 |
+| 20 | 9 | 72 | 5/4/4 | 1.95 | 1.82 |
+| 50 | 16 | 243 | 9/8/8 | 3.18 | 2.29 |
+| 100 | 24 | 717 | 15/15/14 | 6.01 | 2.70 |
+
+`E(n)` grows like `ln(n)^2`, while GE income grows faster than linearly in `n`. So `P / E`
+rises over time, and losing players earn GE too (section 6). Even with every track maxed, P
+stays ahead until stage ~10^6. Unlocked units, abilities and egg types are additional power on top of `P`;
+they are the margin that lets the "spend half on other tracks" player keep pace too.
+
+## 6. Rewards per round
+
+```
+won:
+  gold  = round((25 + 2n) * warChest) + survivorBonus + wipeoutBonus(20)
+  XP    = 40 + 12 * ln(n) + kills
+  GE    = 2 + floor(n / 10) + objectiveBonus + (boss ? 3 : 0)
+lost:
+  gold  = 10 + n
+  XP    = 0.5 * (40 + 12 * ln(n)) + kills
+  GE    = 0, but every 2nd loss in a row grants 1 GE
+          (so a losing player can still buy upgrades)
+```
+
+`survivorBonus` is the original army-score bonus (4 gold per surviving HP point).
+
+## 7. Player level
+
+XP needed to go from level `L` to `L + 1`:
+
+```
+xpToNext(L) = 60 + 30 * (L - 1)
+```
+
+A win at stage 5 is worth about 60 XP, so level 2 takes about 1 win and level 10 about 4
+rounds. Each level-up grants **3 GE** and is often an unlock (section 8).
+
+## 8. Unlock schedule (something new every 1-3 levels)
+
+| Level | Unlock |
+|---|---|
+| 1 | Soldier, Tank, Motorcycle, Drone, Yolk Drop |
+| 2 | Airplane, Armory opens |
+| 3 | Mega Knight (special tank) |
+| 4 | Cluster egg (Yolk Drop option) |
+| 5 | Helicopter, Fire Wizard (special soldier) |
+| 6 | Egg Medic |
+| 7 | Bouncing egg, Omelet Airstrike ability |
+| 8 | Bomber, Yolk Bomber (special bomber) |
+| 10 | Castle, Sticky egg |
+| 11 | Mortar Hen |
+| 12 | Shell Shield ability |
+| 14 | Explosive egg |
+| 16 | Rooster Rider |
+| 18 | Homing egg |
+| 20+ | A cosmetic color scheme or title every 3 levels |
+
+Biomes unlock by **stage**, not level: Meadow 1, Desert 6, Snowfield 11, Volcano 16, Kitchen
+Counter 21, then they rotate. A boss appears every 5th stage.
+
+Migration: saves that already reached stage 2, 4 or 6 under the original rules keep Mega
+Knight, Fire Wizard and Yolk Bomber, whatever their level.
+
+## 9. Comeback assist ("Rally")
+
+Let `s` be the number of losses in a row, and let `a = min(3, s - 1)` when `s >= 2`, else 0.
+
+```
+enemy budget x (1 - 0.08 a)
+starting bonus gold + 15 a
+player units start with + a temporary shield hit (absorbs one hit each), at a >= 2
+```
+
+- It is shown as "RALLY! Your troops are fired up" so it reads as encouragement, not pity.
+- A win resets `s` to 0. Rewards for that win are **not** reduced, so nobody is punished.
+- The assist never lowers `D(n)` itself, and the stage number never goes down.
+
+## 10. Onboarding
+
+- **First battle (stage 1, first run):** three prompts. "Tap a unit button to send
+  reinforcements", "Tap the battlefield to drop a Yolk Bomb", "Destroy the red army!". Each
+  prompt waits for the action or 8 seconds. All are skippable, and replayable from settings.
+- **Contextual tips:** the first time a mechanic appears (new unit, new biome hazard, boss,
+  Rally), a one-line tip shows once, and is recorded in the save.
+- Stage 1 enemy budget is `B(1) = 60`, about the original average army, and the round is
+  fully playable without buying anything.
+
+## 11. Save format
+
+`localStorage["eggwars.save"]` holds JSON `{ version, profile, settings, stats, flags }`.
+Loading runs `migrate(save)` step by step from `version` to the current version, so older
+saves always upgrade. Unknown or corrupt data falls back to defaults, and the bad blob is kept
+under `eggwars.save.corrupt` for debugging. Every storage access is wrapped in try/catch, so
+the game runs without storage (for example, in private mode).
