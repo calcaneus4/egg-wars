@@ -40,6 +40,12 @@ const Menus = {
   buttons: [],
   confirmNewGame: false,
   returnScene: "title",
+  armoryReturn: "title",
+
+  openArmory(game, from) {
+    this.armoryReturn = from;
+    game.scene = "armory";
+  },
 
   button(label, cx, y, w, action, h = 46) {
     const rect = { x: cx - w / 2, y, w, h, label, action };
@@ -48,6 +54,8 @@ const Menus = {
   },
 
   drawButton(rect, hot = false) {
+    ctx.save();
+    if (rect.disabled) ctx.globalAlpha = 0.45;
     ctx.fillStyle = hot ? rgbaFromHex(YOLK, 0.9) : PAPER;
     ctx.strokeStyle = LINE;
     ctx.lineWidth = 3;
@@ -57,6 +65,7 @@ const Menus = {
     ctx.font = "bold 22px Courier New";
     const tw = ctx.measureText(rect.label).width;
     ctx.fillText(rect.label, rect.x + (rect.w - tw) / 2, rect.y + rect.h / 2 + 7);
+    ctx.restore();
   },
 
   veil(alpha = 0.82) {
@@ -69,6 +78,7 @@ const Menus = {
     if (game.scene === "title") this.drawTitle(game);
     if (game.scene === "paused") this.drawPause(game);
     if (game.scene === "settings") this.drawSettings(game);
+    if (game.scene === "armory") drawArmoryScreen(game);
     this.buttons.forEach((b) => this.drawButton(b, b.hot));
   },
 
@@ -87,15 +97,17 @@ const Menus = {
     const fresh = p.stage <= 1 && p.level <= 1 && game.score.blue + game.score.red === 0;
     const play = this.button(fresh ? "PLAY" : `CONTINUE - STAGE ${p.stage}`, W / 2, 280, 380, () => game.startBattle());
     play.hot = true;
-    this.button("SETTINGS", W / 2, 340, 380, () => this.openSettings(game, "title"));
+    const armory = this.button(Armory.isOpen(p) ? "ARMORY" : `ARMORY (LV ${ARMORY_UNLOCK_LEVEL})`, W / 2, 340, 380, () => this.openArmory(game, "title"));
+    armory.disabled = !Armory.isOpen(p);
+    this.button("SETTINGS", W / 2, 400, 380, () => this.openSettings(game, "title"));
     if (!fresh) {
       ctx.font = "bold 18px Courier New";
       ctx.fillStyle = LINE;
-      centerText(`LV ${p.level}   GOLD $${p.gold}   GOLDEN EGGS ${p.goldenEggs}   WINS ${game.score.blue}`, 432);
+      centerText(`LV ${p.level}   GOLD $${p.gold}   GOLDEN EGGS ${p.goldenEggs}   WINS ${game.score.blue}`, 476);
     }
     ctx.font = "bold 16px Courier New";
-    centerText("Tap unit buttons to send troops. Tap the battlefield to drop yolk bombs.", 490);
-    centerText("Esc / P pause   M mute   R restart stage", 516);
+    centerText("Tap unit buttons to send troops. Tap the battlefield to drop yolk bombs.", 520);
+    centerText("Esc / P pause   M mute   R restart stage", 546);
     ctx.font = "bold 14px Courier New";
     const credit = "EGG WARS (c) 2026. Created by Michael K. Davis, MD.";
     ctx.fillText(credit, W - ctx.measureText(credit).width - 18, H - 18);
@@ -171,7 +183,7 @@ const Menus = {
 
   click(game, x, y) {
     const hit = this.buttons.find((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
-    if (!hit) return;
+    if (!hit || hit.disabled) return;
     if (hit.label !== "CLICK AGAIN TO ERASE SAVE" && !hit.label.startsWith("NEW GAME")) this.confirmNewGame = false;
     hit.action();
   },

@@ -94,9 +94,14 @@ Each track has levels `k = 0..20`. Buying level `k` costs `cost(k) = 1 + k` Gold
 | Thick Shells | player unit HP x `(1 + 0.08k)` (rounded up) |
 | Rapid Lobbing | player fire rate x `(1 + 0.05k)` |
 | Hard-Boiled Eggs | each player egg hit has a `0.04k` chance to deal 2 damage |
-| War Chest | starting gold `+10k`, round gold reward x `(1 + 0.05k)` |
-| Quick Yolk | ability cooldowns x `1 / (1 + 0.06k)` |
-| Bulk Orders | reinforcement prices x `1 / (1 + 0.04k)` |
+| War Chest | all round gold rewards (win and loss) x `(1 + 0.10k)` |
+| Quick Yolk | ability cooldowns (Yolk Drop for now) x `1 / (1 + 0.06k)` |
+| Bulk Orders | reinforcement prices x `1 / (1 + 0.04k)`, rounded, at least $1 |
+
+The Armory opens at player level 2 (title screen, or the button on the results screen).
+HP and fire-rate upgrades apply to every player unit when it spawns, including reinforcements
+and special units. Upgrades bought mid-round apply from the next spawned unit. Code:
+`js/armory.js`.
 
 ### Effective power
 

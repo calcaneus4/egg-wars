@@ -80,6 +80,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/units.js` - unit classes
 - `js/projectiles.js` - eggs and splats
 - `js/menus.js` - title, pause and settings screens
+- `js/armory.js` - permanent Golden Egg upgrades and the Armory screen
 - `js/game.js` - the `Game` class (rules, battle loop, HUD)
 - `js/main.js` - startup, input and the frame loop
 - `tools/smoke-test.js` - headless check: `NODE_PATH=$(npm root -g) node tools/smoke-test.js`

@@ -19,6 +19,7 @@ function defaultSave() {
       goldenEggs: 0,
       lossStreak: 0,
       rallyGoldStreak: 0,
+      armory: { hp: 0, rate: 0, dmg: 0, chest: 0, yolk: 0, bulk: 0 },
     },
     settings: {},
     stats: {
@@ -70,6 +71,9 @@ function validateSave(data) {
   p.rallyGoldStreak = Number.isFinite(p.rallyGoldStreak) ? Math.max(0, Math.floor(p.rallyGoldStreak)) : 0;
   p.lossStreak = Number.isFinite(p.lossStreak) ? Math.max(0, Math.floor(p.lossStreak)) : 0;
   p.unlockedNames = Array.isArray(p.unlockedNames) ? p.unlockedNames.filter((n) => typeof n === "string") : [];
+  for (const key of Object.keys(p.armory)) {
+    p.armory[key] = Number.isFinite(p.armory[key]) ? clamp(Math.floor(p.armory[key]), 0, 20) : 0;
+  }
   for (const key of Object.keys(data.stats)) {
     if (!Number.isFinite(data.stats[key])) data.stats[key] = 0;
   }

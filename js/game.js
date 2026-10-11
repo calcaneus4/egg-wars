@@ -78,6 +78,7 @@ class Game {
     if (this.scene === "battle") this.scene = "paused";
     else if (this.scene === "paused") this.scene = "battle";
     else if (this.scene === "settings") this.scene = Menus.returnScene;
+    else if (this.scene === "armory") this.scene = Menus.armoryReturn;
   }
 
   count(max) {
@@ -129,6 +130,7 @@ class Game {
     this.addMany(RIGHT, "soldier", this.count(settings.maxLeftSoldiers));
     this.spawnEnemyArmy();
     this.addUnlockedPlayerUnits();
+    this.living(RIGHT).forEach((u) => Armory.upgradeUnit(this.profile, u));
     this.scaleEnemiesForStage();
     const blue = this.living(RIGHT);
     const red = this.living(LEFT);
@@ -255,6 +257,7 @@ class Game {
       }
       const bonus = settings.scoreWinBase * this.stage + Math.round(Math.sqrt(this.armyScore(this.living(RIGHT))) * settings.survivorGoldFactor);
       reward += bonus;
+      reward = Math.round(reward * Armory.goldScale(this.profile));
       this.gold += reward;
       this.lastGoldReward = reward;
       if (settings.showScore) this.points += bonus;
@@ -262,7 +265,7 @@ class Game {
       this.stage++;
       this.updateUnlocks();
     } else {
-      const consolation = settings.goldLossBase + settings.goldLossPerStage * this.stage;
+      const consolation = Math.round((settings.goldLossBase + settings.goldLossPerStage * this.stage) * Armory.goldScale(this.profile));
       this.gold += consolation;
       this.lastGoldReward = consolation;
       this.score.red++;
@@ -294,6 +297,14 @@ class Game {
   }
 
   addUnit(side, type) {
+    const before = this.units.length;
+    this.placeUnit(side, type);
+    const unit = this.units.length > before ? this.units[this.units.length - 1] : null;
+    if (unit && side === RIGHT) Armory.upgradeUnit(this.profile, unit);
+    return unit;
+  }
+
+  placeUnit(side, type) {
     const n = this.units.filter((u) => u.side === side && unitType(u) === type).length;
     if (side === RIGHT) {
       if (type === "tank") this.units.push(new Tank(s(255) - n * s(64), side, this.terrain));
@@ -366,6 +377,7 @@ class Game {
       for (const t of enemies) {
         if (dist(e.x, e.y, t.x, t.y) <= e.radius + t.radius()) {
           t.takeHit();
+          if (e.side === RIGHT && !t.dead && Math.random() < Armory.doubleHitChance(Armory.level(this.profile, "dmg"))) t.takeHit();
           this.maybeSay(t, settings.speechHitComments, 1.05);
           if (t.dead) {
             this.onUnitKilled(t);
@@ -618,7 +630,7 @@ class Game {
     if (this.winner || this.powerUpCooldown > 0) return false;
     const targetX = clamp(x, s(40), W - s(40));
     this.eggs.push(new Egg(targetX, 72, rand(-18, 18), 30, RIGHT, settings.powerUpBurst));
-    this.powerUpCooldown = settings.powerUpCooldown;
+    this.powerUpCooldown = Armory.yolkCooldown(this.profile);
     audio.play("fire");
     return true;
   }
@@ -840,7 +852,7 @@ class Game {
           drawText(letter, rowX + 8, rowY);
           this.buttons.push(rect);
           rowX += rect.w + 8;
-          const meta = ` ${this.units.filter((u) => u.side === side && unitType(u) === type).length} $${settings.unitSpawnCosts[type]} `;
+          const meta = ` ${this.units.filter((u) => u.side === side && unitType(u) === type).length} $${Armory.unitCost(this.profile, type)} `;
           drawText(meta, rowX, rowY);
           rowX += ctx.measureText(meta).width + 18;
         } else {
@@ -895,6 +907,21 @@ class Game {
     }
     const prompt = this.resultMode === "lost" ? "Click to Try Again" : "Click for Next Stage";
     centerText(prompt, lineY);
+    this.endButtons = [];
+    if (Armory.isOpen(this.profile)) {
+      const label = `ARMORY (${this.profile.goldenEggs} GE)`;
+      const rect = { x: W / 2 - 140, y: lineY + 18, w: 280, h: 42, label };
+      this.endButtons.push(rect);
+      ctx.fillStyle = rgbaFromHex(YOLK, 0.9);
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 3;
+      ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+      ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+      ctx.fillStyle = LINE;
+      ctx.font = "bold 20px Courier New";
+      centerText(label, rect.y + 28);
+      ctx.font = "bold 22px Courier New";
+    }
     this.drawEndTextPanel("Unit Keys", settings.unitLegend, 52, 206, 300);
     this.drawEndTextPanel("Battle Tip", [this.selectedGameplayHint], W - 345, 206, 285);
     ctx.font = "bold 14px Courier New";
@@ -963,6 +990,10 @@ class Game {
   }
 
   click(x, y) {
+    if (this.winner && (this.endButtons || []).some((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h)) {
+      Menus.openArmory(this, "battle");
+      return;
+    }
     if (this.winner) {
       this.startStage();
       return;
@@ -974,7 +1005,7 @@ class Game {
 
   buyUnit(button) {
     if (button.side !== RIGHT) return;
-    const cost = settings.unitSpawnCosts[button.type] || 0;
+    const cost = Armory.unitCost(this.profile, button.type);
     if (this.gold < cost) {
       const bubbleX = Number.isFinite(button.x) ? button.x + button.w / 2 : 120;
       const bubbleY = Number.isFinite(button.y) ? button.y + button.h + 8 : 72;
