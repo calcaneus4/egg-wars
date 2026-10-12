@@ -55,8 +55,14 @@ HP is rounded up per unit (`ceil`), never below the base HP. The total enemy str
 `E(n) = h(n) * f(n) * b(n)`: 1.00 at stage 1, 1.45 at stage 10, 1.71 at stage 20, 2.52 at
 stage 100. The constants are in `js/config.js` (`enemy*FromDifficulty`, `enemyBaseBudget`).
 
-**Boss stages** (every 5th stage) use the same `D(n)`. The boss replaces about 40% of the
-point budget, so a boss stage is not harder overall than a normal stage.
+**Boss stages** (every 5th stage) use the same `D(n)`. The boss takes 40% of the point budget
+and the normal army gets the other 60%, so a boss stage is not harder overall than a normal
+stage. Boss HP = `round(0.4 * B(n) * 0.5 * h(n))`, which uses the same 0.5 HP per threat point
+as ordinary units (29 HP at stage 5, 44 HP at stage 50). Below half HP a boss is enraged: it
+attacks faster and adds a special move. Bosses rotate between Giant Rooster Mech (lobs
+volleys, ground stomp), Omelet Fortress (spread volleys, launches drones) and Scrambler
+Zeppelin (bombing runs, cluster drops). A boss win pays +40 gold and +3 Golden Eggs
+(`js/bosses.js`).
 
 **Comparison with the original game**, which scaled HP linearly by +18% per stage: at stage 20
 the original enemy had 4.4x HP. Under this model it has `h(20) = 1.28x`.

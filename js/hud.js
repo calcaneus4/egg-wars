@@ -234,7 +234,7 @@ const Hud = {
       ctx.save();
       ctx.fillStyle = RED;
       ctx.font = "bold 12px Courier New";
-      const label = game.personality.name;
+      const label = game.bossStage ? "BOSS STAGE" : game.personality.name;
       ctx.fillText(label, W - 14 - ctx.measureText(label).width, 112);
       ctx.restore();
     }

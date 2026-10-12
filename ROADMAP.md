@@ -51,7 +51,7 @@ progression and difficulty model that every item must respect.
 - [x] **Homing egg** - slow seeker egg for anti-air, unlocked mid-game.
 - [x] **Biomes** - Meadow, Desert, Snowfield, Volcano, Kitchen Counter; each with terrain generator settings, palette and decorations; rotate every few stages.
 - [x] **Hazards** - lava vents (Volcano), ice that makes ground units slide (Snowfield), quicksand (Desert), hot-pan geysers (Kitchen).
-- [ ] **Boss battles** - every 5th stage: Giant Rooster Mech, Omelet Fortress, Scrambler Zeppelin; health bar, phases, big rewards; scaled with the same `D(n)`.
+- [x] **Boss battles** - every 5th stage: Giant Rooster Mech, Omelet Fortress, Scrambler Zeppelin; health bar, phases, big rewards; scaled with the same `D(n)`.
 - [ ] **Optional objectives** - 1-2 bonus goals per stage (win under X s, lose no tanks, 3 Yolk Drop kills) paying extra Golden Eggs.
 - [ ] **Achievements** - ~20 achievements with toasts and a gallery page; some grant cosmetic color schemes.
 - [ ] **World map / stage select** - biome path showing cleared stages, bosses and next unlock; replay any cleared stage for practice rewards.

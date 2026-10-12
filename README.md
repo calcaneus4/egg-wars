@@ -91,6 +91,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/units.js` - unit classes
 - `js/eggtypes.js` - data-driven egg types (Classic, Cluster, ...)
 - `js/projectiles.js` - eggs and splats
+- `js/bosses.js` - boss battles every 5th stage
 - `js/menus.js` - title, pause and settings screens
 - `js/hud.js` - battle HUD: unit shop bar, stage/time panel, enemy roster, Yolk Drop ring
 - `js/results.js` - animated end-of-round results screen

@@ -270,6 +270,7 @@ const settings = {
   playerArmyBudget: 120,
   // Threat points per unit type, used to build enemy armies (DESIGN.md section 4).
   unitThreatPoints: {
+    boss: 0,
     medic: 7,
     mortar: 12,
     rider: 9,

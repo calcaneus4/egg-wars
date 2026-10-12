@@ -123,7 +123,7 @@ class Game {
     this.living(RIGHT).forEach((u) => Armory.upgradeUnit(this.profile, u));
     this.scaleEnemiesForStage();
     Personalities.apply(this.personality, this.living(LEFT));
-    this.personalityTimer = this.personality.id === "balanced" ? 0 : 4.5;
+    this.personalityTimer = this.personality.id === "balanced" && !this.bossStage ? 0 : 4.5;
     const blue = this.living(RIGHT);
     const red = this.living(LEFT);
     if (!blue.length || !red.length) this.finishRound(blue.length > 0, red.length === 0);
@@ -233,8 +233,14 @@ class Game {
   }
 
   spawnEnemyArmy() {
-    this.personality = Personalities.forStage(this.stage);
-    const budget = Progression.enemyBudget(this.stage) * Progression.rallyBudgetScale(this.rally || 0) * this.personality.budgetScale;
+    this.boss = null;
+    this.bossStage = Bosses.isBossStage(this.stage);
+    this.personality = this.bossStage ? PERSONALITIES.balanced : Personalities.forStage(this.stage);
+    let budget = Progression.enemyBudget(this.stage) * Progression.rallyBudgetScale(this.rally || 0) * this.personality.budgetScale;
+    if (this.bossStage) {
+      Bosses.spawn(this, budget);
+      budget *= 1 - BOSS_BUDGET_SHARE;
+    }
     const weights = Personalities.weightsFor(this.personality, this.stage);
     const counts = Progression.buildArmy(budget, weights, this.enemyCaps());
     for (const [type, count] of Object.entries(counts)) this.addMany(LEFT, type, count);
@@ -244,7 +250,7 @@ class Game {
     const hpScale = Progression.enemyHpScale(this.stage);
     const fireScale = Progression.enemyFireScale(this.stage);
     this.units.forEach((u) => {
-      if (u.side !== LEFT) return;
+      if (u.side !== LEFT || u.statScaled) return;
       u.hp = Math.max(1, Math.ceil(u.hp * hpScale));
       u.fireRate *= fireScale;
     });
@@ -270,6 +276,7 @@ class Game {
       }
       const bonus = settings.scoreWinBase * this.stage + Math.round(Math.sqrt(this.armyScore(this.living(RIGHT))) * settings.survivorGoldFactor);
       reward += bonus;
+      if (this.bossStage) reward += 40;
       reward = Math.round(reward * Armory.goldScale(this.profile));
       this.gold += reward;
       this.lastGoldReward = reward;
@@ -298,6 +305,7 @@ class Game {
     const levelBefore = p.level;
     const levelsGained = Progression.addXp(p, xp);
     let goldenEggs = blueWon ? Progression.winGoldenEggs(playedStage) : Progression.lossGoldenEggs(p.lossStreak);
+    if (blueWon && this.bossStage) goldenEggs += 3;
     goldenEggs += levelsGained * Progression.goldenEggsPerLevel;
     p.goldenEggs += goldenEggs;
     SaveManager.data.stats.kills += this.roundKills;
@@ -403,6 +411,10 @@ class Game {
       const udt = u.stuck > 0 ? dt * STICKY_SLOW : dt;
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
       u.move(udt * Hazards.speedFactor(u), enemies);
+      if (u.isBoss) {
+        u.updateBoss(this, udt, enemies);
+        continue;
+      }
       if (u instanceof Drone && u.impactTarget) {
         this.detonateDrone(u, u.impactTarget);
         continue;
@@ -599,6 +611,13 @@ class Game {
     audio.play("fire");
   }
 
+  // Fires an egg from (sx, sy) that lands on (tx, ty) after `time` seconds.
+  lobEgg(sx, sy, tx, ty, side, burst = 0, time = 1.5, kind = "normal") {
+    const vx = (tx - sx) / time;
+    const vy = (ty - sy - 0.5 * GRAVITY * time * time) / time;
+    this.eggs.push(new Egg(sx, sy, vx, vy, side, burst, kind));
+  }
+
   // Medic: heal the most damaged ally in range by one hit point.
   heal(u) {
     let best = null;
@@ -776,7 +795,7 @@ class Game {
   }
 
   playUnitDestroyed(unit) {
-    const big = unit instanceof Castle ? 2.2 : unit instanceof Tank || unit instanceof Bomber ? 1.5 : unit instanceof Soldier ? 0.6 : 1;
+    const big = unit.isBoss ? 4 : unit instanceof Castle ? 2.2 : unit instanceof Tank || unit instanceof Bomber ? 1.5 : unit instanceof Soldier ? 0.6 : 1;
     Effects.explosion(unit.x, unit.y, big, teamColor(unit.side));
     Effects.shake(big * 3.5);
     if (unit instanceof Soldier) audio.play("soldier_destroyed");
@@ -850,6 +869,7 @@ class Game {
     if (this.winner) Results.draw(this);
     this.drawRallyBanner();
     this.drawPersonalityBanner();
+    Bosses.drawBar(this);
     Tutorial.draw(this);
     if (this.scene !== "battle") Menus.draw(this);
     drawScreenBorder();
@@ -948,7 +968,7 @@ class Game {
 
   drawHealthBars() {
     for (const u of this.units) {
-      if (!(u.maxHp > 1) || u.hp >= u.maxHp || u.hp <= 0) continue;
+      if (u.isBoss || !(u.maxHp > 1) || u.hp >= u.maxHp || u.hp <= 0) continue;
       const w = clamp(u.size * 0.9, 18, 46);
       const x = u.x - w / 2;
       const y = u.y - u.radius() - 10;
@@ -982,12 +1002,14 @@ class Game {
   // Announces the enemy personality at the start of a stage.
   drawPersonalityBanner() {
     if (!this.personalityTimer || this.winner || this.scene !== "battle") return;
-    const p = this.personality;
+    const p = this.bossStage && this.boss
+      ? { name: this.boss.name, tell: "Boss battle! Its health bar is at the top. It gets angry below half health." }
+      : this.personality;
     ctx.save();
     ctx.globalAlpha = Math.min(1, this.personalityTimer / 0.6, (4.5 - this.personalityTimer) * 4);
     const y = this.rallyTimer > 0 ? 240 : 186;
     ctx.font = "bold 28px Courier New";
-    const titleW = ctx.measureText(`ENEMY: ${p.name}`).width;
+    const titleW = ctx.measureText(`BOSS: ${p.name}`).width;
     ctx.font = "bold 16px Courier New";
     const w = Math.max(titleW, ctx.measureText(p.tell).width) + 40;
     const x = (W - w) / 2;
@@ -998,7 +1020,7 @@ class Game {
     ctx.strokeRect(x, y, w, 62);
     ctx.fillStyle = RED;
     ctx.font = "bold 28px Courier New";
-    centerText(`ENEMY: ${p.name}`, y + 30);
+    centerText(`${this.bossStage ? "BOSS" : "ENEMY"}: ${p.name}`, y + 30);
     ctx.fillStyle = LINE;
     ctx.font = "bold 16px Courier New";
     centerText(p.tell, y + 52);

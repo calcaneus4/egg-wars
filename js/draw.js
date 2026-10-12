@@ -171,6 +171,7 @@ function centerText(text, y) {
 }
 
 function unitType(u) {
+  if (u.isBoss) return "boss";
   if (u instanceof Medic) return "medic";
   if (u instanceof MortarHen) return "mortar";
   if (u instanceof RoosterRider) return "rider";
