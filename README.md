@@ -77,6 +77,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/terrain.js` - terrain generation
 - `js/background.js` - pre-rendered parallax mountains, hills, trees and sun
 - `js/sky.js` - time-of-day sky tint, stars and moon
+- `js/weather.js` - rain, snow, wind (pushes eggs) and the wind sock
 - `js/effects.js` - pooled particles, screen shake and hit flashes
 - `js/draw.js` - shared drawing helpers
 - `js/units.js` - unit classes

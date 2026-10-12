@@ -73,6 +73,7 @@ const Tutorial = {
     for (const entry of UNLOCKS) {
       if (entry.level > 1 && Unlocks.isUnlocked(p, entry)) this.queueTip(`unlock:${entry.name}`, `NEW: ${entry.name} - ${entry.desc}.`);
     }
+    if (Math.abs(Weather.baseWind) >= 0.55) this.queueTip("wind", "Strong wind! It pushes every egg in flight - watch the wind sock.");
     if (game.rally) this.queueTip("rally", "Rally! Losing streaks give your army a boost until your next win.");
     if (Armory.isOpen(p) && p.goldenEggs > 0) this.queueTip("armory", "Spend Golden Eggs in the Armory (title or results screen) for permanent upgrades.");
   },

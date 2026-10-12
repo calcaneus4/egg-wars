@@ -88,6 +88,7 @@ class Game {
     this.terrain.regenerate();
     this.background.regenerate();
     Sky.regenerate(this.stage);
+    Weather.regenerate(this.stage);
     this.units = [];
     this.eggs = [];
     this.splats = [];
@@ -345,6 +346,7 @@ class Game {
     for (const splat of this.splats) splat.update(dt);
     if (this.splats.length && this.splats[0].faded) this.splats = this.splats.filter((splat) => !splat.faded);
     Effects.update(dt, this.terrain);
+    Weather.update(dt, this.terrain);
     this.units.forEach((u) => {
       if (u.hitFlash > 0) u.hitFlash = Math.max(0, u.hitFlash - dt);
       if (u.recoil > 0) u.recoil = Math.max(0, u.recoil - dt * 6);
@@ -683,6 +685,7 @@ class Game {
     this.terrain.draw();
     this.splats.forEach((splat) => splat.draw());
     Sky.drawShade();
+    Weather.drawWindSock(this.terrain);
     if (settings.showWreckage) this.wreckage.forEach((w) => drawWreckage(w));
     this.eggs.forEach((e) => e.draw());
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
@@ -692,6 +695,7 @@ class Game {
     });
     this.drawHealthBars();
     Effects.draw();
+    Weather.draw();
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
       if (this.canSpeak(u)) drawSpeechBubble(u);
     });

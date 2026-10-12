@@ -19,6 +19,7 @@ class Egg {
     this.x += this.vx * dt;
     this.y += this.vy * dt;
     this.vy += GRAVITY * dt;
+    this.vx += Weather.eggAccel() * dt;
     this.angle += this.spin * dt;
   }
 

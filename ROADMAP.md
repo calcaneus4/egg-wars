@@ -32,7 +32,7 @@ progression and difficulty model that every item must respect.
 - [x] **HUD redesign** - unit shop bar with drawn icons, prices and hotkeys (1-8), ability buttons with cooldown rings, XP bar, stage/time panel.
 - [x] **Results screen** - animated tally of gold / XP / Golden Eggs, level-up fanfare, unlock reveal card.
 - [x] **Time of day** - dawn / day / dusk / night palettes per stage with lerped sky tint and stars at night.
-- [ ] **Weather** - rain, snow and wind; wind gently pushes eggs and is shown by a wind sock.
+- [x] **Weather** - rain, snow and wind; wind gently pushes eggs and is shown by a wind sock.
 
 ## 3. Sound
 

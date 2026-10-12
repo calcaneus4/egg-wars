@@ -173,6 +173,9 @@ const Hud = {
     ctx.fillText("ARMY", bx, y + 34);
     ctx.restore();
     game.drawXpBar(W / 2 - 210, 78, 420);
+    ctx.fillStyle = LINE;
+    ctx.font = "bold 13px Courier New";
+    ctx.fillText(Weather.label(), W / 2 + 222, 91);
     const teaser = Unlocks.nextText(game.profile);
     if (teaser && !game.winner) {
       ctx.font = "bold 14px Courier New";
