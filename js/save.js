@@ -41,6 +41,7 @@ function defaultSave() {
       goldEarned: 0,
       goldenEggsEarned: 0,
       bestWipeoutTime: 0,
+      eventsSurvived: 0,
     },
     flags: {},
   };

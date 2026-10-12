@@ -136,6 +136,9 @@ class Game {
     flags.biomes = Array.isArray(flags.biomes) ? flags.biomes : [];
     if (this.scene === "battle" && !flags.biomes.includes(this.biome.id)) flags.biomes.push(this.biome.id);
     if (this.scene === "battle") Tutorial.onStageStart(this);
+    Events.reset();
+    Director.planStage(this);
+    if (this.scene === "battle") Director.noteStart(this);
     audio.play("start_reveille");
   }
 
@@ -442,6 +445,7 @@ class Game {
     this.powerUpCooldown = Math.max(0, this.powerUpCooldown - dt);
     Abilities.update(this, dt);
     Hazards.update(this, dt);
+    Events.update(this, dt);
 
     const blue = this.living(RIGHT);
     const red = this.living(LEFT);
@@ -457,8 +461,9 @@ class Game {
     for (const u of this.living()) {
       const enemies = u.side === RIGHT ? red : blue;
       if (this.canSpeak(u)) u.updateSpeech(dt);
-      const udt = u.stuck > 0 ? dt * STICKY_SLOW : dt;
+      const udt = (u.stuck > 0 ? dt * STICKY_SLOW : dt) * Events.speedFactor(u);
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
+      Events.tickUnit(u, dt);
       u.move(udt * Hazards.speedFactor(u), enemies);
       if (u.isBoss) {
         u.updateBoss(this, udt, enemies);
@@ -909,6 +914,7 @@ class Game {
       if (u.hp < u.maxHp && u.hp > 0) drawCracks(u.x, u.y, u.size, 1 - u.hp / u.maxHp, u.wobble);
     });
     this.drawGoo();
+    Events.draw(this);
     this.drawHealthBars();
     Abilities.drawAirstrikes(this);
     Effects.draw();
@@ -928,6 +934,7 @@ class Game {
     this.drawRallyBanner();
     Objectives.draw(this);
     this.drawPersonalityBanner();
+    Events.drawBanner(this);
     Bosses.drawBar(this);
     Achievements.drawToast();
     Tutorial.draw(this);

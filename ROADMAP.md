@@ -72,7 +72,7 @@ most one brand-new thing per stage, and the rolls are random but seeded by stage
 
 ## 6. Framework
 
-- [ ] **Variety Director + Earthquake** - `js/director.js` rolls each stage's extras (event chance and timing, debut limits). `js/events.js` adds a random-event framework (warning banner, then the event), and the first event is the Earthquake: the screen rumbles, ground units stagger, eggs on the ground pop and the terrain shifts a little.
+- [x] **Variety Director + Earthquake** - `js/director.js` rolls each stage's extras (event chance and timing, debut limits). `js/events.js` adds a random-event framework (warning banner, then the event), and the first event is the Earthquake: the screen rumbles, ground units stagger, eggs on the ground pop and the terrain shifts a little.
 
 ## 7. Surprise events (both armies affected equally)
 

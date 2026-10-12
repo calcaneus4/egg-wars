@@ -117,6 +117,13 @@ const Effects = {
     this.shakeCooldown = SHAKE_COOLDOWN;
   },
 
+  // A continuous rumble for events like earthquakes: ignores the shake cooldown (the event is
+  // already rare) but still respects the screen-shake setting.
+  rumble(amount) {
+    if (!settings.screenShake) return;
+    this.shakeAmount = Math.min(14, Math.max(this.shakeAmount, amount));
+  },
+
   // ---- Update & draw --------------------------------------------------------------------
 
   update(dt, terrain) {

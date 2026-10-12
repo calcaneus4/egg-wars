@@ -178,6 +178,13 @@ class AudioFx {
       case "sad_jingle":
         [392, 330, 262, 196].forEach((f, i) => this.tone(f, i === 3 ? 0.5 : 0.22, { type: "triangle", volume: 0.08, delay: i * 0.2 }));
         return 1.1;
+      case "rumble":
+        this.noise(n(1.1), { volume: 0.5, filter: "lowpass", freq: 260 * v, freqTo: 70 });
+        this.tone(48 * v, n(1), { type: "sine", volume: 0.4, slideTo: 36 });
+        return 1.1;
+      case "event_warn":
+        [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
+        return 0.6;
       default:
         return 0;
     }
