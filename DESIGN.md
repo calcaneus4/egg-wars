@@ -73,8 +73,20 @@ The enemy always takes its castle first (as in the original game), then buys ran
 from the budget `B(n)`, using its **personality** template weights. The personalities are
 Balanced, Rusher, Turtle, Air Force and Artillery; see the roadmap. Stage 1 is always Balanced.
 
-| Balanced weights | soldier 3 | tank 2 | motorcycle 1.5 | drone 1.5 | airplane 1 | helicopter 0.6 | bomber 0.5 |
-|---|---|---|---|---|---|---|---|
+Personalities (`js/personalities.js`) rotate after stage 2: Rusher, Balanced, Turtle,
+Artillery, Air Force, repeat. The fight changes, but its difficulty does not. Any stat bonus is
+paid for with a smaller budget:
+
+| Personality | Favours | Stat changes | Budget |
+|---|---|---|---|
+| Balanced | everything | none | x1.00 |
+| Rusher | motorcycles, drones, riders, soldiers | speed x1.3 | x0.95 |
+| Turtle | tanks, medics, mortars | HP x1.15, speed x0.55 | x0.88 |
+| Artillery | tanks, mortars | fire rate x1.1, speed x0.35 (holds back) | x0.95 |
+| Air Force | airplanes, helicopters, bombers, drones | none | x1.00 (falls back to Balanced before stage 3) |
+
+A banner at the start of each stage names the personality, with a one-line counter-tip, and the
+HUD keeps the name under the enemy roster.
 
 Caps per type keep the battlefield readable (12 soldiers, 4 tanks, 3 motorcycles, 5 drones,
 3 airplanes, 1 helicopter, 1 bomber, 1 castle = 182 points). Once `B(n)` passes that, the

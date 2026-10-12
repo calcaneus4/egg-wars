@@ -120,6 +120,8 @@ class Game {
     this.addUnlockedPlayerUnits();
     this.living(RIGHT).forEach((u) => Armory.upgradeUnit(this.profile, u));
     this.scaleEnemiesForStage();
+    Personalities.apply(this.personality, this.living(LEFT));
+    this.personalityTimer = this.personality.id === "balanced" ? 0 : 4.5;
     const blue = this.living(RIGHT);
     const red = this.living(LEFT);
     if (!blue.length || !red.length) this.finishRound(blue.length > 0, red.length === 0);
@@ -221,7 +223,7 @@ class Game {
   // The player's free army: a fixed budget of unlocked unit types (power grows via the Armory).
   spawnPlayerArmy() {
     const weights = {};
-    for (const [type, weight] of Object.entries(settings.enemyBalancedWeights)) {
+    for (const [type, weight] of Object.entries(PERSONALITIES.balanced.weights)) {
       if (Unlocks.unitUnlocked(this.profile, type)) weights[type] = weight;
     }
     const counts = Progression.buildArmy(settings.playerArmyBudget, weights, this.playerCaps());
@@ -229,11 +231,9 @@ class Game {
   }
 
   spawnEnemyArmy() {
-    const budget = Progression.enemyBudget(this.stage) * Progression.rallyBudgetScale(this.rally || 0);
-    const weights = {};
-    for (const [type, weight] of Object.entries(settings.enemyBalancedWeights)) {
-      if (Unlocks.enemyTypeAllowed(type, this.stage)) weights[type] = weight;
-    }
+    this.personality = Personalities.forStage(this.stage);
+    const budget = Progression.enemyBudget(this.stage) * Progression.rallyBudgetScale(this.rally || 0) * this.personality.budgetScale;
+    const weights = Personalities.weightsFor(this.personality, this.stage);
     const counts = Progression.buildArmy(budget, weights, this.enemyCaps());
     for (const [type, count] of Object.entries(counts)) this.addMany(LEFT, type, count);
   }
@@ -367,6 +367,7 @@ class Game {
     });
     this.titleTimer = Math.max(0, this.titleTimer - dt);
     this.rallyTimer = Math.max(0, (this.rallyTimer || 0) - dt);
+    this.personalityTimer = Math.max(0, (this.personalityTimer || 0) - dt);
     this.units.forEach((u) => {
       if (u.shieldFlash > 0) u.shieldFlash = Math.max(0, u.shieldFlash - dt);
     });
@@ -840,6 +841,7 @@ class Game {
     this.drawStartTitle();
     if (this.winner) Results.draw(this);
     this.drawRallyBanner();
+    this.drawPersonalityBanner();
     Tutorial.draw(this);
     if (this.scene !== "battle") Menus.draw(this);
     drawScreenBorder();
@@ -966,6 +968,32 @@ class Game {
       ctx.arc(u.x, u.y - s(4), r, 0, Math.PI * 2);
       ctx.stroke();
     }
+    ctx.restore();
+  }
+
+  // Announces the enemy personality at the start of a stage.
+  drawPersonalityBanner() {
+    if (!this.personalityTimer || this.winner || this.scene !== "battle") return;
+    const p = this.personality;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, this.personalityTimer / 0.6, (4.5 - this.personalityTimer) * 4);
+    const y = this.rallyTimer > 0 ? 240 : 186;
+    ctx.font = "bold 28px Courier New";
+    const titleW = ctx.measureText(`ENEMY: ${p.name}`).width;
+    ctx.font = "bold 16px Courier New";
+    const w = Math.max(titleW, ctx.measureText(p.tell).width) + 40;
+    const x = (W - w) / 2;
+    ctx.fillStyle = PAPER;
+    ctx.strokeStyle = RED;
+    ctx.lineWidth = 3;
+    ctx.fillRect(x, y, w, 62);
+    ctx.strokeRect(x, y, w, 62);
+    ctx.fillStyle = RED;
+    ctx.font = "bold 28px Courier New";
+    centerText(`ENEMY: ${p.name}`, y + 30);
+    ctx.fillStyle = LINE;
+    ctx.font = "bold 16px Courier New";
+    centerText(p.tell, y + 52);
     ctx.restore();
   }
 

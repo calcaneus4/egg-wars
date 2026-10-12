@@ -282,19 +282,6 @@ const settings = {
     bomber: 16,
     castle: 20,
   },
-  // Relative pick weights for the Balanced enemy personality.
-  enemyBalancedWeights: {
-    medic: 0.5,
-    mortar: 0.5,
-    rider: 0.7,
-    soldier: 3,
-    tank: 2,
-    motorcycle: 1.5,
-    drone: 1.5,
-    airplane: 1,
-    helicopter: 0.6,
-    bomber: 0.5,
-  },
   unitSpawnCosts: {
     medic: 15,
     mortar: 30,

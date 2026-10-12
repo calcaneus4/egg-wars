@@ -227,6 +227,14 @@ const Hud = {
   },
 
   drawEnemyRoster(game) {
+    if (game.personality) {
+      ctx.save();
+      ctx.fillStyle = RED;
+      ctx.font = "bold 12px Courier New";
+      const label = game.personality.name;
+      ctx.fillText(label, W - 14 - ctx.measureText(label).width, 112);
+      ctx.restore();
+    }
     const types = SHOP_ORDER.slice(0, SHOP_ROW).concat(SHOP_ORDER.slice(SHOP_ROW).filter((t) => this.count(game, LEFT, t) > 0));
     const cell = 40;
     const x0 = W - 12 - 4 * cell * 2;

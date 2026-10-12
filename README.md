@@ -96,6 +96,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/armory.js` - permanent Golden Egg upgrades and the Armory screen
 - `js/abilities.js` - Airstrike and Shell Shield abilities with cooldowns
 - `js/unlocks.js` - level-based unlock table and enemy roster gating
+- `js/personalities.js` - enemy army templates (Rusher, Turtle, Artillery, Air Force)
 - `js/tutorial.js` - guided first battle and one-time tips
 - `js/game.js` - the `Game` class (rules, battle loop, HUD)
 - `js/main.js` - startup, input and the frame loop

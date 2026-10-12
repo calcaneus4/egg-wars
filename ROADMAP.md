@@ -47,7 +47,7 @@ progression and difficulty model that every item must respect.
 - [x] **Explosive egg & craters** - area damage plus terrain deformation that changes unit paths.
 - [x] **Abilities bar** - three cooldown abilities (Yolk Drop, Omelet Airstrike, Shell Shield) unlocked by level, upgradeable in the Armory.
 - [x] **New player units** - Egg Medic (heals nearby), Mortar Hen (long-range lob), Rooster Rider (fast melee charge); each unlocked by level.
-- [ ] **Enemy personalities** - Rusher, Turtle, Air Force and Artillery army templates rotated by stage, each with readable tells.
+- [x] **Enemy personalities** - Rusher, Turtle, Air Force and Artillery army templates rotated by stage, each with readable tells.
 - [ ] **Homing egg** - slow seeker egg for anti-air, unlocked mid-game.
 - [ ] **Biomes** - Meadow, Desert, Snowfield, Volcano, Kitchen Counter; each with terrain generator settings, palette and decorations; rotate every few stages.
 - [ ] **Hazards** - lava vents (Volcano), ice that makes ground units slide (Snowfield), quicksand (Desert), hot-pan geysers (Kitchen).
