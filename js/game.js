@@ -50,7 +50,7 @@ class Game {
   saveProfile() {
     const data = SaveManager.data;
     data.profile.gold = this.gold;
-    data.profile.stage = this.stage;
+    data.profile.stage = this.practice ? this.frontier : this.stage;
     data.profile.unlockedNames = [...this.unlockedNames];
     data.stats.wins = this.score.blue;
     data.stats.losses = this.score.red;
@@ -68,9 +68,27 @@ class Game {
   }
 
   startBattle() {
+    this.endPractice();
     this.scene = "battle";
     this.titleTimer = 0;
     this.startStage();
+  }
+
+  // Replays an already-cleared stage for half rewards without moving progress.
+  startPractice(stage) {
+    this.endPractice();
+    this.practice = true;
+    this.frontier = this.stage;
+    this.stage = stage;
+    this.scene = "battle";
+    this.titleTimer = 0;
+    this.startStage();
+  }
+
+  endPractice() {
+    if (!this.practice) return;
+    this.practice = false;
+    this.stage = this.frontier;
   }
 
   togglePause() {
@@ -78,7 +96,7 @@ class Game {
     else if (this.scene === "paused") this.scene = "battle";
     else if (this.scene === "settings") this.scene = Menus.returnScene;
     else if (this.scene === "armory") this.scene = Menus.armoryReturn;
-    else if (this.scene === "achievements") this.scene = "title";
+    else if (this.scene === "achievements" || this.scene === "map") this.scene = "title";
   }
 
   nextRoundLimit() {
@@ -282,14 +300,14 @@ class Game {
       const bonus = settings.scoreWinBase * this.stage + Math.round(Math.sqrt(this.armyScore(this.living(RIGHT))) * settings.survivorGoldFactor);
       reward += bonus;
       if (this.bossStage) reward += 40;
-      reward = Math.round(reward * Armory.goldScale(this.profile));
+      reward = Math.round(reward * Armory.goldScale(this.profile) * (this.practice ? PRACTICE_REWARD_SCALE : 1));
       this.gold += reward;
       this.lastGoldReward = reward;
       if (settings.showScore) this.points += bonus;
       this.score.blue++;
-      this.stage++;
+      if (!this.practice) this.stage++;
     } else {
-      const consolation = Math.round((settings.goldLossBase + settings.goldLossPerStage * this.stage) * Armory.goldScale(this.profile));
+      const consolation = Math.round((settings.goldLossBase + settings.goldLossPerStage * this.stage) * Armory.goldScale(this.profile) * (this.practice ? PRACTICE_REWARD_SCALE : 1));
       this.gold += consolation;
       this.lastGoldReward = consolation;
       this.score.red++;
@@ -306,14 +324,19 @@ class Game {
   grantProgress(blueWon) {
     const p = this.profile;
     const streakBefore = p.lossStreak;
-    const playedStage = blueWon ? this.stage - 1 : this.stage;
-    p.lossStreak = blueWon ? 0 : p.lossStreak + 1;
-    const xp = Progression.roundXp(playedStage, blueWon) + this.roundKills;
+    const playedStage = blueWon && !this.practice ? this.stage - 1 : this.stage;
+    if (!this.practice) p.lossStreak = blueWon ? 0 : p.lossStreak + 1;
+    const xp = Math.round((Progression.roundXp(playedStage, blueWon) + this.roundKills) * (this.practice ? PRACTICE_REWARD_SCALE : 1));
     const levelBefore = p.level;
     const levelsGained = Progression.addXp(p, xp);
     let goldenEggs = blueWon ? Progression.winGoldenEggs(playedStage) : Progression.lossGoldenEggs(p.lossStreak);
     if (blueWon && this.bossStage) goldenEggs += 3;
-    const objectiveEggs = Objectives.finish(this, blueWon);
+    let objectiveEggs = Objectives.finish(this, blueWon);
+    if (this.practice) {
+      // Practice pays half gold and XP but no Golden Eggs (level-ups still pay theirs).
+      goldenEggs = 0;
+      objectiveEggs = 0;
+    }
     goldenEggs += objectiveEggs;
     const stats = SaveManager.data.stats;
     stats.goalsCompleted += (this.objectives || []).filter((o) => o.complete).length;
@@ -1134,7 +1157,10 @@ class Game {
     if (this.winner) {
       const action = Results.click(this, x, y);
       if (action === "armory") Menus.openArmory(this, "battle");
-      else if (action === "continue") this.startStage();
+      else if (action === "continue") {
+        this.endPractice();
+        this.startStage();
+      }
       return;
     }
     const b = this.buttonAt(x, y);

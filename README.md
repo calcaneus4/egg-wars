@@ -93,6 +93,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/projectiles.js` - eggs and splats
 - `js/bosses.js` - boss battles every 5th stage
 - `js/menus.js` - title, pause and settings screens
+- `js/worldmap.js` - world map, stage select and practice replays
 - `js/hud.js` - battle HUD: unit shop bar, stage/time panel, enemy roster, Yolk Drop ring
 - `js/results.js` - animated end-of-round results screen
 - `js/armory.js` - permanent Golden Egg upgrades and the Armory screen

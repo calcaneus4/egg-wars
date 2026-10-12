@@ -128,7 +128,7 @@ const Music = {
   // Called every frame from the game: picks the mood and eases intensity toward the action.
   update(game, dt) {
     if (!audio.ready()) return;
-    if (["title", "settings", "armory", "achievements"].includes(game.scene)) {
+    if (["title", "settings", "armory", "achievements", "map"].includes(game.scene)) {
       this.start("title", 1);
       this.targetIntensity = 0.1;
     } else if (game.winner) {

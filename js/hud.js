@@ -164,7 +164,7 @@ const Hud = {
     ctx.strokeRect(x, y, w, 60);
     ctx.fillStyle = LINE;
     ctx.font = "bold 18px Courier New";
-    ctx.fillText(`STAGE ${game.stage}`, x + 10, y + 24);
+    ctx.fillText(game.practice ? `PRACTICE ${game.stage}` : `STAGE ${game.stage}`, x + 10, y + 24);
     ctx.font = "bold 11px Courier New";
     if (game.biome) ctx.fillText(game.biome.name.toUpperCase(), x + 110, y + 18);
     ctx.font = "bold 18px Courier New";

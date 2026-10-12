@@ -87,6 +87,7 @@ const Menus = {
     if (game.scene === "settings") this.drawSettings(game);
     if (game.scene === "armory") drawArmoryScreen(game);
     if (game.scene === "achievements") Achievements.drawGallery(game);
+    if (game.scene === "map") WorldMap.draw(game);
     this.buttons.forEach((b) => this.drawButton(b, b.hot));
   },
 
@@ -105,9 +106,10 @@ const Menus = {
     const fresh = p.stage <= 1 && p.level <= 1 && game.score.blue + game.score.red === 0;
     const play = this.button(fresh ? "PLAY" : `CONTINUE - STAGE ${p.stage}`, W / 2, 280, 380, () => game.startBattle());
     play.hot = true;
-    const armory = this.button(Armory.isOpen(p) ? "ARMORY" : `ARMORY (LV ${ARMORY_UNLOCK_LEVEL})`, W / 2, 340, 380, () => this.openArmory(game, "title"));
+    this.button("WORLD MAP", W / 2, 340, 380, () => WorldMap.open(game));
+    const armory = this.button(Armory.isOpen(p) ? "ARMORY" : `ARMORY (LV${ARMORY_UNLOCK_LEVEL})`, W / 2 - 97, 400, 186, () => this.openArmory(game, "title"));
     armory.disabled = !Armory.isOpen(p);
-    this.button(`ACHIEVEMENTS ${Achievements.count()}/${ACHIEVEMENTS.length}`, W / 2, 400, 380, () => { game.scene = "achievements"; });
+    this.button(`TROPHIES ${Achievements.count()}/${ACHIEVEMENTS.length}`, W / 2 + 97, 400, 186, () => { game.scene = "achievements"; });
     this.button("SETTINGS", W / 2, 460, 380, () => this.openSettings(game, "title"));
     if (!fresh) {
       ctx.font = "bold 18px Courier New";
@@ -130,7 +132,7 @@ const Menus = {
     this.button("RESUME", W / 2, 250, 340, () => { game.scene = "battle"; }).hot = true;
     this.button("RESTART STAGE", W / 2, 310, 340, () => { game.scene = "battle"; game.restart(); });
     this.button("SETTINGS", W / 2, 370, 340, () => this.openSettings(game, "paused"));
-    this.button("TITLE SCREEN", W / 2, 430, 340, () => { game.scene = "title"; });
+    this.button("TITLE SCREEN", W / 2, 430, 340, () => { game.endPractice(); game.startStage(); game.scene = "title"; });
   },
 
   openSettings(game, from) {
@@ -213,6 +215,7 @@ const Menus = {
   },
 
   click(game, x, y) {
+    if (game.scene === "map" && WorldMap.click(game, x, y)) return;
     const hit = this.buttons.find((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
     if (!hit) return;
     if (hit.disabled) {

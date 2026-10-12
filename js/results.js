@@ -98,7 +98,7 @@ const Results = {
     ctx.rotate(won ? -0.02 : 0.02);
     ctx.fillStyle = won ? BLUE : RED;
     ctx.font = "bold 50px Courier New";
-    const title = won ? "VICTORY!" : "DEFEAT";
+    const title = (game.practice ? "PRACTICE " : "") + (won ? "VICTORY!" : "DEFEAT");
     ctx.fillText(title, -ctx.measureText(title).width / 2, 0);
     ctx.restore();
     ctx.fillStyle = LINE;

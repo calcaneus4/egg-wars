@@ -180,6 +180,10 @@ losing a tank, win without buying, win with 60% of the army alive, 3 Yolk Drop k
 the enemy castle (+1 GE each). The last two pay even on a loss, so a losing round can still
 earn Golden Eggs.
 
+**Practice** (World Map, `js/worldmap.js`): replaying a cleared stage pays x0.5 gold and XP and
+no Golden Eggs (level-ups still pay theirs). It doesn't change the stage or the loss streak, so
+practice can't be farmed for Golden Eggs or used to skip the Rally rules.
+
 `survivorBonus = round(3 * sqrt(armyScore))`, where `armyScore` is the surviving player HP
 (+4 per aircraft, +5 per castle). This is usually 20-35 gold. The original game paid 4 gold
 per point, often 300+ gold per win, which made reinforcement prices meaningless.
