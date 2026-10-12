@@ -18,14 +18,17 @@ const Weather = {
   drops: [],
   gust: 0,
 
-  regenerate(stage) {
+  regenerate(stage, biome = null) {
     const random = seededRandom(stage * 104729 + 7);
+    const table = biome && biome.weather
+      ? Object.entries(biome.weather).map(([id, weight]) => ({ id, weight }))
+      : WEATHER_TYPES;
     if (stage <= 2) {
       this.type = "clear";
     } else {
-      const total = WEATHER_TYPES.reduce((sum, w) => sum + w.weight, 0);
+      const total = table.reduce((sum, w) => sum + w.weight, 0);
       let roll = random() * total;
-      this.type = WEATHER_TYPES.find((w) => (roll -= w.weight) <= 0).id;
+      this.type = (table.find((w) => (roll -= w.weight) <= 0) || table[0]).id;
     }
     const dir = random() < 0.5 ? -1 : 1;
     const strength = this.type === "windy" ? 0.7 + random() * 0.3 : this.type === "clear" ? random() * 0.15 : 0.15 + random() * 0.3;

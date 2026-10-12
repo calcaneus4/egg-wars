@@ -49,7 +49,7 @@ progression and difficulty model that every item must respect.
 - [x] **New player units** - Egg Medic (heals nearby), Mortar Hen (long-range lob), Rooster Rider (fast melee charge); each unlocked by level.
 - [x] **Enemy personalities** - Rusher, Turtle, Air Force and Artillery army templates rotated by stage, each with readable tells.
 - [x] **Homing egg** - slow seeker egg for anti-air, unlocked mid-game.
-- [ ] **Biomes** - Meadow, Desert, Snowfield, Volcano, Kitchen Counter; each with terrain generator settings, palette and decorations; rotate every few stages.
+- [x] **Biomes** - Meadow, Desert, Snowfield, Volcano, Kitchen Counter; each with terrain generator settings, palette and decorations; rotate every few stages.
 - [ ] **Hazards** - lava vents (Volcano), ice that makes ground units slide (Snowfield), quicksand (Desert), hot-pan geysers (Kitchen).
 - [ ] **Boss battles** - every 5th stage: Giant Rooster Mech, Omelet Fortress, Scrambler Zeppelin; health bar, phases, big rewards; scaled with the same `D(n)`.
 - [ ] **Optional objectives** - 1-2 bonus goals per stage (win under X s, lose no tanks, 3 Yolk Drop kills) paying extra Golden Eggs.

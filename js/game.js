@@ -85,10 +85,11 @@ class Game {
   }
 
   startStage() {
-    this.terrain.regenerate();
-    this.background.regenerate();
+    this.biome = Biomes.forStage(this.stage);
+    this.terrain.regenerate(this.biome);
+    this.background.regenerate(this.biome);
     Sky.regenerate(this.stage);
-    Weather.regenerate(this.stage);
+    Weather.regenerate(this.stage, this.biome);
     this.units = [];
     this.eggs = [];
     this.splats = [];

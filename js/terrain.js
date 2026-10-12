@@ -13,20 +13,22 @@ class Terrain {
     this.artKey = "";
   }
 
-  regenerate() {
+  regenerate(biome = BIOMES[0]) {
+    this.biome = biome;
     this.seed = Math.floor(Math.random() * 1e9);
     this.invalidate();
-    const minY = H * 0.64;
-    const maxY = H * 0.86;
+    const shape = biome.terrain;
+    const minY = H * shape.minY;
+    const maxY = H * shape.maxY;
     let x = -90;
-    let y = rand(minY + 80, maxY - 60);
+    let y = rand(minY + (maxY - minY) * 0.35, maxY - (maxY - minY) * 0.27);
     this.points = [[x, y]];
     while (x < W + 90) {
       x += Math.floor(rand(8, 21));
-      y = clamp(y + rand(-100, 100), minY, maxY);
+      y = clamp(y + rand(-shape.rough, shape.rough), minY, maxY);
       this.points.push([x, y]);
     }
-    for (let pass = 0; pass < 5; pass++) this.smooth();
+    for (let pass = 0; pass < shape.smooth; pass++) this.smooth();
     this.points = this.points.map(([px, py]) => {
       const d = Math.abs(px - W * 0.5) / (W * 0.5);
       return [px, clamp(py + (1 - Math.min(d, 1)) * rand(20, 52), minY, maxY)];
@@ -100,6 +102,11 @@ class Terrain {
     g.closePath();
     g.fillStyle = PAPER;
     g.fill();
+    const biome = this.biome || BIOMES[0];
+    if (biome.ground) {
+      g.fillStyle = Biomes.rgba(biome.ground);
+      g.fill();
+    }
 
     // Hatching, clipped to the ground, densest just under the surface.
     g.save();
@@ -140,6 +147,7 @@ class Terrain {
       g.fill();
       g.stroke();
     }
+    this.renderBiomeGround(g, random, biome);
     g.restore();
 
     // Inked outline: a bold stroke plus a thin, slightly offset second pass.
@@ -153,10 +161,12 @@ class Terrain {
     g.stroke();
     g.globalAlpha = 1;
 
+    this.renderBiomeSurface(g, random, biome);
+
     // Grass tufts along the surface.
     g.strokeStyle = LINE;
     g.lineWidth = 1.5;
-    for (let x = 4; x < W; x += 9 + random() * 16) {
+    for (let x = 4; x < W && biome.grass; x += 9 + random() * 16) {
       if (random() < 0.35) continue;
       const y = this.yAt(x);
       const slope = this.slopeAt(x);
@@ -172,6 +182,72 @@ class Terrain {
       }
     }
     this.art = off;
+  }
+
+  // Biome detail inside the ground (already clipped to it).
+  renderBiomeGround(g, random, biome) {
+    if (biome.stipple) {
+      g.fillStyle = rgbaFromHex(LINE, 0.25);
+      for (let i = 0; i < 500; i++) {
+        const x = random() * W;
+        const y = this.yAt(x) + 4 + random() * 120;
+        g.fillRect(x, y, 1.5, 1.5);
+      }
+    }
+    if (biome.cracks) {
+      g.strokeStyle = "rgba(255,120,40,0.7)";
+      g.lineWidth = 2;
+      for (let i = 0; i < 14; i++) {
+        let x = random() * W;
+        let y = this.yAt(x) + 20 + random() * 80;
+        g.beginPath();
+        g.moveTo(x, y);
+        for (let k = 0; k < 4; k++) {
+          x += (random() - 0.5) * 30;
+          y += 6 + random() * 12;
+          g.lineTo(x, y);
+        }
+        g.stroke();
+      }
+    }
+    if (biome.tiles) {
+      // Checked tiles under the counter top.
+      const size = 34;
+      for (let x = 0; x < W; x += size) {
+        for (let y = H * 0.68; y < H; y += size) {
+          if ((Math.floor(x / size) + Math.floor(y / size)) % 2 === 0) {
+            g.fillStyle = rgbaFromHex(BLUE, 0.13);
+            g.fillRect(x, y, size, size);
+          }
+        }
+      }
+    }
+  }
+
+  // Biome detail on top of the surface line.
+  renderBiomeSurface(g, random, biome) {
+    if (biome.snowCap) {
+      g.fillStyle = "#ffffff";
+      g.strokeStyle = rgbaFromHex(LINE, 0.5);
+      g.lineWidth = 1;
+      g.beginPath();
+      this.points.forEach(([x, y], i) => (i ? g.lineTo(x, y - 3) : g.moveTo(x, y - 3)));
+      for (let i = this.points.length - 1; i >= 0; i--) {
+        const [x, y] = this.points[i];
+        g.lineTo(x, y + 4 + Math.sin(x * 0.07) * 3);
+      }
+      g.closePath();
+      g.fill();
+      g.stroke();
+    }
+    if (biome.tiles) {
+      // Counter edge: a thick lip just under the surface.
+      g.strokeStyle = rgbaFromHex(LINE, 0.6);
+      g.lineWidth = 2;
+      g.beginPath();
+      this.points.forEach(([x, y], i) => (i ? g.lineTo(x, y + 10) : g.moveTo(x, y + 10)));
+      g.stroke();
+    }
   }
 
   draw() {

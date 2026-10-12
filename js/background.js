@@ -27,7 +27,8 @@ class Background {
     this.time = 0;
   }
 
-  regenerate(seed = Math.floor(Math.random() * 1e9)) {
+  regenerate(biome = BIOMES[0], seed = Math.floor(Math.random() * 1e9)) {
+    this.biome = biome;
     this.seed = seed;
     this.renderedKey = "";
   }
@@ -108,6 +109,10 @@ class Background {
         g.lineTo(x + 6, y + 16 + random() * 14);
         g.stroke();
       }
+      if (layer.kind === "trees" && this.biome && this.biome.decor !== "trees") {
+        if (random() < 0.12) this.drawDecor(g, this.biome.decor, x, y, 10 + random() * 16, random, layer);
+        continue;
+      }
       if (layer.kind === "trees" && random() < 0.16) {
         const h = 10 + random() * 14;
         g.beginPath();
@@ -131,8 +136,59 @@ class Background {
     return off;
   }
 
+  // Near-layer silhouettes for non-meadow biomes.
+  drawDecor(g, kind, x, y, h, random, layer) {
+    g.fillStyle = rgbaFromHex(LINE, layer.fill * 1.3);
+    g.beginPath();
+    if (kind === "cacti") {
+      g.moveTo(x, y + 2);
+      g.lineTo(x, y - h);
+      g.moveTo(x, y - h * 0.5);
+      g.lineTo(x - h * 0.3, y - h * 0.55);
+      g.lineTo(x - h * 0.3, y - h * 0.8);
+      g.moveTo(x, y - h * 0.65);
+      g.lineTo(x + h * 0.3, y - h * 0.7);
+      g.lineTo(x + h * 0.3, y - h * 0.95);
+      g.lineWidth = 3;
+      g.stroke();
+      g.lineWidth = 1.5;
+    } else if (kind === "pines") {
+      for (let k = 0; k < 3; k++) {
+        const ty = y - h * (0.3 + k * 0.3);
+        g.moveTo(x - h * (0.4 - k * 0.1), ty + h * 0.2);
+        g.lineTo(x, ty - h * 0.15);
+        g.lineTo(x + h * (0.4 - k * 0.1), ty + h * 0.2);
+      }
+      g.fill();
+      g.stroke();
+    } else if (kind === "rocks") {
+      g.moveTo(x - h * 0.6, y + 2);
+      g.lineTo(x - h * 0.3, y - h * 0.5);
+      g.lineTo(x + h * 0.1, y - h * 0.7);
+      g.lineTo(x + h * 0.5, y - h * 0.2);
+      g.lineTo(x + h * 0.6, y + 2);
+      g.closePath();
+      g.fill();
+      g.stroke();
+    } else if (kind === "kitchen") {
+      // Jars, bottles and a pepper mill on the back counter.
+      const pick = Math.floor(random() * 3);
+      if (pick === 0) g.rect(x - h * 0.3, y - h, h * 0.6, h);
+      else if (pick === 1) {
+        g.moveTo(x - h * 0.2, y);
+        g.lineTo(x - h * 0.2, y - h * 0.8);
+        g.lineTo(x - h * 0.08, y - h * 1.3);
+        g.lineTo(x + h * 0.08, y - h * 1.3);
+        g.lineTo(x + h * 0.2, y - h * 0.8);
+        g.lineTo(x + h * 0.2, y);
+      } else g.ellipse(x, y - h * 0.5, h * 0.25, h * 0.6, 0, 0, Math.PI * 2);
+      g.fill();
+      g.stroke();
+    }
+  }
+
   ensureRendered() {
-    const key = `${this.seed}|${LINE}|${PAPER}`;
+    const key = `${this.seed}|${LINE}|${PAPER}|${this.biome ? this.biome.id : ""}`;
     if (key === this.renderedKey) return;
     this.layers = BACKGROUND_LAYERS.map((layer, i) => ({ layer, image: this.renderLayer(layer, i) }));
     this.renderedKey = key;

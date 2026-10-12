@@ -1,0 +1,68 @@
+"use strict";
+
+// Biomes: each run of five stages takes place in a different land with its own terrain shape,
+// ground colour, background decorations and weather. After Kitchen Counter the cycle repeats.
+
+const BIOME_STAGES = 5;
+
+const BIOMES = [
+  {
+    id: "meadow",
+    name: "Meadow",
+    terrain: { minY: 0.64, maxY: 0.86, rough: 100, smooth: 5 },
+    ground: null,
+    grass: true,
+    decor: "trees",
+    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5 },
+  },
+  {
+    id: "desert",
+    name: "Desert Dunes",
+    terrain: { minY: 0.66, maxY: 0.84, rough: 70, smooth: 8 },
+    ground: [235, 190, 110, 0.32],
+    grass: false,
+    stipple: true,
+    decor: "cacti",
+    weather: { clear: 6, windy: 3 },
+  },
+  {
+    id: "snow",
+    name: "Snowfield",
+    terrain: { minY: 0.62, maxY: 0.86, rough: 110, smooth: 4 },
+    ground: [210, 230, 255, 0.35],
+    grass: false,
+    snowCap: true,
+    decor: "pines",
+    weather: { snow: 5, clear: 2, windy: 2 },
+  },
+  {
+    id: "volcano",
+    name: "Volcano",
+    terrain: { minY: 0.6, maxY: 0.88, rough: 130, smooth: 3 },
+    ground: [70, 45, 40, 0.28],
+    grass: false,
+    cracks: true,
+    decor: "rocks",
+    weather: { clear: 4, windy: 2 },
+  },
+  {
+    id: "kitchen",
+    name: "Kitchen Counter",
+    terrain: { minY: 0.7, maxY: 0.8, rough: 40, smooth: 9 },
+    ground: [255, 255, 255, 0.0],
+    grass: false,
+    tiles: true,
+    decor: "kitchen",
+    weather: { clear: 1 },
+  },
+];
+
+const Biomes = {
+  forStage(stage) {
+    return BIOMES[Math.floor((Math.max(1, stage) - 1) / BIOME_STAGES) % BIOMES.length];
+  },
+
+  rgba(c, alphaScale = 1) {
+    return `rgba(${c[0]},${c[1]},${c[2]},${(c[3] * alphaScale).toFixed(3)})`;
+  },
+};
