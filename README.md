@@ -96,6 +96,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/worldmap.js` - world map, stage select and practice replays
 - `js/hud.js` - battle HUD: unit shop bar, stage/time panel, enemy roster, Yolk Drop ring
 - `js/results.js` - animated end-of-round results screen
+- `js/stats.js` - lifetime statistics page
 - `js/armory.js` - permanent Golden Egg upgrades and the Armory screen
 - `js/abilities.js` - Airstrike and Shell Shield abilities with cooldowns
 - `js/hazards.js` - neutral biome hazards (quicksand, ice, lava vents, hot pans)

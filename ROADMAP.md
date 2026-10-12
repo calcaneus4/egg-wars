@@ -55,7 +55,7 @@ progression and difficulty model that every item must respect.
 - [x] **Optional objectives** - 1-2 bonus goals per stage (win under X s, lose no tanks, 3 Yolk Drop kills) paying extra Golden Eggs.
 - [x] **Achievements** - ~20 achievements with toasts and a gallery page; some grant cosmetic color schemes.
 - [x] **World map / stage select** - biome path showing cleared stages, bosses and next unlock; replay any cleared stage for practice rewards.
-- [ ] **Stats page** - lifetime kills, eggs thrown, favourite unit, best wipeout time.
+- [x] **Stats page** - lifetime kills, eggs thrown, favourite unit, best wipeout time.
 
 ## 5. Final
 

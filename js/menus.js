@@ -88,6 +88,7 @@ const Menus = {
     if (game.scene === "armory") drawArmoryScreen(game);
     if (game.scene === "achievements") Achievements.drawGallery(game);
     if (game.scene === "map") WorldMap.draw(game);
+    if (game.scene === "stats") Stats.draw(game);
     this.buttons.forEach((b) => this.drawButton(b, b.hot));
   },
 
@@ -110,7 +111,8 @@ const Menus = {
     const armory = this.button(Armory.isOpen(p) ? "ARMORY" : `ARMORY (LV${ARMORY_UNLOCK_LEVEL})`, W / 2 - 97, 400, 186, () => this.openArmory(game, "title"));
     armory.disabled = !Armory.isOpen(p);
     this.button(`TROPHIES ${Achievements.count()}/${ACHIEVEMENTS.length}`, W / 2 + 97, 400, 186, () => { game.scene = "achievements"; });
-    this.button("SETTINGS", W / 2, 460, 380, () => this.openSettings(game, "title"));
+    this.button("STATS", W / 2 - 97, 460, 186, () => { game.scene = "stats"; });
+    this.button("SETTINGS", W / 2 + 97, 460, 186, () => this.openSettings(game, "title"));
     if (!fresh) {
       ctx.font = "bold 18px Courier New";
       ctx.fillStyle = LINE;

@@ -47,6 +47,7 @@ const Abilities = {
       // Drop evenly spaced eggs while over the enemy half.
       while (strike.dropsLeft > 0 && strike.x >= strike.nextDropX) {
         game.eggs.push(new Egg(strike.x, strike.y + 16, AIRSTRIKE_SPEED * 0.25, 40, RIGHT, 2));
+        Stats.add("eggsThrown");
         strike.dropsLeft--;
         strike.nextDropX += strike.spacing;
         audio.play("fire");

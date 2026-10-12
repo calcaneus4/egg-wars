@@ -36,6 +36,11 @@ function defaultSave() {
       bestWinTime: 0,
       flawlessWins: 0,
       nightWins: 0,
+      eggsThrown: 0,
+      playSeconds: 0,
+      goldEarned: 0,
+      goldenEggsEarned: 0,
+      bestWipeoutTime: 0,
     },
     flags: {},
   };

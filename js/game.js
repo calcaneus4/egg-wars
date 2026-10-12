@@ -96,7 +96,7 @@ class Game {
     else if (this.scene === "paused") this.scene = "battle";
     else if (this.scene === "settings") this.scene = Menus.returnScene;
     else if (this.scene === "armory") this.scene = Menus.armoryReturn;
-    else if (this.scene === "achievements" || this.scene === "map") this.scene = "title";
+    else if (["achievements", "map", "stats"].includes(this.scene)) this.scene = "title";
   }
 
   nextRoundLimit() {
@@ -296,6 +296,8 @@ class Game {
       if (fullDestruction) {
         this.lastGoldBonus = settings.fullDestructionGoldBonus;
         reward += this.lastGoldBonus;
+        const s = SaveManager.data.stats;
+        if (!this.practice && (!s.bestWipeoutTime || this.roundTime < s.bestWipeoutTime)) s.bestWipeoutTime = Math.round(this.roundTime * 10) / 10;
       }
       const bonus = settings.scoreWinBase * this.stage + Math.round(Math.sqrt(this.armyScore(this.living(RIGHT))) * settings.survivorGoldFactor);
       reward += bonus;
@@ -313,6 +315,8 @@ class Game {
       this.score.red++;
     }
     this.grantProgress(blueWon);
+    Stats.add("goldEarned", this.lastGoldReward);
+    Stats.add("goldenEggsEarned", this.roundRewards.goldenEggs);
     Results.start(this);
     SaveManager.data.stats.roundsPlayed++;
     this.saveProfile();
@@ -432,6 +436,7 @@ class Game {
       return;
     }
     this.roundTime += dt;
+    Stats.add("playSeconds", dt);
     this.powerUpCooldown = Math.max(0, this.powerUpCooldown - dt);
     Abilities.update(this, dt);
     Hazards.update(this, dt);
@@ -650,6 +655,7 @@ class Game {
     this.eggs.push(new Egg(sx, sy, vx, vy, u.side, burst));
     Effects.muzzle(sx, sy, Math.sign(vx) || u.side);
     if (u instanceof Tank || u instanceof Castle) u.recoil = 1;
+    if (u.side === RIGHT) Stats.add("eggsThrown");
     this.maybeSay(u, settings.speechFireComments, 0.95);
     audio.play("fire");
   }
@@ -719,6 +725,7 @@ class Game {
     const vx = clamp(dx / time, -u.bombSpeed, u.bombSpeed);
     const vy = (dy - 0.5 * GRAVITY * time * time) / time;
     this.eggs.push(new Egg(sx, sy, vx, vy, u.side, u.bombBurst));
+    if (u.side === RIGHT) Stats.add("eggsThrown");
     this.maybeSay(u, settings.speechFireComments, 0.95);
     audio.play("fire");
   }
@@ -741,6 +748,7 @@ class Game {
     }
     candidates.sort((a, b) => a.score - b.score);
     this.eggs.push(new Egg(sx, sy, vx, candidates[0].vy, u.side, u.bombBurst));
+    if (u.side === RIGHT) Stats.add("eggsThrown");
     this.maybeSay(u, settings.speechFireComments, 0.95);
     audio.play("fire");
   }
@@ -757,6 +765,7 @@ class Game {
     const ty = target.y + rand(-settings.airplaneShotSpread * 0.6, settings.airplaneShotSpread * 0.6);
     const d = Math.max(1, Math.hypot(tx - sx, ty - sy));
     this.eggs.push(new Egg(sx, sy, (tx - sx) / d * settings.airplaneShotSpeed, (ty - sy) / d * settings.airplaneShotSpeed, u.side));
+    if (u.side === RIGHT) Stats.add("eggsThrown");
     this.maybeSay(u, settings.speechFireComments, 0.95);
     audio.play("fire");
   }
@@ -865,6 +874,7 @@ class Game {
       const egg = new Egg(targetX + (i - (count - 1) / 2) * 20, 72, vx, 30, RIGHT, kind.yolkBurst, kind.id);
       egg.source = "yolk";
       this.eggs.push(egg);
+      Stats.add("eggsThrown");
     }
     this.powerUpCooldown = Armory.yolkCooldown(this.profile);
     audio.play("fire");
@@ -1196,6 +1206,7 @@ class Game {
     this.gold -= cost;
     if (this.track) this.track.bought = true;
     SaveManager.data.stats.unitsBought++;
+    Stats.add(`bought_${button.type}`);
     Achievements.check(this);
     audio.play("coin");
     this.addUnit(button.side, button.type);
