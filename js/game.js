@@ -683,7 +683,7 @@ class Game {
     const vy = (ty - sy - 0.5 * GRAVITY * t * t) / t;
     if (u.aim) u.aim(vx, vy);
     const burst = u.eggBurst ?? (u instanceof Castle ? u.bombBurst : u instanceof Tank ? 3 : 0);
-    this.eggs.push(new Egg(sx, sy, vx, vy, u.side, burst));
+    this.eggs.push(new Egg(sx, sy, vx, vy, u.side, burst, u.side === LEFT ? Personalities.eggKind(this.personality) : "normal"));
     Effects.muzzle(sx, sy, Math.sign(vx) || u.side);
     if (u instanceof Tank || u instanceof Castle) u.recoil = 1;
     if (u.side === RIGHT) Stats.add("eggsThrown");

@@ -279,7 +279,9 @@ const Hud = {
       ctx.fillText(label, W - 14 - ctx.measureText(label).width, 112);
       ctx.restore();
     }
-    const types = SHOP_ORDER.slice(0, SHOP_ROW).concat(SHOP_ORDER.slice(SHOP_ROW).filter((t) => this.count(game, LEFT, t) > 0));
+    // Types the enemy has on the field come first (up to 12), padded with the basic types.
+    const present = SHOP_ORDER.filter((t) => this.count(game, LEFT, t) > 0);
+    const types = present.concat(SHOP_ORDER.slice(0, SHOP_ROW).filter((t) => !present.includes(t))).slice(0, Math.max(SHOP_ROW, Math.min(12, present.length)));
     const cell = 40;
     const x0 = W - 12 - 4 * cell * 2;
     ctx.save();

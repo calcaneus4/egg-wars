@@ -126,6 +126,16 @@ const EGG_TYPES = {
     yolkDrop: false,
     freeze: 1.5,
   },
+  zapShard: {
+    id: "zapShard",
+    name: "Zap shard",
+    level: 99,
+    damage: 1,
+    burst: 0,
+    band: "zapper",
+    yolkDrop: false,
+    zap: { range: 200, hops: 1 },
+  },
   smoke: {
     id: "smoke",
     name: "Smoke",
