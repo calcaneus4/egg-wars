@@ -19,7 +19,7 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 - Press `R` to restart the current stage.
 - Press `Esc` or `P` to pause (resume, restart, settings, title screen).
 - Press `M` to mute or unmute.
-- Settings (title screen or pause menu): volume, mute, color scheme, speech bubbles, screen shake, and New Game (erases saved progress).
+- Settings (title screen or pause menu): master, effects and music volume, mute, color scheme, speech bubbles, screen shake, and New Game (erases saved progress).
 - Progress (stage, gold, unlocks, wins/losses) is saved automatically in the browser.
 
 ## Unit Shop

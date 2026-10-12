@@ -77,6 +77,7 @@ const Hud = {
     this.drawCenterPanel(game);
     this.drawEnemyRoster(game);
     this.drawAbility(game);
+    this.drawMuteBadge();
   },
 
   count(game, side, type) {
@@ -182,6 +183,20 @@ const Hud = {
       ctx.fillStyle = LINE;
       centerText(teaser, 112);
     }
+  },
+
+  drawMuteBadge() {
+    if (!settings.muted) return;
+    ctx.save();
+    ctx.fillStyle = PAPER;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(W - 128, 72, 116, 22);
+    ctx.strokeRect(W - 128, 72, 116, 22);
+    ctx.fillStyle = LINE;
+    ctx.font = "bold 13px Courier New";
+    ctx.fillText("MUTED  (M)", W - 116, 88);
+    ctx.restore();
   },
 
   drawEnemyRoster(game) {

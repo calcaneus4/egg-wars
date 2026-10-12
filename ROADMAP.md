@@ -38,7 +38,7 @@ progression and difficulty model that every item must respect.
 
 - [x] **Procedural SFX engine** - Web Audio synth for all effects with random pitch/timbre variation, voice limiting and master/SFX/music buses; WAV files kept as optional layers.
 - [x] **Procedural music** - small step-sequencer playing per-biome loops, with an intensity layer that rises when armies clash and calm/victory/defeat stingers.
-- [ ] **Volume & mute** - separate master/SFX/music sliders in settings, `M` to mute, saved in the profile.
+- [x] **Volume & mute** - separate master/SFX/music sliders in settings, `M` to mute, saved in the profile.
 
 ## 4. Depth & Options
 

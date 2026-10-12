@@ -13,6 +13,8 @@ const SPEECH_LEVELS = [
 
 const SETTINGS_DEFAULTS = {
   volume: 100,
+  sfxVolume: 100,
+  musicVolume: 60,
   muted: false,
   colorScheme: "sunset",
   speech: 2,
@@ -25,12 +27,12 @@ function applyPlayerSettings() {
   for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) {
     if (!(key in prefs)) prefs[key] = value;
   }
-  prefs.volume = clamp(Math.round(Number(prefs.volume) || 0), 0, 100);
+  for (const key of ["volume", "sfxVolume", "musicVolume"]) prefs[key] = clamp(Math.round(Number(prefs[key]) || 0), 0, 100);
   prefs.speech = clamp(Math.round(Number(prefs.speech) || 0), 0, SPEECH_LEVELS.length - 1);
   if (!settings.colorSchemes[prefs.colorScheme]) prefs.colorScheme = SETTINGS_DEFAULTS.colorScheme;
   settings.soundVolume = prefs.muted ? 0 : (prefs.volume / 100) * 3;
-  settings.sfxVolume = 1;
-  settings.musicVolume = 0.6;
+  settings.sfxVolume = prefs.sfxVolume / 100;
+  settings.musicVolume = prefs.musicVolume / 100;
   settings.useSampleJingles = true;
   audio.applyVolumes();
   settings.muted = !!prefs.muted;
@@ -139,28 +141,48 @@ const Menus = {
     const prefs = SaveManager.data.settings;
     ctx.fillStyle = LINE;
     ctx.font = "bold 46px Courier New";
-    centerText("SETTINGS", 120);
+    centerText("SETTINGS", 96);
     const rowX = W / 2 - 300;
     const valueX = W / 2 + 120;
-    let y = 160;
-    const row = (label, value, onMinus, onPlus) => {
+    let y = 120;
+    const row = (label, value, onMinus, onPlus, level = null) => {
       ctx.fillStyle = LINE;
       ctx.font = "bold 24px Courier New";
       ctx.fillText(label, rowX, y + 31);
-      ctx.font = "bold 22px Courier New";
+      if (level !== null) {
+        // Slider bar between the arrows.
+        const bx = valueX - 105;
+        const bw = 210;
+        ctx.fillStyle = rgbaFromHex(YOLK, prefs.muted ? 0.3 : 0.85);
+        ctx.fillRect(bx, y + 14, bw * level, 18);
+        ctx.strokeStyle = LINE;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bx, y + 14, bw, 18);
+      }
+      ctx.fillStyle = LINE;
+      ctx.font = "bold 20px Courier New";
       const tw = ctx.measureText(value).width;
-      ctx.fillText(value, valueX - tw / 2, y + 31);
+      ctx.fillText(value, valueX - tw / 2, y + 30);
       if (onMinus) this.button("<", valueX - 140, y, 46, onMinus);
       this.button(">", valueX + 140, y, 46, onPlus);
-      y += 62;
+      y += 50;
     };
     const update = () => {
       applyPlayerSettings();
       SaveManager.save();
     };
-    row("Volume", `${prefs.volume}%`, () => { prefs.volume = clamp(prefs.volume - 10, 0, 100); update(); },
-      () => { prefs.volume = clamp(prefs.volume + 10, 0, 100); update(); });
-    row("Sound", prefs.muted ? "MUTED" : "ON", null, () => { prefs.muted = !prefs.muted; update(); });
+    const volumeRow = (label, key, preview) => {
+      const step = (d) => {
+        prefs[key] = clamp(prefs[key] + d, 0, 100);
+        update();
+        if (preview) audio.play(preview);
+      };
+      row(label, `${prefs[key]}%`, () => step(-10), () => step(10), prefs[key] / 100);
+    };
+    volumeRow("Master volume", "volume", "coin");
+    volumeRow("Effects", "sfxVolume", "egg_splat");
+    volumeRow("Music", "musicVolume", null);
+    row("Sound (M)", prefs.muted ? "MUTED" : "ON", null, () => { prefs.muted = !prefs.muted; update(); });
     const schemes = Object.keys(settings.colorSchemes);
     const cycle = (dir) => {
       const i = schemes.indexOf(prefs.colorScheme);
