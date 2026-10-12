@@ -329,7 +329,7 @@ const Hud = {
     ctx.fillText(label, x + r + 12, y + 5);
     ctx.restore();
     this.drawEggPicker(game, x + r + 12, y - 34);
-    this.drawAbilityButtons(game, 575, y);
+    this.drawAbilityButtons(game, 805, y);
   },
 
   abilityButtons: [],
@@ -397,9 +397,11 @@ const Hud = {
     if (types.length < 2) return;
     const selected = EggTypes.selected(game.profile);
     ctx.save();
-    ctx.font = "bold 12px Courier New";
+    // Squeeze the chips a little once the collection grows, so they never reach the ability bar.
+    const compact = types.length > 6;
+    ctx.font = compact ? "bold 11px Courier New" : "bold 12px Courier New";
     types.forEach((type) => {
-      const w = ctx.measureText(type.name).width + 16;
+      const w = ctx.measureText(type.name).width + (compact ? 10 : 16);
       const rect = { x, y, w, h: 20, id: type.id };
       this.eggButtons.push(rect);
       ctx.fillStyle = type === selected ? rgbaFromHex(YOLK, 0.85) : PAPER;
@@ -408,8 +410,8 @@ const Hud = {
       ctx.fillRect(x, y, w, 20);
       ctx.strokeRect(x, y, w, 20);
       ctx.fillStyle = LINE;
-      ctx.fillText(type.name, x + 8, y + 14);
-      x += w + 6;
+      ctx.fillText(type.name, x + (compact ? 5 : 8), y + 14);
+      x += w + (compact ? 4 : 6);
     });
     ctx.fillText("Q", x + 2, y + 14);
     ctx.restore();

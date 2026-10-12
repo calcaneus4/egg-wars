@@ -89,9 +89,9 @@ most one brand-new thing per stage, and the rolls are random but seeded by stage
 
 ## 9. Egg types (Yolk Drop options)
 
-- [ ] **Frost egg** - freezes hit units in an ice block for a few seconds.
-- [ ] **Zapper egg** - lightning chains from the hit unit to 3 nearby enemies.
-- [ ] **Smoke egg** - a thick cloud where units can't aim (they fire wild).
+- [x] **Frost egg** - freezes hit units in an ice block for a few seconds.
+- [x] **Zapper egg** - lightning chains from the hit unit to 3 nearby enemies.
+- [x] **Smoke egg** - a thick cloud where units can't aim (they fire wild).
 
 ## 10. Vehicles
 

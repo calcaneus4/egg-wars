@@ -88,6 +88,36 @@ class Egg {
       ctx.beginPath();
       ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.kind.band === "frost") {
+      ctx.fillStyle = "#8fd0f5";
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.radius * 0.75, this.radius * 0.95, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = WHITE;
+      ctx.lineWidth = 1.2;
+      for (let a = 0; a < 3; a++) {
+        const c = Math.cos((a * Math.PI) / 3) * this.radius * 0.6;
+        const d = Math.sin((a * Math.PI) / 3) * this.radius * 0.6;
+        ctx.beginPath();
+        ctx.moveTo(-c, -d);
+        ctx.lineTo(c, d);
+        ctx.stroke();
+      }
+    } else if (this.kind.band === "smoke") {
+      ctx.fillStyle = "#9a978f";
+      ctx.beginPath();
+      ctx.arc(-this.radius * 0.3, this.radius * 0.2, this.radius * 0.35, 0, Math.PI * 2);
+      ctx.arc(this.radius * 0.25, -this.radius * 0.1, this.radius * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (this.kind.band === "zapper") {
+      ctx.strokeStyle = YOLK;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(-this.radius * 0.2, -this.radius * 0.9);
+      ctx.lineTo(this.radius * 0.3, -this.radius * 0.1);
+      ctx.lineTo(-this.radius * 0.3, this.radius * 0.1);
+      ctx.lineTo(this.radius * 0.2, this.radius * 0.9);
+      ctx.stroke();
     } else if (this.kind.band === "sticky") {
       ctx.fillStyle = "rgba(120,190,60,0.85)";
       ctx.beginPath();

@@ -94,3 +94,8 @@ following, all in the original hand-drawn side-view style:
   - **Thunderstorm** (stage 9+): heavy rain, a darker sky and lightning every 5-9 s. The ground flickers with a "!" ring for 1.3 s before a bolt hits for 1 damage around the strike point. Comes with a thunder sound.
   - **Hail** (stage 12+): bouncing hailstones; every aircraft takes a hit every 5-9 s.
   - **Heat wave** (stage 12+): shimmering air and eggs swell up 35%, making them easier to hit with.
+- Eggs: three new Yolk Drop eggs, unlocked at levels 9, 13 and 15 and drawn with their own markings.
+  - **Frost** (lv 9): an icy splash freezes every enemy near the impact for 2.5 s, plus frost shards. Frozen units sit in an ice block and can't move or fire; bosses freeze for a third as long.
+  - **Smoke** (lv 13): a smoke cloud lasts 7 s, and anyone firing from inside it shoots wildly.
+  - **Zapper** (lv 15): chain lightning jumps from the impact through up to 4 enemies for 1 hit each.
+- HUD: ability buttons moved right, and the egg chips get compact once there are more than 6, so the bottom bar stays tidy.

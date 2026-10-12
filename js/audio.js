@@ -214,6 +214,14 @@ class AudioFx {
         this.noise(n(1.8), { volume: 0.55, filter: "lowpass", freq: 900 * v, freqTo: 60, delay: 0.05 });
         this.tone(55 * v, n(1.2), { type: "sine", volume: 0.35, slideTo: 30, delay: 0.1 });
         return 1.8;
+      case "freeze":
+        [2400, 3100, 2700, 3600].forEach((f, i) => this.tone(f * v, 0.08, { type: "triangle", volume: 0.04, delay: i * 0.04 }));
+        this.noise(0.3, { volume: 0.12, filter: "highpass", freq: 5000 });
+        return 0.3;
+      case "zap":
+        this.noise(n(0.25), { volume: 0.3, filter: "highpass", freq: 3000 * v });
+        this.tone(1800 * v, 0.2, { type: "sawtooth", volume: 0.05, slideTo: 300 });
+        return 0.25;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;

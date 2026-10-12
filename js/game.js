@@ -137,6 +137,7 @@ class Game {
     if (this.scene === "battle" && !flags.biomes.includes(this.biome.id)) flags.biomes.push(this.biome.id);
     if (this.scene === "battle") Tutorial.onStageStart(this);
     Events.reset();
+    EggTypes.reset();
     Director.planStage(this);
     if (this.scene === "battle") Director.noteStart(this);
     audio.play("start_reveille");
@@ -447,6 +448,7 @@ class Game {
     Hazards.update(this, dt);
     Events.update(this, dt);
     Weather.updateBattle(this, dt);
+    EggTypes.update(dt);
 
     const blue = this.living(RIGHT);
     const red = this.living(LEFT);
@@ -462,6 +464,10 @@ class Game {
     for (const u of this.living()) {
       const enemies = u.side === RIGHT ? red : blue;
       if (this.canSpeak(u)) u.updateSpeech(dt);
+      if (u.frozen > 0) {
+        u.frozen = Math.max(0, u.frozen - dt);
+        continue;
+      }
       const udt = (u.stuck > 0 ? dt * STICKY_SLOW : dt) * Events.speedFactor(u);
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
       if (Events.tickUnit(this, u, dt)) continue;
@@ -497,6 +503,7 @@ class Game {
           }
           t.takeHit();
           if (e.kind.sticky) t.stuck = Math.max(t.stuck || 0, e.kind.sticky);
+          EggTypes.onImpact(this, e, e.x, e.y, t);
           for (let extra = 1; extra < e.kind.damage && !t.dead; extra++) t.takeHit();
           if (e.side === RIGHT && !t.dead && Math.random() < Armory.doubleHitChance(Armory.level(this.profile, "dmg"))) t.takeHit();
           this.maybeSay(t, settings.speechHitComments, 1.05);
@@ -522,6 +529,7 @@ class Game {
         continue;
       }
       if (e.vy > 0 && e.y + e.radius >= this.terrain.yAt(e.x)) {
+        EggTypes.onImpact(this, e, e.x, this.terrain.yAt(e.x));
         if (e.burst) this.burst(e, e.x, this.terrain.yAt(e.x), true);
         else this.addTerrainSplat(e.x);
         this.removeEgg(e);
@@ -653,7 +661,7 @@ class Game {
     }
     const target = targets.reduce((a, b) => Math.abs(a.x - u.x) < Math.abs(b.x - u.x) ? a : b);
     const [sx, sy] = u.muzzle();
-    const tx = target.x + rand(-16, 16);
+    const tx = target.x + rand(-16, 16) + EggTypes.aimError(u);
     const ty = target.y - target.size * 0.55 + rand(-12, 10);
     const t = u.lobTime ? rand(u.lobTime[0], u.lobTime[1]) : clamp(Math.abs(tx - sx) / rand(215, 275), 0.85, 2.6);
     const vx = (tx - sx) / t;
@@ -916,9 +924,11 @@ class Game {
       if (u.hp < u.maxHp && u.hp > 0) drawCracks(u.x, u.y, u.size, 1 - u.hp / u.maxHp, u.wobble);
     });
     this.drawGoo();
+    EggTypes.drawIce(this.units);
     Events.draw(this);
     this.drawHealthBars();
     Abilities.drawAirstrikes(this);
+    EggTypes.draw();
     Effects.draw();
     Weather.draw();
     Weather.drawOverlay(this);
