@@ -3,7 +3,7 @@
 ## Summary
 
 Egg Wars began as one 2,000-line `game.js` with a fixed army, linear difficulty and no saving.
-It is now a modular browser game (31 scripts under `js/`, still no build step) with the
+It is now a modular browser game (32 scripts under `js/`, still no build step) with the
 following, all in the original hand-drawn side-view style:
 
 - **Progression:**
