@@ -99,6 +99,7 @@ class Game {
     this.selectedGameplayHint = "";
     this.roundKills = 0;
     this.roundRewards = null;
+    Effects.clear();
     this.rally = Progression.rallyLevel(this.profile.lossStreak);
     this.rallyTimer = this.rally ? 4 : 0;
     this.spawn();
@@ -334,6 +335,12 @@ class Game {
     if (this.scene !== "battle") return;
     Tutorial.update(this, dt);
     this.updateWreckage(dt);
+    if (this.scene === "battle") Effects.update(dt, this.terrain);
+    else Effects.shakeX = Effects.shakeY = 0;
+    this.units.forEach((u) => {
+      if (u.hitFlash > 0) u.hitFlash = Math.max(0, u.hitFlash - dt);
+      if (u.recoil > 0) u.recoil = Math.max(0, u.recoil - dt * 6);
+    });
     this.titleTimer = Math.max(0, this.titleTimer - dt);
     this.levelUpTimer = Math.max(0, (this.levelUpTimer || 0) - dt);
     this.rallyTimer = Math.max(0, (this.rallyTimer || 0) - dt);
@@ -528,6 +535,8 @@ class Game {
     const vy = (ty - sy - 0.5 * GRAVITY * t * t) / t;
     if (u.aim) u.aim(vx, vy);
     this.eggs.push(new Egg(sx, sy, vx, vy, u.side, u instanceof Castle ? u.bombBurst : u instanceof Tank ? 3 : 0));
+    Effects.muzzle(sx, sy, Math.sign(vx) || u.side);
+    if (u instanceof Tank || u instanceof Castle) u.recoil = 1;
     this.maybeSay(u, settings.speechFireComments, 0.95);
     audio.play("fire");
   }
@@ -599,6 +608,9 @@ class Game {
   }
 
   burst(egg, x, y, leaveSplat) {
+    Effects.yolk(x, y, 6 + egg.burst, 1.2);
+    Effects.spawn("ring", x, y, 0, 0, 0.3, 6 + egg.burst, YOLK);
+    if (egg.burst >= 6) Effects.shake(2 + egg.burst * 0.2);
     if (leaveSplat) this.splats.push(new Splat(x, y + rand(0, s(10)), this.terrain.slopeAt(x)));
     for (let i = 0; i < egg.burst; i++) {
       const p = i / Math.max(1, egg.burst - 1);
@@ -613,15 +625,22 @@ class Game {
     const surfaceY = this.terrain.yAt(x);
     this.splats.push(new Splat(x, surfaceY + rand(0, s(10)), this.terrain.slopeAt(x)));
     this.splats = this.splats.slice(-90);
+    Effects.yolk(x, surfaceY, 4, 0.8);
     audio.play("egg_splat");
   }
 
   playUnitDestroyed(unit) {
+    const big = unit instanceof Castle ? 2.2 : unit instanceof Tank || unit instanceof Bomber ? 1.5 : unit instanceof Soldier ? 0.6 : 1;
+    Effects.explosion(unit.x, unit.y, big, teamColor(unit.side));
+    Effects.shake(big * 3.5);
     if (unit instanceof Soldier) audio.play("soldier_destroyed");
     else audio.play("tank_destroyed");
   }
 
   playUnitHit(unit) {
+    unit.hitFlash = 0.18;
+    Effects.sparks(unit.x, unit.y - unit.size * 0.3, 4);
+    Effects.yolk(unit.x, unit.y - unit.size * 0.3, 3, 0.7);
     if (unit instanceof Soldier) audio.play("soldier_hit");
     else audio.play("tank_hit");
   }
@@ -644,6 +663,8 @@ class Game {
   draw() {
     ctx.fillStyle = PAPER;
     ctx.fillRect(0, 0, W, H);
+    ctx.save();
+    ctx.translate(Effects.shakeX, Effects.shakeY);
     ctx.strokeStyle = LINE;
     ctx.lineWidth = 3;
     ctx.beginPath();
@@ -654,12 +675,14 @@ class Game {
     this.splats.forEach((splat) => splat.draw());
     if (settings.showWreckage) this.wreckage.forEach((w) => drawWreckage(w));
     this.eggs.forEach((e) => e.draw());
-    this.units.sort((a, b) => a.y - b.y).forEach((u) => u.draw());
+    this.units.sort((a, b) => a.y - b.y).forEach((u) => withHitFlash(u, () => u.draw()));
+    Effects.draw();
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
       if (this.canSpeak(u)) drawSpeechBubble(u);
     });
     this.drawShields();
     this.drawUnitLabels();
+    ctx.restore();
     if (this.scene !== "title") {
       this.drawProgressHud();
       this.drawTally();

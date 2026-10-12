@@ -9,6 +9,7 @@ const speechCooldown = (a, b) => settings.speechBubbleFrequency <= 0 ? Infinity 
 const choice = (items) => items[Math.floor(Math.random() * items.length)];
 
 function teamColor(side) {
+  if (flashColorOverride) return flashColorOverride;
   return side === RIGHT ? BLUE : RED;
 }
 

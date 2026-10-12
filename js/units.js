@@ -365,7 +365,10 @@ class Tank extends Unit {
     this.bodyPath(turret);
     ctx.stroke();
 
-    const [mx, my] = this.muzzle();
+    const kick = (this.recoil || 0) * s(9) * this.visualScale;
+    const [mx0, my0] = this.muzzle();
+    const mx = mx0 - Math.cos(this.barrelAngle) * kick;
+    const my = my0 - Math.sin(this.barrelAngle) * kick;
     const [barrelX, barrelY] = this.barrelStart();
     line(barrelX, barrelY, mx, my, c, sw(5));
     circle(mx, my, s(5), PAPER);
