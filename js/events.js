@@ -22,7 +22,180 @@ const WAVE_LENGTH = 380;
 const WAVE_HEIGHT = 150;
 const WAVE_PUSH = 130;
 
+const STAMPEDE_LINES = ["BAWK!", "Bawk bawk!", "Run for it!", "Not the coop!", "Buk-AWK!"];
+const KNOCKED_LINES = ["Oof!", "Hey!", "Feathers!", "Watch it!"];
+const UFO_LINES = ["Beam me up?", "Hello?!", "I'm too young!", "Take him instead!"];
+const UFO_HOVER_Y = 0.2;
+
 const EVENT_TYPES = {
+  stampede: {
+    id: "stampede",
+    name: "CHICKEN STAMPEDE",
+    minStage: 4,
+    weight: 1,
+    duration: 7,
+    warn: "Something is clucking loudly...",
+    blurb: "The farm hens broke loose! Little troops get bowled over.",
+    start(game, ev) {
+      ev.dir = Math.random() < 0.5 ? 1 : -1;
+      ev.hens = [];
+      const count = 14 + Math.floor(Math.random() * 6);
+      for (let i = 0; i < count; i++) {
+        ev.hens.push({
+          x: (ev.dir > 0 ? -30 : W + 30) - ev.dir * (i * rand(28, 60) + rand(0, 40)),
+          speed: rand(300, 420),
+          phase: rand(0, Math.PI * 2),
+          size: rand(0.85, 1.15),
+          hop: 0,
+        });
+      }
+      ev.nextBawk = 0;
+    },
+    update(game, ev, dt) {
+      if (ev.time >= ev.nextBawk) {
+        audio.play("bawk");
+        ev.nextBawk = ev.time + rand(0.35, 0.8);
+      }
+      for (const hen of ev.hens) {
+        hen.x += ev.dir * hen.speed * dt;
+        hen.phase += dt * 22;
+        hen.hop = Math.abs(Math.sin(hen.phase * 0.5)) * s(6);
+        if (Math.random() < dt * 1.5) Effects.spawn("debris", hen.x, game.terrain.yAt(clamp(hen.x, 0, W)) - s(14), rand(-60, 60), rand(-90, -30), 0.8, 4, WHITE);
+        // Hens gobble up egg splats as they go.
+        for (const splat of game.splats) if (Math.abs(splat.x - hen.x) < s(10)) splat.age = Math.max(splat.age, 13);
+      }
+      for (const u of game.living()) {
+        if (!(u instanceof Soldier || u instanceof Motorcycle) || u.airborne || u.knock > 0 || u.bowled) continue;
+        if (ev.hens.some((hen) => Math.abs(hen.x - u.x) < s(18))) {
+          u.bowled = true;
+          u.knock = rand(1, 1.6);
+          u.knockDir = ev.dir;
+          if (game.canSpeak(u) && ev.time >= (ev.nextLine || 0)) {
+            u.say(choice(Math.random() < 0.5 ? KNOCKED_LINES : STAMPEDE_LINES), 1.1);
+            ev.nextLine = ev.time + rand(0.7, 1.2);
+          }
+        }
+      }
+    },
+    end(game) {
+      for (const u of game.units) delete u.bowled;
+    },
+    draw(game, ev) {
+      for (const hen of ev.hens) {
+        if (hen.x < -40 || hen.x > W + 40) continue;
+        drawHen(hen.x, game.terrain.yAt(clamp(hen.x, 0, W)) - hen.hop, ev.dir, hen.phase, hen.size * 1.35);
+      }
+    },
+  },
+  ufo: {
+    id: "ufo",
+    name: "UFO ABDUCTION",
+    minStage: 8,
+    weight: 0.8,
+    // Upper limit only: the saucer ends the event itself once it has flown away.
+    duration: 25,
+    warn: "Strange lights in the sky...",
+    blurb: "Aliens beam up one trooper from each army... and leave a cow.",
+    allowed(game) {
+      return game.living(RIGHT).length >= 3 && game.living(LEFT).length >= 3;
+    },
+    start(game, ev) {
+      const first = Math.random() < 0.5 ? RIGHT : LEFT;
+      ev.order = [first, -first];
+      ev.step = 0;
+      ev.x = first === RIGHT ? -80 : W + 80;
+      ev.y = H * 0.08;
+      ev.state = "fly";
+      ev.beam = 0;
+      audio.play("ufo");
+    },
+    // Picks a matching victim from an army: a soldier if possible, else the cheapest ground unit.
+    pickVictim(game, side) {
+      const pool = game.living(side).filter((u) => !u.isBoss && !(u instanceof Castle) && !(u instanceof Airplane) && !u.airborne);
+      if (game.living(side).length < 3 || !pool.length) return null;
+      const soldiers = pool.filter((u) => u.constructor === Soldier);
+      return choice(soldiers.length ? soldiers : pool);
+    },
+    update(game, ev, dt) {
+      const hoverY = H * UFO_HOVER_Y;
+      if (ev.state === "fly") {
+        if (!ev.victim || ev.victim.dead) ev.victim = ev.step < 2 ? ev.def.pickVictim(game, ev.order[ev.step]) : null;
+        const tx = ev.step < 2 ? (ev.victim ? ev.victim.x : W / 2) : W / 2;
+        const dx = tx - ev.x;
+        ev.x += clamp(dx, -s(800) * dt, s(800) * dt);
+        ev.y += (hoverY - ev.y) * Math.min(1, dt * 3);
+        if (Math.abs(dx) < s(4)) {
+          if (ev.step < 2 && ev.victim) {
+            ev.state = "beam";
+            ev.victim.caughtBy = ev;
+            ev.victim.airborne = true;
+            ev.victim.spinT = 0;
+            if (game.canSpeak(ev.victim)) ev.victim.say(choice(UFO_LINES), 1.6);
+            audio.play("beam");
+          } else if (ev.step < 2) {
+            ev.step++;
+          } else {
+            ev.state = "cow";
+            Events.leftovers.push({ kind: "cow", x: ev.x, y: ev.y + s(20), vy: 0, landed: false, bob: rand(0, 6) });
+            audio.play("moo");
+          }
+        }
+      } else if (ev.state === "beam") {
+        ev.beam = Math.min(1, ev.beam + dt * 3);
+        const v = ev.victim;
+        if (v.dead) {
+          ev.state = "fly";
+          ev.step++;
+          return;
+        }
+        v.lift = (v.lift || 0) + s(320) * dt;
+        v.x += (ev.x - v.x) * Math.min(1, dt * 2);
+        v.spin = Math.sin(ev.time * 5) * 0.4;
+        v.visualScale = Math.max(0.3, 1 - v.lift / s(500));
+        if (v.y <= ev.y + s(16)) {
+          // Gone without a trace: no kill credit, no wreckage.
+          v.dead = true;
+          ev.beam = 0;
+          ev.victim = null;
+          ev.step++;
+          ev.state = "fly";
+          Effects.sparks(ev.x, ev.y + s(10), 6, YOLK);
+          audio.play("unlock");
+        }
+      } else if (ev.state === "cow") {
+        ev.cowTimer = (ev.cowTimer || 0) + dt;
+        if (ev.cowTimer > 1) ev.state = "leave";
+      } else {
+        ev.y -= s(260) * dt;
+        ev.x += s(120) * dt;
+        if (ev.y < -s(80)) ev.time = ev.def.duration;
+      }
+    },
+    end(game, ev) {
+      if (ev.victim && !ev.victim.dead) {
+        ev.victim.visualScale = 1;
+        Events.release(ev.victim, 0);
+      }
+    },
+    draw(game, ev) {
+      if (ev.state === "beam") {
+        const ground = game.terrain.yAt(clamp(ev.x, 0, W));
+        ctx.save();
+        ctx.globalAlpha = 0.35 * ev.beam * (0.8 + 0.2 * Math.sin(ev.time * 20));
+        ctx.fillStyle = YOLK;
+        ctx.beginPath();
+        ctx.moveTo(ev.x - s(18), ev.y + s(8));
+        ctx.lineTo(ev.x + s(18), ev.y + s(8));
+        ctx.lineTo(ev.x + s(55), ground);
+        ctx.lineTo(ev.x - s(55), ground);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+      drawUfo(ev.x, ev.y + Math.sin(ev.time * 3) * 3, ev.time);
+    },
+  },
+
   tsunami: {
     id: "tsunami",
     name: "TSUNAMI",
@@ -376,6 +549,105 @@ function drawRubberDuck(x, y, dir = 1, tilt = 0, r = 9) {
   ctx.restore();
 }
 
+function drawHen(x, y, dir, phase, k = 1) {
+  const r = s(11) * k;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(dir, 1);
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 1.5;
+  // Legs scissoring.
+  const leg = Math.sin(phase) * r * 0.5;
+  line(-r * 0.2, -r * 0.6, -r * 0.2 + leg, 0, LINE, 1.5);
+  line(r * 0.2, -r * 0.6, r * 0.2 - leg, 0, LINE, 1.5);
+  ctx.fillStyle = WHITE;
+  ctx.beginPath();
+  ctx.ellipse(0, -r * 1.1, r, r * 0.7, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  // Head, comb and beak.
+  ctx.beginPath();
+  ctx.arc(r * 0.9, -r * 1.75, r * 0.45, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#e0402a";
+  ctx.beginPath();
+  ctx.arc(r * 0.85, -r * 2.2, r * 0.18, 0, Math.PI * 2);
+  ctx.arc(r * 1.05, -r * 2.15, r * 0.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#ffb52a";
+  ctx.beginPath();
+  ctx.moveTo(r * 1.3, -r * 1.85);
+  ctx.lineTo(r * 1.7, -r * 1.72);
+  ctx.lineTo(r * 1.3, -r * 1.6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = LINE;
+  ctx.beginPath();
+  ctx.arc(r * 1.0, -r * 1.85, 1.3, 0, Math.PI * 2);
+  ctx.fill();
+  // Flapping wing.
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.2, -r * 1.2);
+  ctx.quadraticCurveTo(-r * 0.9, -r * (1.4 + Math.sin(phase * 1.3) * 0.6), -r * 1.1, -r * 0.9);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawUfo(x, y, t) {
+  ctx.save();
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 2;
+  ctx.fillStyle = "rgba(170,230,255,0.8)";
+  ctx.beginPath();
+  ctx.ellipse(x, y - s(8), s(18), s(14), 0, Math.PI, 0);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#b8bcc6";
+  ctx.beginPath();
+  ctx.ellipse(x, y, s(46), s(12), 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  for (let i = 0; i < 5; i++) {
+    ctx.fillStyle = Math.floor(t * 6 + i) % 2 ? YOLK : "#ff6a6a";
+    ctx.beginPath();
+    ctx.arc(x - s(32) + i * s(16), y + s(2), s(3), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawCow(x, y, t) {
+  const r = s(22);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 1.5;
+  for (const lx of [-r * 0.9, -r * 0.4, r * 0.4, r * 0.9]) line(lx, -r * 0.5, lx, 0, LINE, 2);
+  ctx.fillStyle = WHITE;
+  ctx.beginPath();
+  ctx.ellipse(0, -r * 1.0, r * 1.4, r * 0.75, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = LINE;
+  ctx.beginPath();
+  ctx.ellipse(-r * 0.5, -r * 1.1, r * 0.35, r * 0.25, 0.4, 0, Math.PI * 2);
+  ctx.ellipse(r * 0.4, -r * 0.8, r * 0.25, r * 0.2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = WHITE;
+  ctx.beginPath();
+  ctx.ellipse(r * 1.5, -r * 1.35 + Math.sin(t * 2) * 1.5, r * 0.45, r * 0.38, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#f2a5a5";
+  ctx.beginPath();
+  ctx.ellipse(r * 1.75, -r * 1.25, r * 0.22, r * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
 const Events = {
   current: null,
   leftovers: [],
@@ -385,7 +657,28 @@ const Events = {
     this.leftovers = [];
   },
 
+  updateLeftovers(game, dt) {
+    for (const d of this.leftovers) {
+      if (d.kind !== "cow") continue;
+      const ground = game.terrain.yAt(clamp(d.x, 0, W));
+      if (d.moo > 0) d.moo -= dt;
+      if (d.landed) {
+        d.y = ground;
+        continue;
+      }
+      d.vy += GRAVITY * 0.6 * dt;
+      d.y = Math.min(ground, d.y + d.vy * dt);
+      if (d.y >= ground) {
+        d.landed = true;
+        d.moo = 1.5;
+        Effects.smoke(d.x, ground, 4);
+        audio.play("moo");
+      }
+    }
+  },
+
   update(game, dt) {
+    this.updateLeftovers(game, dt);
     const plan = Director.plan;
     if (!this.current && plan && plan.event && !plan.done && game.roundTime >= plan.eventAt - EVENT_WARN_SECONDS && !game.personalityTimer && !game.rallyTimer) {
       plan.done = true;
@@ -421,6 +714,7 @@ const Events = {
 
   // Movement multiplier for a unit this frame (events can slow units down).
   speedFactor(u) {
+    if (u.knock > 0) return 0;
     return u.stagger > 0 ? 0.35 : 1;
   },
 
@@ -434,6 +728,7 @@ const Events = {
   // Per-unit event state. Returns true while the unit is off the ground (it can't move or fire).
   tickUnit(game, u, dt) {
     if (u.stagger > 0) u.stagger = Math.max(0, u.stagger - dt);
+    if (u.knock > 0) u.knock = Math.max(0, u.knock - dt);
     if (!u.airborne) return false;
     if (u.caughtBy) return true;
     u.liftV -= GRAVITY * 0.8 * dt;
@@ -453,13 +748,15 @@ const Events = {
 
   // Draws a unit tumbling when it is in the air.
   drawUnit(u, drawFn) {
-    if (!u.spin) {
+    // Knocked-over units tip onto their back for a moment, then pop back up.
+    const tip = u.knock > 0 ? u.knockDir * (Math.PI / 2) * Math.min(1, u.knock * 4) : 0;
+    if (!u.spin && !tip) {
       drawFn();
       return;
     }
     ctx.save();
     ctx.translate(u.x, u.y);
-    ctx.rotate(u.spin);
+    ctx.rotate((u.spin || 0) + tip);
     ctx.translate(-u.x, -u.y);
     drawFn();
     ctx.restore();
@@ -469,6 +766,14 @@ const Events = {
   draw(game) {
     for (const d of this.leftovers) {
       if (d.kind === "duck") drawRubberDuck(d.x, game.terrain.yAt(clamp(d.x, 0, W)) - 6, d.dir, Math.sin(performance.now() * 0.002 + d.bob) * 0.08);
+      if (d.kind === "cow") {
+        drawCow(d.x, d.y, performance.now() * 0.001 + d.bob);
+        if (d.moo > 0) {
+          ctx.fillStyle = LINE;
+          ctx.font = "bold 16px Courier New";
+          ctx.fillText("MOO.", d.x + s(18), d.y - s(30));
+        }
+      }
     }
     const ev = this.current;
     if (ev && ev.phase === "run" && ev.def.draw) ev.def.draw(game, ev);

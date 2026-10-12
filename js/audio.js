@@ -194,6 +194,21 @@ class AudioFx {
         this.tone(1300 * v, 0.07, { type: "sine", volume: 0.1, slideTo: 1800 * v });
         this.tone(1700 * v, 0.1, { type: "sine", volume: 0.08, slideTo: 1200 * v, delay: 0.08 });
         return 0.2;
+      case "bawk":
+        this.tone(700 * v, 0.06, { type: "square", volume: 0.05, slideTo: 1100 * v });
+        this.tone(900 * v, 0.12, { type: "square", volume: 0.05, slideTo: 500 * v, delay: 0.07 });
+        return 0.2;
+      case "ufo":
+        this.tone(600, 1.6, { type: "sine", volume: 0.08, slideTo: 900 });
+        this.tone(910, 1.6, { type: "sine", volume: 0.05, slideTo: 600 });
+        return 1.6;
+      case "beam":
+        this.tone(220, 1.2, { type: "sawtooth", volume: 0.04, slideTo: 880 });
+        return 1.2;
+      case "moo":
+        this.tone(150, 0.7, { type: "sawtooth", volume: 0.07, slideTo: 110 });
+        this.noise(0.6, { volume: 0.08, filter: "lowpass", freq: 500 });
+        return 0.7;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;
