@@ -405,6 +405,10 @@ class Game {
       const enemies = e.side === RIGHT ? red : blue;
       for (const t of enemies) {
         if (dist(e.x, e.y, t.x, t.y) <= e.radius + t.radius()) {
+          if (e.kind.explode) {
+            this.explode(e, e.x, e.y);
+            break;
+          }
           t.takeHit();
           if (e.kind.sticky) t.stuck = Math.max(t.stuck || 0, e.kind.sticky);
           for (let extra = 1; extra < e.kind.damage && !t.dead; extra++) t.takeHit();
@@ -425,6 +429,10 @@ class Game {
       if (!this.eggs.includes(e)) continue;
       if (e.vy > 0 && e.y + e.radius >= this.terrain.yAt(e.x) && e.bouncesLeft > 0) {
         this.bounceEgg(e);
+        continue;
+      }
+      if (e.vy > 0 && e.y + e.radius >= this.terrain.yAt(e.x) && e.kind.explode) {
+        this.explode(e, e.x, this.terrain.yAt(e.x));
         continue;
       }
       if (e.vy > 0 && e.y + e.radius >= this.terrain.yAt(e.x)) {
@@ -648,6 +656,45 @@ class Game {
       this.eggs.push(new Egg(x, y - egg.radius, Math.cos(angle) * speed, -Math.abs(Math.sin(angle) * speed) - rand(20, 65), egg.side, 0, egg.kind.burstKind || "normal"));
     }
     audio.play("egg_splat");
+  }
+
+  // Applies `hits` hits to a unit with all the usual feedback (kills, wreckage, sounds).
+  damageUnit(t, hits) {
+    if (t.dead) return;
+    for (let i = 0; i < hits && !t.dead; i++) t.takeHit();
+    this.maybeSay(t, settings.speechHitComments, 1.05);
+    if (t.dead) {
+      this.onUnitKilled(t);
+      this.playUnitDestroyed(t);
+      this.addWreckage(t);
+    } else {
+      this.playUnitHit(t);
+    }
+  }
+
+  // Explosive eggs: area damage to the other army plus a crater (see EGG_TYPES.explosive).
+  explode(e, x, y) {
+    const { radius, depth } = e.kind.explode;
+    const r = s(radius * 2);
+    const targets = this.living(e.side === RIGHT ? LEFT : RIGHT);
+    for (const t of targets) {
+      const d = dist(x, y, t.x, t.y) - t.radius() * 0.5;
+      if (d > r) continue;
+      this.damageUnit(t, d < r * 0.5 ? e.kind.damage : 1);
+    }
+    this.removeEgg(e);
+    Effects.explosion(x, y, 2.2, LINE);
+    Effects.spawn("ring", x, y, 0, 0, 0.45, r * 0.4, RED);
+    Effects.shake(9);
+    audio.play("tank_destroyed");
+    const ground = this.terrain.yAt(x);
+    if (y >= ground - s(140) && this.terrain.crater(x, r * 1.1, s(depth * 2))) {
+      // Debris thrown from the crater, and things resting on the old surface settle into it.
+      Effects.debris(x, ground, 8, LINE);
+      for (const splat of this.splats) if (Math.abs(splat.x - x) < r * 1.1) splat.age = Math.max(splat.age, 13);
+      for (const w of this.wreckage) if (w.kind !== "air_debris" || w.landed) w.y = this.terrain.yAt(w.x);
+    }
+    if (e.burst) this.burst(e, x, Math.min(y, this.terrain.yAt(x)), false);
   }
 
   // A bouncing egg hops off the ground, throwing a small burst each time.

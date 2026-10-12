@@ -24,3 +24,4 @@
 - Sound: separate Master / Effects / Music volume sliders (with live previews) in Settings, saved in the profile; M toggles mute anywhere and the HUD shows a MUTED badge.
 - Depth: data-driven egg type framework (damage, burst, mid-air split, visuals) and the Cluster egg (level 4) - a Yolk Drop option that splits into 6 eggs mid-air; choose the Yolk Drop egg with Q or the HUD chips (saved).
 - Depth: Bouncer egg (level 7, hops toward the enemy bursting on each of 3 bounces) and Sticky egg (level 10, gooey burst that glues hit units so they move and fire at 35% speed for 3 s, with goo shown on them); both selectable Yolk Drop eggs.
+- Depth: Boomer (explosive) egg at level 14 - fizzing fuse, area blast (2 hits near the centre, 1 at the edge), big explosion and shake, and craters dug into the terrain that units then drive through; terrain art and wreckage update to the new ground. Tips moved above the Yolk Drop chips.

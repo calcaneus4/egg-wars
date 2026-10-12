@@ -12,6 +12,8 @@
 //   bounces     times it hops off the ground before splatting (bursting `bounceBurst` each hop)
 //   sticky      seconds a hit unit stays glued (moves and fires at STICKY_SLOW speed)
 //   burstKind   egg kind of the small eggs thrown out by its burst
+//   explode     { radius, depth } - blast hits every enemy in range (2 hits near the centre,
+//               1 at the edge) and digs a crater of that depth into the terrain
 
 const STICKY_SLOW = 0.35;
 
@@ -65,6 +67,18 @@ const EGG_TYPES = {
     yolkBurst: 8,
     burstKind: "sticky",
     sticky: 3,
+  },
+  explosive: {
+    id: "explosive",
+    name: "Boomer",
+    desc: "Blasts everything nearby and digs a crater into the ground.",
+    level: 14,
+    damage: 2,
+    burst: 0,
+    band: "explosive",
+    yolkDrop: true,
+    yolkBurst: 3,
+    explode: { radius: 95, depth: 34 },
   },
 };
 

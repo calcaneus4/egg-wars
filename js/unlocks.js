@@ -22,6 +22,7 @@ const UNLOCKS = [
   { level: 8, kind: "special", name: "Yolk Bomber", desc: "A super bomber joins every battle" },
   { level: 10, kind: "unit", type: "castle", name: "Castle", desc: "Buy extra catapult towers" },
   { level: 10, kind: "feature", id: "sticky", name: "Sticky Egg", desc: "Yolk Drop option: glues enemies so they slow right down" },
+  { level: 14, kind: "feature", id: "explosive", name: "Boomer Egg", desc: "Yolk Drop option: big blast that digs craters" },
 ];
 
 // Unit types that every army always gets for free, whatever is unlocked (the home castle).

@@ -33,6 +33,20 @@ class Terrain {
     });
   }
 
+  // Digs a smooth crater centred on x. The ground never drops below 93% of the screen height.
+  crater(cx, radius, depth) {
+    const floor = H * 0.93;
+    let changed = false;
+    this.points = this.points.map(([x, y]) => {
+      const d = Math.abs(x - cx) / radius;
+      if (d >= 1) return [x, y];
+      changed = true;
+      return [x, Math.min(floor, y + depth * (1 - d * d))];
+    });
+    if (changed) this.invalidate();
+    return changed;
+  }
+
   smooth() {
     const next = [this.points[0]];
     for (let i = 1; i < this.points.length - 1; i++) {

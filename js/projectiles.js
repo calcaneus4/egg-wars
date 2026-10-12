@@ -55,7 +55,23 @@ class Egg {
     ctx.ellipse(0, 0, this.radius, this.radius * 1.2, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    if (this.kind.band === "sticky") {
+    if (this.kind.band === "explosive") {
+      ctx.fillStyle = RED;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.radius * 0.9, this.radius * 0.3, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Fuse spark on top.
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(0, -this.radius * 1.2);
+      ctx.lineTo(this.radius * 0.3, -this.radius * 1.7);
+      ctx.stroke();
+      ctx.fillStyle = Math.floor(this.age * 20) % 2 ? YOLK : RED;
+      ctx.beginPath();
+      ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (this.kind.band === "sticky") {
       ctx.fillStyle = "rgba(120,190,60,0.85)";
       ctx.beginPath();
       ctx.ellipse(0, this.radius * 0.35, this.radius * 0.9, this.radius * 0.55, 0, 0, Math.PI);
