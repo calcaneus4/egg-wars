@@ -382,7 +382,7 @@ const EVENT_TYPES = {
           if (u.spinT >= u.holdTime) Events.release(u, ev.dir * rand(60, 180));
           continue;
         }
-        const light = !(u instanceof Tank) && !(u instanceof Castle);
+        const light = !(u instanceof Tank) && !(u instanceof Castle) && !u.heavy;
         if (!light || u.airborne || u.tossed || caught >= TORNADO_MAX_CAUGHT) continue;
         if (Math.abs(u.x - ev.x) < s(45)) {
           u.caughtBy = ev;
@@ -731,6 +731,17 @@ const Events = {
     if (u.knock > 0) u.knock = Math.max(0, u.knock - dt);
     if (!u.airborne) return false;
     if (u.caughtBy) return true;
+    if (u.parachute) {
+      // Chick paratroopers float gently down and land unhurt.
+      u.lift = Math.max(0, u.lift - s(CHICK_FALL_SPEED) * dt);
+      u.spin = Math.sin(performance.now() * 0.004 + u.wobble) * 0.15;
+      if (u.lift <= 0) {
+        u.parachute = false;
+        u.airborne = false;
+        u.spin = 0;
+      }
+      return true;
+    }
     u.liftV -= GRAVITY * 0.8 * dt;
     u.lift += u.liftV * dt;
     u.x = clamp(u.x + (u.flingVx || 0) * dt, s(45), W - s(45));
@@ -750,7 +761,7 @@ const Events = {
   drawUnit(u, drawFn) {
     // Knocked-over units tip onto their back for a moment, then pop back up.
     const tip = u.knock > 0 ? u.knockDir * (Math.PI / 2) * Math.min(1, u.knock * 4) : 0;
-    if (!u.spin && !tip) {
+    if (!u.spin && !tip && !u.parachute) {
       drawFn();
       return;
     }
@@ -759,6 +770,19 @@ const Events = {
     ctx.rotate((u.spin || 0) + tip);
     ctx.translate(-u.x, -u.y);
     drawFn();
+    if (u.parachute) {
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 1.2;
+      ctx.fillStyle = WHITE;
+      const top = u.y - s(48);
+      ctx.beginPath();
+      ctx.arc(u.x, top, s(16), Math.PI, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      line(u.x - s(16), top, u.x, u.y - s(14), LINE, 1);
+      line(u.x + s(16), top, u.x, u.y - s(14), LINE, 1);
+    }
     ctx.restore();
   },
 

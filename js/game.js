@@ -214,6 +214,9 @@ class Game {
       medic: settings.maxRightMedics,
       mortar: settings.maxRightMortars,
       rider: settings.maxRightRiders,
+      catapult: settings.maxRightCatapults,
+      truck: settings.maxRightTrucks,
+      balloon: settings.maxRightBalloons,
     };
   }
 
@@ -247,6 +250,9 @@ class Game {
       medic: settings.maxLeftMedics,
       mortar: settings.maxLeftMortars,
       rider: settings.maxLeftRiders,
+      catapult: settings.maxLeftCatapults,
+      truck: settings.maxLeftTrucks,
+      balloon: settings.maxLeftBalloons,
     };
   }
 
@@ -390,6 +396,9 @@ class Game {
       if (type === "medic") this.units.push(new Medic(s(110) - n * s(26), side, this.terrain));
       if (type === "mortar") this.units.push(new MortarHen(s(60) + n * s(40), side, this.terrain));
       if (type === "rider") this.units.push(new RoosterRider(s(230) - n * s(30), side, this.terrain));
+      if (type === "catapult") this.units.push(new CatapultWagon(s(40) + n * s(52), side, this.terrain));
+      if (type === "truck") this.units.push(new MonsterTruck(s(200) - n * s(56), side, this.terrain));
+      if (type === "balloon") this.units.push(new ChickBalloon(-s(60) - n * s(100), side, this.terrain, n));
     } else {
       if (type === "tank") this.units.push(new Tank(W - s(255) + n * s(64), side, this.terrain));
       if (type === "motorcycle") this.units.push(new Motorcycle(W - s(197) + n * s(46), side, this.terrain));
@@ -402,6 +411,9 @@ class Game {
       if (type === "medic") this.units.push(new Medic(W - s(110) + n * s(26), side, this.terrain));
       if (type === "mortar") this.units.push(new MortarHen(W - s(60) - n * s(40), side, this.terrain));
       if (type === "rider") this.units.push(new RoosterRider(W - s(230) + n * s(30), side, this.terrain));
+      if (type === "catapult") this.units.push(new CatapultWagon(W - s(40) - n * s(52), side, this.terrain));
+      if (type === "truck") this.units.push(new MonsterTruck(W - s(200) + n * s(56), side, this.terrain));
+      if (type === "balloon") this.units.push(new ChickBalloon(W + s(60) + n * s(100), side, this.terrain, n));
     }
   }
 
@@ -578,7 +590,7 @@ class Game {
       return;
     }
     let kind = null;
-    if (unit instanceof Tank) kind = "tank";
+    if (unit instanceof Tank || unit instanceof MonsterTruck || unit instanceof CatapultWagon) kind = "tank";
     if (unit instanceof Motorcycle) kind = "motorcycle";
     if (unit instanceof Castle) kind = "castle";
     if (!kind) return;
@@ -640,6 +652,8 @@ class Game {
 
   fire(u, enemies) {
     if (!enemies.length) return;
+    if (u instanceof ChickBalloon) return this.dropChick(u, enemies);
+    if (u instanceof MonsterTruck) return this.crush(u, enemies);
     if (u instanceof Helicopter) {
       const enemyAir = enemies.filter((e) => e instanceof Airplane);
       const enemyGroundGone = !enemies.some((e) => e instanceof Castle || e instanceof Tank || e instanceof Motorcycle || e instanceof Soldier);
@@ -681,6 +695,40 @@ class Game {
     const vx = (tx - sx) / time;
     const vy = (ty - sy - 0.5 * GRAVITY * time * time) / time;
     this.eggs.push(new Egg(sx, sy, vx, vy, side, burst, kind));
+  }
+
+  // Chick Balloon: once over enemy ground troops, drop a chick paratrooper.
+  dropChick(u, enemies) {
+    const below = enemies.some((e) => !(e instanceof Airplane) && Math.abs(e.x - u.x) < s(90));
+    if (!u.chicksLeft || !below) {
+      u.fireClock = 0.3;
+      return;
+    }
+    u.chicksLeft--;
+    const chick = makeChick(u);
+    if (u.side === RIGHT) Armory.upgradeUnit(this.profile, chick);
+    this.units.push(chick);
+    audio.play("squeak");
+  }
+
+  // Monster Truck: flattens infantry it is driving over, and rams whatever blocks it.
+  crush(u, enemies) {
+    let hitAny = false;
+    for (const e of enemies) {
+      if (e instanceof Airplane || e.airborne) continue;
+      const gap = Math.abs(e.x - u.x);
+      if (e instanceof Soldier ? gap < u.size * 0.55 : gap - e.blockingRadius() <= u.blockingRadius() + s(10)) {
+        this.damageUnit(e, e instanceof Soldier ? 2 : 1);
+        hitAny = true;
+        if (!(e instanceof Soldier)) break;
+      }
+    }
+    if (hitAny) {
+      Effects.debris(u.x + u.side * u.size * 0.4, u.y + s(10), 3, LINE);
+      audio.play("tank_hit");
+    } else {
+      u.fireClock = 0.1;
+    }
   }
 
   // Medic: heal the most damaged ally in range by one hit point.

@@ -99,3 +99,8 @@ following, all in the original hand-drawn side-view style:
   - **Smoke** (lv 13): a smoke cloud lasts 7 s, and anyone firing from inside it shoots wildly.
   - **Zapper** (lv 15): chain lightning jumps from the impact through up to 4 enemies for 1 hit each.
 - HUD: ability buttons moved right, and the egg chips get compact once there are more than 6, so the bottom bar stays tidy.
+- Vehicles (`js/vehicles.js`): three new buyable units with shop cards (keys `=`, `[`, `]`), icons, threat points and caps.
+  - **Catapult Wagon** (lv 6, $35): a slow siege cart that stops once enemies are within half the field and flings huge 6-burst eggs with a swinging arm.
+  - **Monster Truck** (lv 11, $30): a frying pan on monster wheels. Infantry can't block it; it drives over them for 2 hits and rams vehicles and castles.
+  - **Chick Balloon** (lv 13, $40): a hot-air balloon that drifts over the enemy's ground troops and drops up to 4 one-hit chick paratroopers, which float down on little parachutes.
+  - Heavy vehicles are too heavy for the tornado.

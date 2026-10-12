@@ -95,9 +95,9 @@ most one brand-new thing per stage, and the rolls are random but seeded by stage
 
 ## 10. Vehicles
 
-- [ ] **Catapult Wagon** - slow siege cart that lobs huge eggs from far back.
-- [ ] **Chick Balloon** - hot-air balloon that drifts over and drops chick paratroopers.
-- [ ] **Frying-Pan Monster Truck** - armoured bruiser that crushes infantry it drives over.
+- [x] **Catapult Wagon** - slow siege cart that lobs huge eggs from far back.
+- [x] **Chick Balloon** - hot-air balloon that drifts over and drops chick paratroopers.
+- [x] **Frying-Pan Monster Truck** - armoured bruiser that crushes infantry it drives over.
 
 ## 11. Powers
 

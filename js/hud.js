@@ -3,8 +3,8 @@
 // Battle HUD: unit shop bar (top left), stage/time/gold panel (top centre), enemy roster
 // (top right), XP bar and next-unlock teaser, and the Yolk Drop ability ring (bottom left).
 
-const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle", "medic", "mortar", "rider"];
-const SHOP_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-"];
+const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle", "medic", "mortar", "rider", "catapult", "truck", "balloon"];
+const SHOP_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "[", "]"];
 const SHOP_ROW = 8;
 const SHOP_CARD = { x: 12, y: 8, w: 58, h: 60, gap: 6 };
 
@@ -112,6 +112,21 @@ function drawUnitIconDirect(type, x, y, size, color) {
     path([[-2, -8], [20, -14]], false); ctx.stroke();
     path([[-5, 14], [-8, 20]], false); ctx.stroke();
     path([[3, 14], [6, 20]], false); ctx.stroke();
+  } else if (type === "catapult") {
+    ctx.beginPath(); ctx.rect(-16, 2, 32, 8); ctx.fill(); ctx.stroke();
+    ring(-10, 14, 5); ring(10, 14, 5);
+    path([[-6, 2], [0, -10], [6, 2]], false); ctx.stroke();
+    path([[-4, -6], [14, -18]], false); ctx.lineWidth *= 1.6; ctx.stroke();
+  } else if (type === "truck") {
+    ring(-11, 12, 7); ring(11, 12, 7);
+    ctx.beginPath(); ctx.ellipse(0, 0, 17, 6, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    path([[-17, 0], [-24, -4]], false); ctx.lineWidth *= 1.6; ctx.stroke();
+    ctx.beginPath(); ctx.rect(-4, -12, 10, 7); ctx.stroke();
+  } else if (type === "balloon") {
+    ctx.beginPath(); ctx.ellipse(0, -8, 12, 14, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    path([[-8, 3], [-4, 12]], false); ctx.stroke();
+    path([[8, 3], [4, 12]], false); ctx.stroke();
+    ctx.beginPath(); ctx.rect(-5, 12, 10, 6); ctx.stroke();
   } else if (type === "castle") {
     path([[-12, 16], [-12, -12], [-7, -12], [-7, -7], [-2, -7], [-2, -12], [3, -12], [3, -7], [8, -7], [8, -12], [12, -12], [12, 16]]);
     ctx.fill(); ctx.stroke();

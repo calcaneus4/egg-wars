@@ -1,0 +1,226 @@
+"use strict";
+
+// Phase 2 vehicles (ROADMAP section 10). Each is a normal unit type: it has a shop card, threat
+// points and caps in js/config.js, an unlock level in js/unlocks.js and an icon in js/hud.js.
+//   CatapultWagon  slow siege cart that hangs back and lobs huge bursting eggs across the field
+//   MonsterTruck   armoured bruiser that drives over infantry (they can't block it) and rams the rest
+//   ChickBalloon   hot-air balloon that drifts over the enemy and drops chick paratroopers
+
+const CHICK_DROPS = 4;
+const CHICK_FALL_SPEED = 70;
+
+function drawWheel(x, y, r, spin, color) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = PAPER;
+  ctx.fill();
+  ctx.strokeStyle = color;
+  ctx.stroke();
+  for (let i = 0; i < 2; i++) {
+    const a = spin + (i * Math.PI) / 2;
+    line(x - Math.cos(a) * r, y - Math.sin(a) * r, x + Math.cos(a) * r, y + Math.sin(a) * r, color, sw(1));
+  }
+}
+
+class CatapultWagon extends Unit {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed = settings.tankSpeed * 0.35;
+    this.size = s(44);
+    this.groundOffset = s(18);
+    this.hp = 4;
+    this.fireRate = 0.06;
+    this.eggBurst = 6;
+    this.lobTime = [2.6, 3.2];
+    this.heavy = true;
+    this.arm = 0;
+  }
+
+  // Siege engines stay back: they stop rolling once anything is within half the field.
+  move(dt, enemies) {
+    const near = enemies.some((e) => !(e instanceof Airplane) && Math.abs(e.x - this.x) < W * 0.5);
+    if (!near) super.move(dt, enemies);
+    this.arm = Math.max(0, this.arm - dt * 2.5);
+    this.roll = (this.roll || 0) + (near ? 0 : this.speed * dt * 0.08);
+  }
+
+  aim() {
+    this.arm = 1;
+  }
+
+  muzzle() {
+    return [this.x - this.side * s(6), this.y - s(40)];
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    ctx.save();
+    ctx.strokeStyle = c;
+    ctx.lineWidth = sw(2);
+    // Cart bed.
+    ctx.beginPath();
+    ctx.rect(x - s(24), y - s(6), s(48), s(12));
+    teamFill(c, 0.35);
+    ctx.stroke();
+    drawWheel(x - s(15), y + s(8), s(9), this.roll || 0, c);
+    drawWheel(x + s(15), y + s(8), s(9), this.roll || 0, c);
+    // A-frame and throwing arm: cocked back, then flung forward when it fires.
+    line(x - s(10), y - s(6), x, y - s(26), c);
+    line(x + s(10), y - s(6), x, y - s(26), c);
+    const swing = -this.side * (1 - this.arm) * 0.9 + this.side * this.arm * 0.6;
+    const ang = -Math.PI / 2 + swing;
+    const ax = x + Math.cos(ang) * s(30);
+    const ay = y - s(26) + Math.sin(ang) * s(30);
+    line(x - Math.cos(ang) * s(10), y - s(26) - Math.sin(ang) * s(10), ax, ay, LINE, sw(3));
+    ctx.beginPath();
+    ctx.arc(ax, ay, s(6), 0, Math.PI);
+    ctx.stroke();
+    if (this.arm < 0.5) {
+      ctx.fillStyle = WHITE;
+      ctx.beginPath();
+      ctx.ellipse(ax, ay - s(3), s(4), s(5), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = sw(1);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+class MonsterTruck extends Unit {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed = settings.motorcycleSpeed * 0.75;
+    this.size = s(50);
+    this.groundOffset = s(26);
+    this.hp = 6;
+    this.fireRate = 1.2;
+    this.heavy = true;
+    this.roll = 0;
+  }
+
+  // Infantry can't stop a monster truck: only vehicles, castles and bosses block it.
+  move(dt, enemies) {
+    const blockers = enemies.filter((e) => !(e instanceof Soldier));
+    const before = this.x;
+    super.move(dt, blockers);
+    this.roll += Math.abs(this.x - before) * 0.12;
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    const bounce = Math.abs(Math.sin(this.roll * 0.7)) * s(2);
+    ctx.save();
+    ctx.strokeStyle = c;
+    ctx.lineWidth = sw(2);
+    drawWheel(x - s(17), y + s(13), s(13), this.roll, LINE);
+    drawWheel(x + s(17), y + s(13), s(13), this.roll, LINE);
+    // Body: a big frying pan on wheels, handle pointing back.
+    const by = y - s(4) - bounce;
+    ctx.beginPath();
+    ctx.ellipse(x, by, s(25), s(9), 0, 0, Math.PI * 2);
+    teamFill(c, 0.45);
+    ctx.stroke();
+    line(x - this.side * s(24), by, x - this.side * s(40), by - s(6), LINE, sw(4));
+    // Cab with a driver.
+    ctx.beginPath();
+    ctx.rect(x - s(6), by - s(17), s(16), s(10));
+    teamFill(c, 0.2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x + s(2), by - s(12), s(3), 0, Math.PI * 2);
+    teamFill(c, 0.8);
+    ctx.stroke();
+    // Fried egg painted on the hood.
+    ctx.fillStyle = WHITE;
+    ctx.beginPath();
+    ctx.ellipse(x + this.side * s(12), by - s(1), s(7), s(4), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = YOLK;
+    ctx.beginPath();
+    ctx.arc(x + this.side * s(12), by - s(1), s(2.5), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+class ChickBalloon extends Airplane {
+  constructor(x, side, terrain, lane = 0) {
+    super(x, side, terrain, lane);
+    this.flightY = H * 0.24 + (lane % 2) * H * 0.05;
+    this.speed = settings.airplaneSpeed * 0.45;
+    this.size = s(48);
+    this.hp = 3;
+    this.fireRate = 0.12;
+    this.chicksLeft = CHICK_DROPS;
+    this.sway = rand(0, 6);
+  }
+
+  // Drifts toward the enemy and parks over the middle of their ground army.
+  move(dt, enemies) {
+    this.sway += dt;
+    const ground = enemies.filter((e) => !(e instanceof Airplane));
+    const target = ground.length ? ground.reduce((a, b) => (Math.abs(a.x - this.x) < Math.abs(b.x - this.x) ? a : b)).x : W / 2;
+    const dx = target - this.x;
+    if (Math.abs(dx) > s(30)) this.x += Math.sign(dx) * this.speed * dt;
+    this.x = clamp(this.x, -s(80), W + s(80));
+  }
+
+  get y() {
+    return this.flightY + Math.sin(this.sway * 1.4) * s(5);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    ctx.save();
+    ctx.strokeStyle = c;
+    ctx.lineWidth = sw(2);
+    // Envelope with stripes.
+    ctx.beginPath();
+    ctx.ellipse(x, y - s(22), s(22), s(26), 0, 0, Math.PI * 2);
+    teamFill(c, 0.25);
+    ctx.stroke();
+    for (const k of [-0.45, 0.45]) {
+      ctx.beginPath();
+      ctx.ellipse(x, y - s(22), s(22) * Math.abs(k), s(26), 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    // Ropes and basket full of chicks.
+    line(x - s(14), y - s(4), x - s(8), y + s(12), LINE, sw(1));
+    line(x + s(14), y - s(4), x + s(8), y + s(12), LINE, sw(1));
+    ctx.beginPath();
+    ctx.rect(x - s(9), y + s(12), s(18), s(10));
+    ctx.fillStyle = "#c79a5a";
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.stroke();
+    for (let i = 0; i < this.chicksLeft; i++) {
+      ctx.fillStyle = "#ffe066";
+      ctx.beginPath();
+      ctx.arc(x - s(6) + i * s(4), y + s(11), s(2.6), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+// A chick paratrooper: a tiny one-hit soldier that floats down under a parachute.
+function makeChick(balloon) {
+  const chick = new Soldier(balloon.x, balloon.side, balloon.terrain);
+  chick.hp = 1;
+  chick.size *= 0.75;
+  chick.visualScale = 0.75;
+  chick.chick = true;
+  chick.parachute = true;
+  chick.airborne = true;
+  chick.lift = Math.max(0, chick.terrain.yAt(balloon.x) - chick.groundOffset - (balloon.y + s(24)));
+  return chick;
+}
