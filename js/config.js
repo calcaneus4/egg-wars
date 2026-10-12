@@ -72,6 +72,9 @@ const settings = {
   maxLeftDrones: 5,
   maxLeftCastles: 1,
   maxLeftSoldiers: 12,
+  maxLeftMedics: 2,
+  maxLeftMortars: 2,
+  maxLeftRiders: 3,
   maxRightTanks: 4,
   maxRightMotorcycles: 3,
   maxRightAirplanes: 3,
@@ -80,6 +83,9 @@ const settings = {
   maxRightDrones: 5,
   maxRightCastles: 1,
   maxRightSoldiers: 12,
+  maxRightMedics: 2,
+  maxRightMortars: 2,
+  maxRightRiders: 3,
   fireRate: 0.1,
   tankFireRate: 0.1,
   motorcycleFireRate: 0.1,
@@ -264,6 +270,9 @@ const settings = {
   playerArmyBudget: 120,
   // Threat points per unit type, used to build enemy armies (DESIGN.md section 4).
   unitThreatPoints: {
+    medic: 7,
+    mortar: 12,
+    rider: 9,
     soldier: 3,
     drone: 2,
     motorcycle: 6,
@@ -275,6 +284,9 @@ const settings = {
   },
   // Relative pick weights for the Balanced enemy personality.
   enemyBalancedWeights: {
+    medic: 0.5,
+    mortar: 0.5,
+    rider: 0.7,
     soldier: 3,
     tank: 2,
     motorcycle: 1.5,
@@ -284,6 +296,9 @@ const settings = {
     bomber: 0.5,
   },
   unitSpawnCosts: {
+    medic: 15,
+    mortar: 30,
+    rider: 22,
     soldier: 5,
     motorcycle: 12,
     tank: 20,

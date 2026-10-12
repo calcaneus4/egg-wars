@@ -17,14 +17,17 @@ const UNLOCKS = [
   { level: 4, kind: "feature", id: "cluster", name: "Cluster Egg", desc: "Yolk Drop option: splits into 6 eggs mid-air (press Q)" },
   { level: 5, kind: "unit", type: "helicopter", name: "Helicopter", desc: "Hovers over enemies and drops eggs" },
   { level: 5, kind: "special", name: "Fire Wizard", desc: "A rapid-fire soldier joins every battle" },
+  { level: 6, kind: "unit", type: "medic", name: "Egg Medic", desc: "Heals the most hurt ally nearby" },
   { level: 7, kind: "feature", id: "bouncing", name: "Bouncer Egg", desc: "Yolk Drop option: hops toward the enemy, bursting on each bounce" },
   { level: 7, kind: "feature", id: "airstrike", name: "Airstrike", desc: "Ability (W): a bomber drops a line of eggs on the enemy" },
   { level: 8, kind: "unit", type: "bomber", name: "Bomber", desc: "Heavy aircraft with egg bursts" },
   { level: 8, kind: "special", name: "Yolk Bomber", desc: "A super bomber joins every battle" },
   { level: 10, kind: "unit", type: "castle", name: "Castle", desc: "Buy extra catapult towers" },
   { level: 10, kind: "feature", id: "sticky", name: "Sticky Egg", desc: "Yolk Drop option: glues enemies so they slow right down" },
+  { level: 11, kind: "unit", type: "mortar", name: "Mortar Hen", desc: "Slow hen that lobs bursting eggs across the field" },
   { level: 12, kind: "feature", id: "shield", name: "Shell Shield", desc: "Ability (E): every unit gains a one-hit shield" },
   { level: 14, kind: "feature", id: "explosive", name: "Boomer Egg", desc: "Yolk Drop option: big blast that digs craters" },
+  { level: 16, kind: "unit", type: "rider", name: "Rooster Rider", desc: "Fast cavalry that charges in and pecks up close" },
 ];
 
 // Unit types that every army always gets for free, whatever is unlocked (the home castle).

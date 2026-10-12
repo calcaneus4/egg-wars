@@ -3,7 +3,9 @@
 // Battle HUD: unit shop bar (top left), stage/time/gold panel (top centre), enemy roster
 // (top right), XP bar and next-unlock teaser, and the Yolk Drop ability ring (bottom left).
 
-const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle"];
+const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle", "medic", "mortar", "rider"];
+const SHOP_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-"];
+const SHOP_ROW = 8;
 const SHOP_CARD = { x: 12, y: 8, w: 58, h: 60, gap: 6 };
 
 // Tiny line-art glyph for each unit type, centred on (x, y) and roughly `size` wide.
@@ -62,6 +64,28 @@ function drawUnitIcon(type, x, y, size, color) {
     path([[-20, -10], [20, -10]], false); ctx.stroke();
     path([[-12, 2], [-24, -2]], false); ctx.stroke();
     path([[-12, 14], [12, 14]], false); ctx.stroke();
+  } else if (type === "medic") {
+    ring(0, -11, 5, true);
+    path([[0, -6], [0, 6]], false); ctx.stroke();
+    path([[0, 6], [-6, 16]], false); ctx.stroke();
+    path([[0, 6], [6, 16]], false); ctx.stroke();
+    ctx.fillStyle = "#d33";
+    ctx.fillRect(6, -4, 10, 3);
+    ctx.fillRect(9.5, -7.5, 3, 10);
+  } else if (type === "mortar") {
+    ctx.beginPath(); ctx.ellipse(-2, 4, 14, 10, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ring(12, -6, 5);
+    path([[16, -7], [22, -5], [16, -3]]); ctx.stroke();
+    path([[-6, -2], [6, -18]], false); ctx.lineWidth *= 1.8; ctx.stroke();
+  } else if (type === "rider") {
+    ctx.beginPath(); ctx.ellipse(-2, 6, 13, 8, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    path([[-14, 4], [-20, -8]], false); ctx.stroke();
+    path([[9, 2], [14, -8]], false); ctx.stroke();
+    ring(15, -11, 4);
+    path([[-2, -2], [-2, -14]], false); ctx.stroke();
+    path([[-2, -8], [20, -14]], false); ctx.stroke();
+    path([[-5, 14], [-8, 20]], false); ctx.stroke();
+    path([[3, 14], [6, 20]], false); ctx.stroke();
   } else if (type === "castle") {
     path([[-12, 16], [-12, -12], [-7, -12], [-7, -7], [-2, -7], [-2, -12], [3, -12], [3, -7], [8, -7], [8, -12], [12, -12], [12, 16]]);
     ctx.fill(); ctx.stroke();
@@ -89,8 +113,11 @@ const Hud = {
   drawShop(game) {
     const p = game.profile;
     SHOP_ORDER.forEach((type, i) => {
-      const x = SHOP_CARD.x + i * (SHOP_CARD.w + SHOP_CARD.gap);
-      const y = SHOP_CARD.y;
+      // Cards 9+ go in a second, shorter row that only appears once one of them is unlocked.
+      const row = Math.floor(i / SHOP_ROW);
+      if (row > 0 && !SHOP_ORDER.slice(SHOP_ROW).some((t) => Unlocks.unitUnlocked(p, t)) && Unlocks.unitUnlockLevel(type) - p.level > 2) return;
+      const x = SHOP_CARD.x + (i % SHOP_ROW) * (SHOP_CARD.w + SHOP_CARD.gap);
+      const y = SHOP_CARD.y + row * (SHOP_CARD.h + 4);
       const { w, h } = SHOP_CARD;
       const locked = !Unlocks.unitUnlocked(p, type);
       const cost = Armory.unitCost(p, type);
@@ -111,7 +138,7 @@ const Hud = {
       drawUnitIcon(type, x + w / 2, y + 26, 34, BLUE);
       ctx.fillStyle = LINE;
       ctx.font = "bold 12px Courier New";
-      ctx.fillText(String(i + 1), x + 4, y + 12);
+      ctx.fillText(SHOP_KEYS[i], x + 4, y + 12);
       const count = this.count(game, RIGHT, type);
       if (count) {
         const t = String(count);
@@ -200,15 +227,16 @@ const Hud = {
   },
 
   drawEnemyRoster(game) {
-    const types = SHOP_ORDER;
+    const types = SHOP_ORDER.slice(0, SHOP_ROW).concat(SHOP_ORDER.slice(SHOP_ROW).filter((t) => this.count(game, LEFT, t) > 0));
     const cell = 40;
-    const x0 = W - 12 - (types.length / 2) * cell * 2;
+    const x0 = W - 12 - 4 * cell * 2;
     ctx.save();
     ctx.fillStyle = LINE;
     ctx.font = "bold 12px Courier New";
     types.forEach((type, i) => {
       const col = i % 4;
       const row = Math.floor(i / 4);
+      if (row > 2) return;
       const x = x0 + col * cell * 2;
       const y = 10 + row * 30;
       const n = this.count(game, LEFT, type);

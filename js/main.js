@@ -106,9 +106,9 @@ window.addEventListener("keydown", (event) => {
     SaveManager.save();
     audio.play("click");
   }
-  const slot = Number(event.key);
-  if (game.scene === "battle" && !game.winner && Number.isInteger(slot) && slot >= 1 && slot <= SHOP_ORDER.length) {
-    const button = game.buttons.find((b) => b.type === SHOP_ORDER[slot - 1]);
+  const slot = SHOP_KEYS.indexOf(event.key);
+  if (game.scene === "battle" && !game.winner && slot >= 0) {
+    const button = game.buttons.find((b) => b.type === SHOP_ORDER[slot]);
     if (button) game.buyUnit(button);
   }
   if ((event.key === "Enter" || event.key === " ") && game.scene === "title") game.startBattle();

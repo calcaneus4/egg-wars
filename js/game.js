@@ -179,6 +179,9 @@ class Game {
       drone: settings.maxRightDrones,
       castle: settings.maxRightCastles,
       soldier: settings.maxRightSoldiers,
+      medic: settings.maxRightMedics,
+      mortar: settings.maxRightMortars,
+      rider: settings.maxRightRiders,
     };
   }
 
@@ -209,6 +212,9 @@ class Game {
       drone: settings.maxLeftDrones,
       castle: settings.maxLeftCastles,
       soldier: settings.maxLeftSoldiers,
+      medic: settings.maxLeftMedics,
+      mortar: settings.maxLeftMortars,
+      rider: settings.maxLeftRiders,
     };
   }
 
@@ -320,6 +326,9 @@ class Game {
       if (type === "drone") this.units.push(new Drone(s(72) - n * s(18), side, this.terrain, n));
       if (type === "castle") this.units.push(new Castle(s(86) - n * s(76), side, this.terrain));
       if (type === "soldier") this.units.push(new Soldier(s(140) - n * s(18), side, this.terrain));
+      if (type === "medic") this.units.push(new Medic(s(110) - n * s(26), side, this.terrain));
+      if (type === "mortar") this.units.push(new MortarHen(s(60) + n * s(40), side, this.terrain));
+      if (type === "rider") this.units.push(new RoosterRider(s(230) - n * s(30), side, this.terrain));
     } else {
       if (type === "tank") this.units.push(new Tank(W - s(255) + n * s(64), side, this.terrain));
       if (type === "motorcycle") this.units.push(new Motorcycle(W - s(197) + n * s(46), side, this.terrain));
@@ -329,6 +338,9 @@ class Game {
       if (type === "drone") this.units.push(new Drone(W - s(72) + n * s(18), side, this.terrain, n));
       if (type === "castle") this.units.push(new Castle(W - s(86) + n * s(76), side, this.terrain));
       if (type === "soldier") this.units.push(new Soldier(W - s(140) + n * s(18), side, this.terrain));
+      if (type === "medic") this.units.push(new Medic(W - s(110) + n * s(26), side, this.terrain));
+      if (type === "mortar") this.units.push(new MortarHen(W - s(60) - n * s(40), side, this.terrain));
+      if (type === "rider") this.units.push(new RoosterRider(W - s(230) + n * s(30), side, this.terrain));
     }
   }
 
@@ -559,6 +571,8 @@ class Game {
       if (enemyAir.length && enemyGroundGone) return this.shootAir(u, enemyAir);
       return this.dropBomb(u, enemies);
     }
+    if (u instanceof Medic) return this.heal(u);
+    if (u.melee) return this.peck(u, enemies);
     const targets = this.targetsInRangeFor(u, enemies);
     if (!targets.length) {
       u.fireClock = 0.08;
@@ -568,18 +582,53 @@ class Game {
     const [sx, sy] = u.muzzle();
     const tx = target.x + rand(-16, 16);
     const ty = target.y - target.size * 0.55 + rand(-12, 10);
-    const t = clamp(Math.abs(tx - sx) / rand(215, 275), 0.85, 2.6);
+    const t = u.lobTime ? rand(u.lobTime[0], u.lobTime[1]) : clamp(Math.abs(tx - sx) / rand(215, 275), 0.85, 2.6);
     const vx = (tx - sx) / t;
     const vy = (ty - sy - 0.5 * GRAVITY * t * t) / t;
     if (u.aim) u.aim(vx, vy);
-    this.eggs.push(new Egg(sx, sy, vx, vy, u.side, u instanceof Castle ? u.bombBurst : u instanceof Tank ? 3 : 0));
+    const burst = u.eggBurst ?? (u instanceof Castle ? u.bombBurst : u instanceof Tank ? 3 : 0);
+    this.eggs.push(new Egg(sx, sy, vx, vy, u.side, burst));
     Effects.muzzle(sx, sy, Math.sign(vx) || u.side);
     if (u instanceof Tank || u instanceof Castle) u.recoil = 1;
     this.maybeSay(u, settings.speechFireComments, 0.95);
     audio.play("fire");
   }
 
+  // Medic: heal the most damaged ally in range by one hit point.
+  heal(u) {
+    let best = null;
+    for (const ally of this.living(u.side)) {
+      if (ally === u || !(ally.maxHp > ally.hp) || dist(u.x, u.y, ally.x, ally.y) > u.healRange) continue;
+      if (!best || ally.hp / ally.maxHp < best.hp / best.maxHp) best = ally;
+    }
+    if (!best) {
+      u.fireClock = 0.3;
+      return;
+    }
+    best.hp = Math.min(best.maxHp, best.hp + 1);
+    for (let i = 0; i < 4; i++) Effects.spawn("spark", best.x + rand(-8, 8), best.y - best.size * 0.4, rand(-10, 10), rand(-70, -40), 0.5, 5, "#5cbf3a");
+    audio.play("tick");
+  }
+
+  // Rooster Rider: peck the closest ground enemy within reach.
+  peck(u, enemies) {
+    const reach = u.blockingRadius() + s(26);
+    let target = null;
+    for (const e of enemies) {
+      if (e instanceof Airplane) continue;
+      const gap = Math.abs(e.x - u.x) - e.blockingRadius();
+      if (gap <= reach && (!target || Math.abs(e.x - u.x) < Math.abs(target.x - u.x))) target = e;
+    }
+    if (!target) {
+      u.fireClock = 0.1;
+      return;
+    }
+    this.damageUnit(target, 1);
+    Effects.sparks(target.x - u.side * target.radius() * 0.4, target.y - target.size * 0.3, 5);
+  }
+
   projectileRangeMultiplierFor(u) {
+    if (u instanceof MortarHen) return 1;
     if (u instanceof Motorcycle) return settings.motorcycleProjectileRangeMultiplier;
     if (u instanceof Soldier) return settings.soldierProjectileRangeMultiplier;
     return 1;

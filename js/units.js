@@ -682,3 +682,148 @@ class Drone extends Airplane {
     line(this.x, y - s(9), this.x, hubY, c);
   }
 }
+
+// ---- Support and specialist infantry (unlocked by level) ------------------------------------
+
+// Egg Medic: never fires; every couple of seconds patches up the most damaged nearby ally.
+class Medic extends Soldier {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed *= 0.6;
+    this.hp = 2;
+    this.fireRate = 0.5;
+    this.healRange = s(240);
+  }
+
+  draw() {
+    super.draw();
+    const c = teamColor(this.side);
+    const y = this.y;
+    // White cap with a cross, and a satchel.
+    ctx.save();
+    ctx.fillStyle = WHITE;
+    ctx.strokeStyle = c;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(this.x, y - s(24), s(7), Math.PI, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = RED;
+    ctx.fillRect(this.x - s(1.2), y - s(30), s(2.4), s(6));
+    ctx.fillRect(this.x - s(3), y - s(28), s(6), s(2.4));
+    ctx.fillStyle = WHITE;
+    ctx.fillRect(this.x - this.side * s(10), y - s(6), s(8), s(7));
+    ctx.strokeRect(this.x - this.side * s(10), y - s(6), s(8), s(7));
+    ctx.restore();
+  }
+}
+
+// Mortar Hen: slow, sturdy, lobs high bursting eggs across the whole field.
+class MortarHen extends Soldier {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed = settings.soldierSpeed * 0.18;
+    this.size = s(30);
+    this.groundOffset = s(16);
+    this.hp = 3;
+    this.fireRate = 0.09;
+    this.eggBurst = 2;
+    this.lobTime = [2.4, 3.0];
+  }
+
+  muzzle() {
+    return [this.x + this.side * s(10), this.y - s(26)];
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    const bob = Math.sin(performance.now() * 0.006 + this.wobble) * s(1.5);
+    ctx.save();
+    ctx.strokeStyle = c;
+    ctx.lineWidth = sw(2);
+    // Body.
+    ctx.beginPath();
+    ctx.ellipse(x, y + bob, s(16), s(12), 0, 0, Math.PI * 2);
+    teamFill(c, 0.3);
+    ctx.stroke();
+    // Head, beak and comb.
+    const hx = x + this.side * s(13);
+    const hy = y - s(10) + bob;
+    ctx.beginPath();
+    ctx.arc(hx, hy, s(6), 0, Math.PI * 2);
+    ctx.fillStyle = PAPER;
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = YOLK;
+    ctx.beginPath();
+    ctx.moveTo(hx + this.side * s(5), hy - s(1));
+    ctx.lineTo(hx + this.side * s(11), hy + s(1));
+    ctx.lineTo(hx + this.side * s(5), hy + s(3));
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = RED;
+    ctx.beginPath();
+    ctx.arc(hx - this.side * s(1), hy - s(7), s(2.5), 0, Math.PI * 2);
+    ctx.arc(hx + this.side * s(2), hy - s(7.5), s(2.5), 0, Math.PI * 2);
+    ctx.fill();
+    // Mortar tube on its back.
+    line(x - this.side * s(4), y - s(6) + bob, x + this.side * s(8), y - s(26) + bob, LINE, sw(4));
+    // Legs.
+    line(x - s(4), y + s(10), x - s(6), y + s(16), c);
+    line(x + s(4), y + s(10), x + s(6), y + s(16), c);
+    ctx.restore();
+  }
+}
+
+// Rooster Rider: fast cavalry that charges in and pecks at the enemy up close.
+class RoosterRider extends Soldier {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed = rand(settings.soldierSpeed * 1.8, settings.soldierSpeed * 2.2);
+    this.size = s(32);
+    this.groundOffset = s(22);
+    this.hp = 3;
+    this.fireRate = 0.9;
+    this.melee = true;
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    const gallop = Math.sin(performance.now() * 0.02 + this.wobble);
+    ctx.save();
+    ctx.strokeStyle = c;
+    ctx.lineWidth = sw(2);
+    // Rooster body and tail feathers.
+    ctx.beginPath();
+    ctx.ellipse(x, y + s(4), s(15), s(9), 0, 0, Math.PI * 2);
+    teamFill(c, 0.3);
+    ctx.stroke();
+    for (let i = 0; i < 3; i++) {
+      line(x - this.side * s(13), y + s(2), x - this.side * s(22 + i * 2), y - s(10 - i * 5), i === 1 ? RED : c);
+    }
+    // Neck, head, comb, beak.
+    line(x + this.side * s(10), y, x + this.side * s(16), y - s(10), c);
+    ctx.beginPath();
+    ctx.arc(x + this.side * s(17), y - s(13), s(4), 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = RED;
+    ctx.fillRect(x + this.side * s(15), y - s(20), s(4), s(4));
+    line(x + this.side * s(21), y - s(13), x + this.side * s(26), y - s(12), YOLK);
+    // Galloping legs.
+    line(x - s(4), y + s(12), x - s(8) + gallop * s(4), y + s(22), c);
+    line(x + s(4), y + s(12), x + s(8) - gallop * s(4), y + s(22), c);
+    // Rider with a lance.
+    line(x, y - s(4), x, y - s(18), c);
+    ctx.beginPath();
+    ctx.arc(x, y - s(22), s(4), 0, Math.PI * 2);
+    teamFill(c, 0.75);
+    ctx.stroke();
+    line(x, y - s(12), x + this.side * s(30), y - s(16) + gallop * s(1), LINE, sw(1.5));
+    ctx.restore();
+  }
+}

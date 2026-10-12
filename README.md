@@ -29,7 +29,8 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 The shop bar at the top left shows every unit with its price. Tap a card (or press its number
 key) to buy one; hold to keep buying. Locked units show the level they unlock at.
 
-1 soldier, 2 tank, 3 motorcycle, 4 drone, 5 airplane, 6 helicopter, 7 bomber, 8 castle.
+1 soldier, 2 tank, 3 motorcycle, 4 drone, 5 airplane, 6 helicopter, 7 bomber, 8 castle,
+9 Egg Medic, 0 Mortar Hen, - Rooster Rider (a second shop row appears as these unlock).
 
 ## Units
 
@@ -40,6 +41,9 @@ key) to buy one; hold to keep buying. Locked units show the level they unlock at
 - **Airplanes** fly across the upper battlefield and drop bombs when they can target enemies.
 - **Bombers** are larger, slower aircraft with stronger burst projectiles.
 - **Helicopters** hover over enemy ground units and drop projectiles from above.
+- **Egg Medics** (level 6) don't fight; they heal the most hurt ally nearby.
+- **Mortar Hens** (level 11) are slow but lob bursting eggs across the whole field.
+- **Rooster Riders** (level 16) charge in fast and peck enemies up close.
 - **Drones** launch from ground level, climb into the air, hover over targets, then dive kamikaze-style into enemies.
 
 ## Progression
