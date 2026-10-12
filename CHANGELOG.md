@@ -109,3 +109,7 @@ following, all in the original hand-drawn side-view style:
   - **Reinforcements** (lv 4): 4 soldiers parachute in beside your castle.
   - **Rooster Rally** (lv 10): "COCK-A-DOODLE-DOO!" - the whole army moves and fires 40% faster for 6 s.
   - **Big Chill** (lv 17): a blizzard flash freezes every enemy for 2.5 s (bosses for a third as long).
+- Bosses: two new bosses.
+  - **Mother Hen Queen** (first at stage 20): a crowned hen on her nest. She alternates between laying eggs that hatch into chick soldiers (at most 8 alive) and lobbing eggs. When enraged she flaps up a gust that blows the player's eggs back and shoves nearby troops.
+  - **Sink Kraken** (first at stage 25, the kitchen): lurks in a puddle and slams tentacles up under your troops after a flickering crack warning. Most hits splash off while it's under, so strike when it surfaces ("BLUB BLUB!") and sprays ink eggs.
+  - The first five boss stages meet each boss once; after that the boss is a seeded random pick that never repeats back-to-back. The world map shows the right boss names.

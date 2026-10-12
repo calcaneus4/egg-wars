@@ -108,8 +108,8 @@ most one brand-new thing per stage, and the rolls are random but seeded by stage
 
 ## 12. Bosses
 
-- [ ] **Mother Hen Queen** - giant hen that lays enemy chicks and flaps wind gusts that push eggs back.
-- [ ] **Sink Kraken** - tentacles burst from the ground under units, then it shows its head to be hit.
+- [x] **Mother Hen Queen** - giant hen that lays enemy chicks and flaps wind gusts that push eggs back.
+- [x] **Sink Kraken** - tentacles burst from the ground under units, then it shows its head to be hit.
 
 ## 13. Integration & polish
 

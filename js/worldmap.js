@@ -115,7 +115,7 @@ const WorldMap = {
     if (st) {
       const biome = Biomes.forStage(st);
       const boss = Bosses.isBossStage(st);
-      const enemy = boss ? `BOSS: ${["Giant Rooster Mech", "Omelet Fortress", "Scrambler Zeppelin"][["mech", "fortress", "zeppelin"].indexOf(Bosses.kindForStage(st))]}` : `Enemy: ${Personalities.forStage(st).name.toLowerCase()}`;
+      const enemy = boss ? `BOSS: ${BOSS_NAMES[Bosses.kindForStage(st)]}` : `Enemy: ${Personalities.forStage(st).name.toLowerCase()}`;
       ctx.fillStyle = LINE;
       ctx.font = "bold 18px Courier New";
       centerText(`STAGE ${st} - ${biome.name} - ${Sky.phaseForStage(st)} - ${enemy}`, 486);
