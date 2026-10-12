@@ -300,7 +300,7 @@ const Hud = {
     ctx.fillText(label, x + r + 12, y + 5);
     ctx.restore();
     this.drawEggPicker(game, x + r + 12, y - 34);
-    this.drawAbilityButtons(game, 470, y);
+    this.drawAbilityButtons(game, 575, y);
   },
 
   abilityButtons: [],

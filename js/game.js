@@ -409,6 +409,7 @@ class Game {
     }
 
     for (const e of [...this.eggs]) {
+      if (e.kind.homing) EggTypes.steer(e, e.side === RIGHT ? red : blue, dt);
       e.update(dt);
       const children = EggTypes.maybeSplit(e);
       if (children) {
@@ -791,8 +792,11 @@ class Game {
     if (this.winner || this.powerUpCooldown > 0) return false;
     const targetX = clamp(x, s(40), W - s(40));
     const kind = EggTypes.selected(this.profile);
-    const vx = kind.dropVx ? kind.dropVx * RIGHT : rand(-18, 18);
-    this.eggs.push(new Egg(targetX, 72, vx, 30, RIGHT, kind.yolkBurst, kind.id));
+    const count = kind.yolkCount || 1;
+    for (let i = 0; i < count; i++) {
+      const vx = kind.dropVx ? kind.dropVx * RIGHT : count > 1 ? (i - (count - 1) / 2) * 60 : rand(-18, 18);
+      this.eggs.push(new Egg(targetX + (i - (count - 1) / 2) * 20, 72, vx, 30, RIGHT, kind.yolkBurst, kind.id));
+    }
     this.powerUpCooldown = Armory.yolkCooldown(this.profile);
     audio.play("fire");
     Tutorial.notify("yolk");

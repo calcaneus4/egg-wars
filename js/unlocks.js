@@ -28,6 +28,7 @@ const UNLOCKS = [
   { level: 12, kind: "feature", id: "shield", name: "Shell Shield", desc: "Ability (E): every unit gains a one-hit shield" },
   { level: 14, kind: "feature", id: "explosive", name: "Boomer Egg", desc: "Yolk Drop option: big blast that digs craters" },
   { level: 16, kind: "unit", type: "rider", name: "Rooster Rider", desc: "Fast cavalry that charges in and pecks up close" },
+  { level: 18, kind: "feature", id: "homing", name: "Seeker Egg", desc: "Yolk Drop option: four eggs that hunt enemies, aircraft first" },
 ];
 
 // Unit types that every army always gets for free, whatever is unlocked (the home castle).

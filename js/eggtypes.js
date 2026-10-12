@@ -12,6 +12,9 @@
 //   bounces     times it hops off the ground before splatting (bursting `bounceBurst` each hop)
 //   sticky      seconds a hit unit stays glued (moves and fires at STICKY_SLOW speed)
 //   burstKind   egg kind of the small eggs thrown out by its burst
+//   homing      { speed, turn, life } - steers toward the nearest enemy (aircraft first) for
+//               `life` seconds, ignoring gravity, then falls normally
+//   yolkCount   how many eggs one Yolk Drop releases (default 1)
 //   explode     { radius, depth } - blast hits every enemy in range (2 hits near the centre,
 //               1 at the edge) and digs a crater of that depth into the terrain
 
@@ -80,6 +83,19 @@ const EGG_TYPES = {
     yolkBurst: 3,
     explode: { radius: 95, depth: 34 },
   },
+  homing: {
+    id: "homing",
+    name: "Seeker",
+    desc: "Four slow seeker eggs that hunt the nearest enemy - aircraft first.",
+    level: 18,
+    damage: 2,
+    burst: 0,
+    band: "homing",
+    yolkDrop: true,
+    yolkBurst: 1,
+    yolkCount: 4,
+    homing: { speed: 190, turn: 3.2, life: 4.5 },
+  },
 };
 
 const EggTypes = {
@@ -101,6 +117,31 @@ const EggTypes = {
     const list = this.unlockedYolkDrops(profile);
     const i = list.indexOf(this.selected(profile));
     profile.yolkEgg = list[(i + dir + list.length) % list.length].id;
+  },
+
+  // Turns a homing egg toward its target. `enemies` are the living units of the other army.
+  steer(egg, enemies, dt) {
+    const h = egg.kind.homing;
+    if (!h || egg.age > h.life) {
+      egg.noGravity = false;
+      return;
+    }
+    egg.noGravity = true;
+    if (!egg.target || egg.target.dead) {
+      const air = enemies.filter((u) => u instanceof Airplane);
+      const pool = air.length ? air : enemies;
+      egg.target = pool.reduce((best, u) => (!best || dist(egg.x, egg.y, u.x, u.y) < dist(egg.x, egg.y, best.x, best.y) ? u : best), null);
+    }
+    if (!egg.target) return;
+    const want = Math.atan2(egg.target.y - egg.y, egg.target.x - egg.x);
+    let heading = Math.atan2(egg.vy, egg.vx);
+    let diff = want - heading;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    heading += clamp(diff, -h.turn * dt, h.turn * dt);
+    egg.vx = Math.cos(heading) * h.speed;
+    egg.vy = Math.sin(heading) * h.speed;
+    if (Math.random() < dt * 25) Effects.spawn("smoke", egg.x, egg.y, 0, -10, 0.4, 2.5, LINE);
   },
 
   // Called every frame for each egg; returns child eggs when the egg splits (the parent is removed).

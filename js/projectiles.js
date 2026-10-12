@@ -23,8 +23,10 @@ class Egg {
     if (this.trail.length > EGG_TRAIL_LENGTH * 2) this.trail.splice(0, 2);
     this.x += this.vx * dt;
     this.y += this.vy * dt;
-    this.vy += GRAVITY * dt;
-    this.vx += Weather.eggAccel() * dt;
+    if (!this.noGravity) {
+      this.vy += GRAVITY * dt;
+      this.vx += Weather.eggAccel() * dt;
+    }
     this.angle += this.spin * dt;
   }
 
@@ -47,7 +49,7 @@ class Egg {
     }
     ctx.save();
     ctx.translate(this.x, this.y);
-    ctx.rotate(this.angle);
+    ctx.rotate(this.noGravity ? Math.atan2(this.vy, this.vx) : this.angle);
     ctx.fillStyle = WHITE;
     ctx.strokeStyle = LINE;
     ctx.lineWidth = 2;
@@ -55,7 +57,21 @@ class Egg {
     ctx.ellipse(0, 0, this.radius, this.radius * 1.2, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    if (this.kind.band === "explosive") {
+    if (this.kind.band === "homing") {
+      // Little fins and an eye.
+      ctx.fillStyle = BLUE;
+      ctx.beginPath();
+      ctx.moveTo(-this.radius, -this.radius * 0.2);
+      ctx.lineTo(-this.radius * 1.6, -this.radius * 0.7);
+      ctx.lineTo(-this.radius * 1.3, 0);
+      ctx.lineTo(-this.radius * 1.6, this.radius * 0.7);
+      ctx.lineTo(-this.radius, this.radius * 0.2);
+      ctx.fill();
+      ctx.fillStyle = RED;
+      ctx.beginPath();
+      ctx.arc(this.radius * 0.35, -this.radius * 0.1, this.radius * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (this.kind.band === "explosive") {
       ctx.fillStyle = RED;
       ctx.beginPath();
       ctx.ellipse(0, 0, this.radius * 0.9, this.radius * 0.3, 0, 0, Math.PI * 2);
