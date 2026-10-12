@@ -23,6 +23,13 @@ function hexToRgb(hex) {
   ];
 }
 
+// Opaque blend of two hex colours: k=0 gives `a`, k=1 gives `b`.
+function mixHex(a, b, k) {
+  const ca = hexToRgb(a);
+  const cb = hexToRgb(b);
+  return `rgb(${ca.map((v, i) => Math.round(v + (cb[i] - v) * k)).join(",")})`;
+}
+
 function rgbaFromHex(hex, alpha) {
   const [r, g, b] = hexToRgb(hex);
   return `rgba(${r},${g},${b},${alpha})`;

@@ -71,7 +71,6 @@ const Hazards = {
     for (let i = 0; i < 18; i++) {
       Effects.spawn(lava ? "drop" : "smoke", z.x + rand(-z.half * 0.5, z.half * 0.5), ground - 6, rand(-60, 60), rand(-380, -200), rand(0.6, 1.1), lava ? rand(2.5, 4.5) : rand(6, 10), lava ? "#ff7a28" : WHITE);
     }
-    Effects.shake(2.5);
     audio.play(lava ? "tank_destroyed" : "egg_splat");
     for (const u of game.living()) {
       if (this.isGround(u) && Math.abs(u.x - z.x) <= z.half + u.blockingRadius() * 0.5) game.damageUnit(u, 1);

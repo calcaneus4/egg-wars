@@ -4,6 +4,11 @@
 // Particles are plain objects reused from a fixed pool, so a busy battle doesn't churn memory.
 
 const PARTICLE_POOL_SIZE = 450;
+// Screen shake is saved for big moments: small hits are ignored, and after a shake there is a
+// short cooldown during which only the largest events (explosive eggs, boss stomps) can shake again.
+const SHAKE_MIN = 4;
+const SHAKE_BIG = 9;
+const SHAKE_COOLDOWN = 1.2;
 
 const Effects = {
   pool: [],
@@ -11,18 +16,21 @@ const Effects = {
   shakeAmount: 0,
   shakeX: 0,
   shakeY: 0,
+  shakeCooldown: 0,
 
   init() {
     this.pool = [];
     for (let i = 0; i < PARTICLE_POOL_SIZE; i++) this.pool.push({ alive: false });
     this.live = 0;
     this.shakeAmount = 0;
+    this.shakeCooldown = 0;
   },
 
   clear() {
     for (const p of this.pool) p.alive = false;
     this.live = 0;
     this.shakeAmount = 0;
+    this.shakeCooldown = 0;
   },
 
   spawn(kind, x, y, vx, vy, life, size, color) {
@@ -103,14 +111,17 @@ const Effects = {
   },
 
   shake(amount) {
-    if (!settings.screenShake) return;
+    if (!settings.screenShake || amount < SHAKE_MIN) return;
+    if (this.shakeCooldown > 0 && amount < SHAKE_BIG) return;
     this.shakeAmount = Math.min(14, Math.max(this.shakeAmount, amount));
+    this.shakeCooldown = SHAKE_COOLDOWN;
   },
 
   // ---- Update & draw --------------------------------------------------------------------
 
   update(dt, terrain) {
     this.shakeAmount = Math.max(0, this.shakeAmount - dt * 30);
+    this.shakeCooldown = Math.max(0, this.shakeCooldown - dt);
     const a = this.shakeAmount;
     this.shakeX = a ? rand(-a, a) : 0;
     this.shakeY = a ? rand(-a, a) : 0;

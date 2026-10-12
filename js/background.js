@@ -3,12 +3,14 @@
 // Layered parallax background: sketchy mountains, hills and a sun, drawn in code.
 // Each layer is a seamless strip twice the screen width, pre-rendered to an offscreen canvas
 // whenever the stage or color scheme changes, then scrolled slowly at its own speed.
+// Layers are solid (paper blended toward ink, darker as they get nearer), so each one hides the
+// layers behind it; `fill` is that blend amount.
 
 const BACKGROUND_LAYERS = [
   // far -> near
-  { kind: "mountains", base: 0.5, amp: 0.13, speed: 2, fill: 0.06, stroke: 0.22, detail: 7 },
-  { kind: "hills", base: 0.6, amp: 0.07, speed: 5, fill: 0.07, stroke: 0.3, detail: 5 },
-  { kind: "trees", base: 0.67, amp: 0.045, speed: 9, fill: 0.08, stroke: 0.38, detail: 4 },
+  { kind: "mountains", base: 0.5, amp: 0.13, speed: 2, fill: 0.1, stroke: 0.22, detail: 7 },
+  { kind: "hills", base: 0.6, amp: 0.07, speed: 5, fill: 0.17, stroke: 0.3, detail: 5 },
+  { kind: "trees", base: 0.67, amp: 0.045, speed: 9, fill: 0.25, stroke: 0.38, detail: 4 },
 ];
 
 function seededRandom(seed) {
@@ -68,11 +70,12 @@ class Background {
     off.height = H;
     const g = off.getContext("2d");
     const pts = this.ridge(random, layer);
-    // Fill.
+    if (index === 0) this.farRidge = pts;
+    // Solid fill, a little lighter toward the bottom like haze in a valley.
     const top = H * (layer.base - layer.amp);
     const grad = g.createLinearGradient(0, top, 0, H * (layer.base + 0.18));
-    grad.addColorStop(0, rgbaFromHex(LINE, layer.fill));
-    grad.addColorStop(1, rgbaFromHex(LINE, 0));
+    grad.addColorStop(0, mixHex(PAPER, LINE, layer.fill));
+    grad.addColorStop(1, mixHex(PAPER, LINE, layer.fill * 0.6));
     g.fillStyle = grad;
     g.beginPath();
     g.moveTo(0, H);
@@ -132,7 +135,7 @@ class Background {
         } else {
           g.arc(x, y - h * 0.65, h * 0.35, 0, Math.PI * 2);
         }
-        g.fillStyle = rgbaFromHex(LINE, layer.fill * 1.3);
+        g.fillStyle = mixHex(PAPER, LINE, layer.fill + 0.12);
         g.fill();
         g.stroke();
       }
@@ -142,7 +145,7 @@ class Background {
 
   // Near-layer silhouettes for non-meadow biomes.
   drawDecor(g, kind, x, y, h, random, layer) {
-    g.fillStyle = rgbaFromHex(LINE, layer.fill * 1.3);
+    g.fillStyle = mixHex(PAPER, LINE, layer.fill + 0.12);
     g.beginPath();
     if (kind === "cacti") {
       g.moveTo(x, y + 2);
@@ -227,10 +230,25 @@ class Background {
     ctx.restore();
   }
 
-  draw() {
-    this.ensureRendered();
+  // Screen y of the farthest ridge at screen x (things above it are open sky).
+  skylineAt(x) {
+    if (!this.farRidge) return H;
+    const span = W * 2;
+    const offset = (this.time * BACKGROUND_LAYERS[0].speed) % span;
+    const sx = (((x + offset) % span) + span) % span;
+    const pts = this.farRidge;
+    const i = Math.min(pts.length - 1, Math.round(sx / 6));
+    return pts[i][1];
+  }
+
+  drawSunOrMoon() {
     if (Sky.isNight()) drawMoon(1010, 130, this.time);
     else this.drawSun();
+  }
+
+  // The solid hill layers. The sky tint is drawn over them afterwards so they share its light.
+  draw() {
+    this.ensureRendered();
     for (const { layer, image } of this.layers) {
       const span = W * 2;
       const offset = (this.time * layer.speed) % span;

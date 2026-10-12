@@ -51,7 +51,8 @@ const Sky = {
     return `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${c[3].toFixed(3)})`;
   },
 
-  // Drawn right after the paper fill, before the parallax background.
+  // Drawn over the solid parallax hills (so they take on the dusk/night light), before the sun or
+  // moon. Stars are only drawn in open sky above the farthest ridge.
   drawSky(game) {
     const s = this.current(game);
     this.now = s;
@@ -67,6 +68,7 @@ const Sky = {
       ctx.save();
       ctx.fillStyle = "#fffbe8";
       for (const star of this.stars) {
+        if (star.y > game.background.skylineAt(star.x) - 4) continue;
         ctx.globalAlpha = s.stars * (0.55 + 0.45 * Math.sin(t * 1.7 + star.tw));
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);

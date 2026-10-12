@@ -775,7 +775,6 @@ class Game {
   burst(egg, x, y, leaveSplat) {
     Effects.yolk(x, y, 6 + egg.burst, 1.2);
     Effects.spawn("ring", x, y, 0, 0, 0.3, 6 + egg.burst, YOLK);
-    if (egg.burst >= 6) Effects.shake(2 + egg.burst * 0.2);
     if (leaveSplat) this.splats.push(new Splat(x, y + rand(0, s(10)), this.terrain.slopeAt(x), 1 + Math.min(0.6, egg.burst * 0.05)));
     Effects.shells(x, y, 3);
     for (let i = 0; i < egg.burst; i++) {
@@ -838,7 +837,6 @@ class Game {
     const hop = { ...e, burst: e.kind.bounceBurst || 0, kind: EggTypes.get("normal") };
     if (hop.burst) this.burst(hop, e.x, ground, true);
     else this.addTerrainSplat(e.x);
-    Effects.shake(1.5);
   }
 
   addTerrainSplat(x) {
@@ -853,7 +851,7 @@ class Game {
   playUnitDestroyed(unit) {
     const big = unit.isBoss ? 4 : unit instanceof Castle ? 2.2 : unit instanceof Tank || unit instanceof Bomber ? 1.5 : unit instanceof Soldier ? 0.6 : 1;
     Effects.explosion(unit.x, unit.y, big, teamColor(unit.side));
-    Effects.shake(big * 3.5);
+    if (big >= 1.5) Effects.shake(big * 3.5);
     if (unit instanceof Soldier) audio.play("soldier_destroyed");
     else audio.play("tank_destroyed");
   }
@@ -894,8 +892,9 @@ class Game {
     ctx.fillRect(0, 0, W, H);
     ctx.save();
     ctx.translate(Effects.shakeX, Effects.shakeY);
-    Sky.drawSky(this);
     this.background.draw();
+    Sky.drawSky(this);
+    this.background.drawSunOrMoon();
     this.clouds.forEach((c) => drawCloud(c.x, c.y, c.scale));
     this.terrain.draw();
     this.splats.forEach((splat) => splat.draw());
