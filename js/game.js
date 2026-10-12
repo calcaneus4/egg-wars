@@ -332,6 +332,7 @@ class Game {
   }
 
   update(dt) {
+    Music.update(this, dt);
     this.clouds.forEach((c) => {
       c.x += c.speed * dt;
       if (c.x - 100 * c.scale > W) c.x = -100 * c.scale;

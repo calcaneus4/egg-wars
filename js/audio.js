@@ -75,7 +75,8 @@ class AudioFx {
     const now = this.ctx.currentTime;
     this.master.gain.setTargetAtTime(Math.max(0, settings.soundVolume / 3), now, 0.02);
     this.sfx.gain.setTargetAtTime(settings.sfxVolume ?? 1, now, 0.02);
-    this.music.gain.setTargetAtTime(settings.musicVolume ?? 0.6, now, 0.02);
+    const fade = typeof Music !== "undefined" ? Music.fade : 1;
+    this.music.gain.setTargetAtTime((settings.musicVolume ?? 0.6) * fade, now, 0.02);
   }
 
   ready() {
