@@ -12,7 +12,7 @@ class Egg {
     this.burst += this.kind.burst;
     this.age = 0;
     this.bouncesLeft = this.kind.bounces || 0;
-    this.radius = s(this.kind.split ? 10 : 8);
+    this.radius = s(this.kind.split ? 10 : 8) * Weather.eggScale();
     this.trail = [];
     this.spin = rand(-6, 6);
     this.angle = rand(0, Math.PI * 2);

@@ -13,7 +13,7 @@ const BIOMES = [
     ground: null,
     grass: true,
     decor: "trees",
-    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5 },
+    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5, fog: 1, storm: 1.2, hail: 0.6 },
   },
   {
     id: "desert",
@@ -23,7 +23,7 @@ const BIOMES = [
     grass: false,
     stipple: true,
     decor: "cacti",
-    weather: { clear: 6, windy: 3 },
+    weather: { clear: 6, windy: 3, heat: 2.5, storm: 0.4 },
   },
   {
     id: "snow",
@@ -33,7 +33,7 @@ const BIOMES = [
     grass: false,
     snowCap: true,
     decor: "pines",
-    weather: { snow: 5, clear: 2, windy: 2 },
+    weather: { snow: 5, clear: 2, windy: 2, fog: 1.5, hail: 1.5 },
   },
   {
     id: "volcano",
@@ -43,7 +43,7 @@ const BIOMES = [
     grass: false,
     cracks: true,
     decor: "rocks",
-    weather: { clear: 4, windy: 2 },
+    weather: { clear: 4, windy: 2, heat: 2, storm: 1, fog: 0.8 },
   },
   {
     id: "kitchen",
@@ -53,7 +53,7 @@ const BIOMES = [
     grass: false,
     tiles: true,
     decor: "kitchen",
-    weather: { clear: 1 },
+    weather: { clear: 3, fog: 1, heat: 1.5 },
   },
 ];
 

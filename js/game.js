@@ -446,6 +446,7 @@ class Game {
     Abilities.update(this, dt);
     Hazards.update(this, dt);
     Events.update(this, dt);
+    Weather.updateBattle(this, dt);
 
     const blue = this.living(RIGHT);
     const red = this.living(LEFT);
@@ -716,8 +717,9 @@ class Game {
 
   targetsInRangeFor(u, enemies) {
     const rangeMultiplier = this.projectileRangeMultiplierFor(u);
-    if (rangeMultiplier >= 1) return enemies;
-    const maxRange = W * rangeMultiplier;
+    const sight = Weather.visibility();
+    if (rangeMultiplier >= 1 && sight === Infinity) return enemies;
+    const maxRange = Math.min(W * rangeMultiplier, sight);
     return enemies.filter((enemy) => Math.abs(enemy.x - u.x) <= maxRange);
   }
 
@@ -919,6 +921,7 @@ class Game {
     Abilities.drawAirstrikes(this);
     Effects.draw();
     Weather.draw();
+    Weather.drawOverlay(this);
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
       if (this.canSpeak(u)) drawSpeechBubble(u);
     });

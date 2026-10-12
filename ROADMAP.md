@@ -83,9 +83,9 @@ most one brand-new thing per stage, and the rolls are random but seeded by stage
 
 ## 8. Weather
 
-- [ ] **Fog** - drifting fog banks limit vision: units fire only at targets within a shorter range.
-- [ ] **Thunderstorm** - rain plus lightning strikes: a flicker warns first, then the strike damages whatever stands there.
-- [ ] **Hail & Heat wave** - hail lightly damages aircraft. Heat waves make the air shimmer and give eggs extra splash.
+- [x] **Fog** - drifting fog banks limit vision: units fire only at targets within a shorter range.
+- [x] **Thunderstorm** - rain plus lightning strikes: a flicker warns first, then the strike damages whatever stands there.
+- [x] **Hail - [ ] **Hail & Heat wave** Heat wave** - hail lightly damages aircraft. Heat waves make the air shimmer and give eggs extra splash.
 
 ## 9. Egg types (Yolk Drop options)
 

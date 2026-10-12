@@ -89,3 +89,8 @@ following, all in the original hand-drawn side-view style:
 - Events: **Tsunami** (stage 6+) - a cartoon wave with a curling crest and a flotilla of rubber ducks rolls across the field from a random side. It carries ground units along (up to a set distance, tanks half as far), bobs them on the water, puts out sticky goo, drowns eggs flying into it, washes away splats and wreckage, damps lava vents and leaves a couple of rubber ducks stranded on the battlefield. In the Kitchen it's the sink overflowing. Event speech is now rate-limited so bubbles stay readable.
 - Events: **Chicken Stampede** (stage 4+) - 14-19 panicking farm hens sprint across the field squawking, gobbling up splats and bowling over soldiers and bikes from both armies (they tip over and lie still for a second or so).
 - Events: **UFO Abduction** (stage 8+, needs 3+ units per side) - a flying saucer beams up one matching trooper from each army (a soldier if possible; no kill credit, no wreckage), then drops a cow, which says "MOO." and stays on the field. The saucer ends the event itself once it has flown off.
+- Weather: four new weather types join the biome tables from their DESIGN.md stages, each with a first-time tip and a HUD label.
+  - **Fog** (stage 6+): drifting fog banks; ground units only see enemies within 40% of the field.
+  - **Thunderstorm** (stage 9+): heavy rain, a darker sky and lightning every 5-9 s. The ground flickers with a "!" ring for 1.3 s before a bolt hits for 1 damage around the strike point. Comes with a thunder sound.
+  - **Hail** (stage 12+): bouncing hailstones; every aircraft takes a hit every 5-9 s.
+  - **Heat wave** (stage 12+): shimmering air and eggs swell up 35%, making them easier to hit with.

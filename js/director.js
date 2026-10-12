@@ -53,6 +53,9 @@ const Director = {
 
   // Remembers what the player has now met, for debut limits and tips.
   noteStart(game) {
-    if (Weather.type !== "clear") this.markSeen(`weather:${Weather.type}`);
+    if (Weather.type === "clear") return;
+    this.markSeen(`weather:${Weather.type}`);
+    const info = Weather.info();
+    if (info.tip) Tutorial.queueTip(`weather:${Weather.type}`, info.tip);
   },
 };

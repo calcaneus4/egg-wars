@@ -209,6 +209,11 @@ class AudioFx {
         this.tone(150, 0.7, { type: "sawtooth", volume: 0.07, slideTo: 110 });
         this.noise(0.6, { volume: 0.08, filter: "lowpass", freq: 500 });
         return 0.7;
+      case "thunder":
+        this.noise(0.08, { volume: 0.4, filter: "highpass", freq: 2500 });
+        this.noise(n(1.8), { volume: 0.55, filter: "lowpass", freq: 900 * v, freqTo: 60, delay: 0.05 });
+        this.tone(55 * v, n(1.2), { type: "sine", volume: 0.35, slideTo: 30, delay: 0.1 });
+        return 1.8;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;
