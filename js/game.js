@@ -463,7 +463,7 @@ class Game {
       if (this.canSpeak(u)) u.updateSpeech(dt);
       const udt = (u.stuck > 0 ? dt * STICKY_SLOW : dt) * Events.speedFactor(u);
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
-      Events.tickUnit(u, dt);
+      if (Events.tickUnit(this, u, dt)) continue;
       u.move(udt * Hazards.speedFactor(u), enemies);
       if (u.isBoss) {
         u.updateBoss(this, udt, enemies);
@@ -910,7 +910,7 @@ class Game {
     this.eggs.forEach((e) => e.draw());
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
       if (u.maxHp === undefined || u.hp > u.maxHp) u.maxHp = u.hp;
-      withHitFlash(u, () => u.draw());
+      Events.drawUnit(u, () => withHitFlash(u, () => u.draw()));
       if (u.hp < u.maxHp && u.hp > 0) drawCracks(u.x, u.y, u.size, 1 - u.hp / u.maxHp, u.wobble);
     });
     this.drawGoo();

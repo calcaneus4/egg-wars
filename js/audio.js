@@ -182,6 +182,10 @@ class AudioFx {
         this.noise(n(1.1), { volume: 0.5, filter: "lowpass", freq: 260 * v, freqTo: 70 });
         this.tone(48 * v, n(1), { type: "sine", volume: 0.4, slideTo: 36 });
         return 1.1;
+      case "wind_howl":
+        this.noise(n(1.5), { volume: 0.28, filter: "bandpass", freq: 300 * v, freqTo: 1200 * v, q: 4 });
+        this.noise(n(1.4), { volume: 0.18, filter: "bandpass", freq: 900 * v, freqTo: 350, q: 6, delay: 0.1 });
+        return 1.5;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;

@@ -76,7 +76,7 @@ most one brand-new thing per stage, and the rolls are random but seeded by stage
 
 ## 7. Surprise events (both armies affected equally)
 
-- [ ] **Tornado** - a twister wanders across the field, lifts light units and eggs, and spins them around before dropping them.
+- [x] **Tornado** - a twister wanders across the field, lifts light units and eggs, and spins them around before dropping them.
 - [ ] **Tsunami** - a cartoon wave (with rubber ducks) rolls in from one edge, pushes ground units back and washes away splats and goo.
 - [ ] **Chicken Stampede** - a flock of panicking farm hens runs across, knocking soldiers over and shouting "BAWK!".
 - [ ] **UFO Abduction** - a flying saucer beams up one unit from each army and drops back a confused cow.

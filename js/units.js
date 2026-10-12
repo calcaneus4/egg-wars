@@ -16,7 +16,7 @@ class Unit {
   }
 
   get y() {
-    return this.terrain.yAt(this.x) - this.groundOffset;
+    return this.terrain.yAt(this.x) - this.groundOffset - (this.lift || 0);
   }
 
   direction() {
@@ -59,7 +59,7 @@ class Unit {
 
   move(dt, enemies) {
     let step = this.speed * dt;
-    const ahead = enemies.filter((e) => !(e instanceof Airplane) && (e.x - this.x) * this.side > 0);
+    const ahead = enemies.filter((e) => !(e instanceof Airplane) && !e.airborne && (e.x - this.x) * this.side > 0);
     if (ahead.length) {
       const blocker = ahead.reduce((a, b) => Math.abs(a.x - this.x) < Math.abs(b.x - this.x) ? a : b);
       const gap = Math.abs(blocker.x - this.x);
