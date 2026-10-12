@@ -87,6 +87,7 @@ class Game {
   startStage() {
     this.terrain.regenerate();
     this.background.regenerate();
+    Sky.regenerate(this.stage);
     this.units = [];
     this.eggs = [];
     this.splats = [];
@@ -676,10 +677,12 @@ class Game {
     ctx.fillRect(0, 0, W, H);
     ctx.save();
     ctx.translate(Effects.shakeX, Effects.shakeY);
+    Sky.drawSky(this);
     this.background.draw();
     this.clouds.forEach((c) => drawCloud(c.x, c.y, c.scale));
     this.terrain.draw();
     this.splats.forEach((splat) => splat.draw());
+    Sky.drawShade();
     if (settings.showWreckage) this.wreckage.forEach((w) => drawWreckage(w));
     this.eggs.forEach((e) => e.draw());
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {

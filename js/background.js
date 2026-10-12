@@ -169,7 +169,8 @@ class Background {
 
   draw() {
     this.ensureRendered();
-    this.drawSun();
+    if (Sky.isNight()) drawMoon(1010, 130, this.time);
+    else this.drawSun();
     for (const { layer, image } of this.layers) {
       const span = W * 2;
       const offset = (this.time * layer.speed) % span;
