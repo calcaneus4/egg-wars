@@ -98,9 +98,8 @@ window.addEventListener("keydown", (event) => {
     SaveManager.save();
   }
   if ((event.key === "r" || event.key === "R") && game.scene === "battle") game.restart();
-  for (const ability of ABILITIES) {
-    if (event.key.toUpperCase() === ability.key && game.scene === "battle") Abilities.use(game, ability.id);
-  }
+  const powerSlot = POWER_SLOT_KEYS.indexOf(event.key.toUpperCase());
+  if (powerSlot >= 0 && game.scene === "battle") Abilities.useSlot(game, powerSlot);
   if ((event.key === "q" || event.key === "Q") && game.scene === "battle") {
     EggTypes.cycle(game.profile);
     SaveManager.save();

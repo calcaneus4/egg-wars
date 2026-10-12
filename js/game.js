@@ -96,6 +96,7 @@ class Game {
     else if (this.scene === "paused") this.scene = "battle";
     else if (this.scene === "settings") this.scene = Menus.returnScene;
     else if (this.scene === "armory") this.scene = Menus.armoryReturn;
+    else if (this.scene === "powers") this.scene = Menus.powersReturn;
     else if (["achievements", "map", "stats"].includes(this.scene)) this.scene = "title";
   }
 
@@ -480,7 +481,7 @@ class Game {
         u.frozen = Math.max(0, u.frozen - dt);
         continue;
       }
-      const udt = (u.stuck > 0 ? dt * STICKY_SLOW : dt) * Events.speedFactor(u);
+      const udt = (u.stuck > 0 ? dt * STICKY_SLOW : dt) * Events.speedFactor(u) * Abilities.timeScale(u);
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
       if (Events.tickUnit(this, u, dt)) continue;
       u.move(udt * Hazards.speedFactor(u), enemies);
@@ -980,6 +981,7 @@ class Game {
     Effects.draw();
     Weather.draw();
     Weather.drawOverlay(this);
+    Abilities.drawChill(this);
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
       if (this.canSpeak(u)) drawSpeechBubble(u);
     });

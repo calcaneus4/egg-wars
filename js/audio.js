@@ -214,6 +214,11 @@ class AudioFx {
         this.noise(n(1.8), { volume: 0.55, filter: "lowpass", freq: 900 * v, freqTo: 60, delay: 0.05 });
         this.tone(55 * v, n(1.2), { type: "sine", volume: 0.35, slideTo: 30, delay: 0.1 });
         return 1.8;
+      case "crow":
+        this.tone(520, 0.12, { type: "sawtooth", volume: 0.06, slideTo: 700 });
+        this.tone(700, 0.14, { type: "sawtooth", volume: 0.06, slideTo: 760, delay: 0.13 });
+        this.tone(760, 0.45, { type: "sawtooth", volume: 0.06, slideTo: 520, delay: 0.28 });
+        return 0.75;
       case "freeze":
         [2400, 3100, 2700, 3600].forEach((f, i) => this.tone(f * v, 0.08, { type: "triangle", volume: 0.04, delay: i * 0.04 }));
         this.noise(0.3, { volume: 0.12, filter: "highpass", freq: 5000 });

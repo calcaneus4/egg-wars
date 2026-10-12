@@ -48,6 +48,12 @@ const Menus = {
   confirmNewGame: false,
   returnScene: "title",
   armoryReturn: "title",
+  powersReturn: "title",
+
+  openPowers(game, from) {
+    this.powersReturn = from;
+    game.scene = "powers";
+  },
 
   openArmory(game, from) {
     this.armoryReturn = from;
@@ -89,6 +95,7 @@ const Menus = {
     if (game.scene === "achievements") Achievements.drawGallery(game);
     if (game.scene === "map") WorldMap.draw(game);
     if (game.scene === "stats") Stats.draw(game);
+    if (game.scene === "powers") Abilities.drawScreen(game);
     this.buttons.forEach((b) => this.drawButton(b, b.hot));
   },
 
@@ -107,7 +114,10 @@ const Menus = {
     const fresh = p.stage <= 1 && p.level <= 1 && game.score.blue + game.score.red === 0;
     const play = this.button(fresh ? "PLAY" : `CONTINUE - STAGE ${p.stage}`, W / 2, 280, 380, () => game.startBattle());
     play.hot = true;
-    this.button("WORLD MAP", W / 2, 340, 380, () => WorldMap.open(game));
+    this.button("WORLD MAP", W / 2 - 97, 340, 186, () => WorldMap.open(game));
+    const powersOpen = ABILITIES.some((a) => Abilities.unlocked(p, a));
+    const powers = this.button(powersOpen ? "POWERS" : `POWERS (LV${ABILITIES[0].level})`, W / 2 + 97, 340, 186, () => this.openPowers(game, "title"));
+    powers.disabled = !powersOpen;
     const armory = this.button(Armory.isOpen(p) ? "ARMORY" : `ARMORY (LV${ARMORY_UNLOCK_LEVEL})`, W / 2 - 97, 400, 186, () => this.openArmory(game, "title"));
     armory.disabled = !Armory.isOpen(p);
     this.button(`TROPHIES ${Achievements.count()}/${ACHIEVEMENTS.length}`, W / 2 + 97, 400, 186, () => { game.scene = "achievements"; });
@@ -120,7 +130,7 @@ const Menus = {
     }
     ctx.font = "bold 16px Courier New";
     centerText("Tap unit buttons to send troops. Tap the battlefield to drop yolk bombs.", 580);
-    centerText("1-9 buy units   Q egg type   W/E abilities   Esc pause   M mute   R restart", 604);
+    centerText("1-9 buy units   Q egg type   W/E powers   Esc pause   M mute   R restart", 604);
     ctx.font = "bold 14px Courier New";
     const credit = "EGG WARS (c) 2026. Created by Michael K. Davis, MD.";
     ctx.fillText(credit, W - ctx.measureText(credit).width - 18, H - 18);
@@ -134,7 +144,9 @@ const Menus = {
     this.button("RESUME", W / 2, 250, 340, () => { game.scene = "battle"; }).hot = true;
     this.button("RESTART STAGE", W / 2, 310, 340, () => { game.scene = "battle"; game.restart(); });
     this.button("SETTINGS", W / 2, 370, 340, () => this.openSettings(game, "paused"));
-    this.button("TITLE SCREEN", W / 2, 430, 340, () => { game.endPractice(); game.startStage(); game.scene = "title"; });
+    const powers = this.button("POWERS", W / 2, 430, 340, () => this.openPowers(game, "paused"));
+    powers.disabled = !ABILITIES.some((a) => Abilities.unlocked(game.profile, a));
+    this.button("TITLE SCREEN", W / 2, 490, 340, () => { game.endPractice(); game.startStage(); game.scene = "title"; });
   },
 
   openSettings(game, from) {

@@ -20,6 +20,7 @@ function defaultSave() {
       lossStreak: 0,
       rallyGoldStreak: 0,
       yolkEgg: "normal",
+      powers: [],
       armory: { hp: 0, rate: 0, dmg: 0, chest: 0, yolk: 0, bulk: 0 },
     },
     settings: {},
@@ -85,6 +86,7 @@ function validateSave(data) {
   p.goldenEggs = Number.isFinite(p.goldenEggs) ? Math.max(0, Math.floor(p.goldenEggs)) : 0;
   p.rallyGoldStreak = Number.isFinite(p.rallyGoldStreak) ? Math.max(0, Math.floor(p.rallyGoldStreak)) : 0;
   p.lossStreak = Number.isFinite(p.lossStreak) ? Math.max(0, Math.floor(p.lossStreak)) : 0;
+  p.powers = Array.isArray(p.powers) ? p.powers.filter((id) => id === null || typeof id === "string").slice(0, 2) : [];
   p.unlockedNames = Array.isArray(p.unlockedNames) ? p.unlockedNames.filter((n) => typeof n === "string") : [];
   for (const key of Object.keys(p.armory)) {
     p.armory[key] = Number.isFinite(p.armory[key]) ? clamp(Math.floor(p.armory[key]), 0, 20) : 0;

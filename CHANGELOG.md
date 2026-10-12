@@ -104,3 +104,8 @@ following, all in the original hand-drawn side-view style:
   - **Monster Truck** (lv 11, $30): a frying pan on monster wheels. Infantry can't block it; it drives over them for 2 hits and rams vehicles and castles.
   - **Chick Balloon** (lv 13, $40): a hot-air balloon that drifts over the enemy's ground troops and drops up to 4 one-hit chick paratroopers, which float down on little parachutes.
   - Heavy vehicles are too heavy for the tornado.
+- Powers: abilities are now **powers** with a two-slot **loadout** (W/E).
+  - The new **Powers** screen (title and pause menus) lists every power with its cooldown; tap W or E to equip one, and picking a power already in the other slot swaps them. Empty slots fill themselves as powers unlock, the save keeps your picks, and the HUD previews the next power to unlock.
+  - **Reinforcements** (lv 4): 4 soldiers parachute in beside your castle.
+  - **Rooster Rally** (lv 10): "COCK-A-DOODLE-DOO!" - the whole army moves and fires 40% faster for 6 s.
+  - **Big Chill** (lv 17): a blizzard flash freezes every enemy for 2.5 s (bosses for a third as long).

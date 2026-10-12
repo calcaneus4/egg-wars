@@ -101,10 +101,10 @@ most one brand-new thing per stage, and the rolls are random but seeded by stage
 
 ## 11. Powers
 
-- [ ] **Power loadout** - a pre-battle picker. Choose 2 powers for the W/E slots from everything unlocked.
-- [ ] **Rooster Rally power** - for 6 s the whole army moves and fires 40% faster.
-- [ ] **Reinforcements power** - a coop drops in 4 soldiers right at your castle.
-- [ ] **Big Chill power** - freezes every enemy for 2.5 s.
+- [x] **Power loadout** - a pre-battle picker. Choose 2 powers for the W/E slots from everything unlocked.
+- [x] **Rooster Rally power** - for 6 s the whole army moves and fires 40% faster.
+- [x] **Reinforcements power** - a coop drops in 4 soldiers right at your castle.
+- [x] **Big Chill power** - freezes every enemy for 2.5 s.
 
 ## 12. Bosses
 
