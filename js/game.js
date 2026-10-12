@@ -78,6 +78,7 @@ class Game {
     else if (this.scene === "paused") this.scene = "battle";
     else if (this.scene === "settings") this.scene = Menus.returnScene;
     else if (this.scene === "armory") this.scene = Menus.armoryReturn;
+    else if (this.scene === "achievements") this.scene = "title";
   }
 
   nextRoundLimit() {
@@ -112,6 +113,9 @@ class Game {
     this.spawn();
     this.applyRally();
     Objectives.start(this);
+    const flags = SaveManager.data.flags;
+    flags.biomes = Array.isArray(flags.biomes) ? flags.biomes : [];
+    if (this.scene === "battle" && !flags.biomes.includes(this.biome.id)) flags.biomes.push(this.biome.id);
     if (this.scene === "battle") Tutorial.onStageStart(this);
     audio.play("start_reveille");
   }
@@ -294,12 +298,14 @@ class Game {
     Results.start(this);
     SaveManager.data.stats.roundsPlayed++;
     this.saveProfile();
+    Achievements.check(this);
     audio.play(blueWon ? "end_jingle" : "sad_jingle");
   }
 
   // XP and Golden Eggs for the round just finished (DESIGN.md sections 6-7).
   grantProgress(blueWon) {
     const p = this.profile;
+    const streakBefore = p.lossStreak;
     const playedStage = blueWon ? this.stage - 1 : this.stage;
     p.lossStreak = blueWon ? 0 : p.lossStreak + 1;
     const xp = Progression.roundXp(playedStage, blueWon) + this.roundKills;
@@ -309,6 +315,15 @@ class Game {
     if (blueWon && this.bossStage) goldenEggs += 3;
     const objectiveEggs = Objectives.finish(this, blueWon);
     goldenEggs += objectiveEggs;
+    const stats = SaveManager.data.stats;
+    stats.goalsCompleted += (this.objectives || []).filter((o) => o.complete).length;
+    if (blueWon) {
+      if (this.bossStage) stats.bossesBeaten++;
+      if (streakBefore >= 2) stats.comebacks++;
+      if (!stats.bestWinTime || this.roundTime < stats.bestWinTime) stats.bestWinTime = Math.round(this.roundTime * 10) / 10;
+      if (this.track && !this.track.unitLost) stats.flawlessWins++;
+      if (Sky.phase === "night") stats.nightWins++;
+    }
     goldenEggs += levelsGained * Progression.goldenEggsPerLevel;
     p.goldenEggs += goldenEggs;
     SaveManager.data.stats.kills += this.roundKills;
@@ -359,6 +374,7 @@ class Game {
 
   update(dt) {
     Music.update(this, dt);
+    Achievements.update(dt);
     this.clouds.forEach((c) => {
       c.x += c.speed * dt;
       if (c.x - 100 * c.scale > W) c.x = -100 * c.scale;
@@ -879,6 +895,7 @@ class Game {
     Objectives.draw(this);
     this.drawPersonalityBanner();
     Bosses.drawBar(this);
+    Achievements.drawToast();
     Tutorial.draw(this);
     if (this.scene !== "battle") Menus.draw(this);
     drawScreenBorder();
@@ -1152,6 +1169,8 @@ class Game {
     }
     this.gold -= cost;
     if (this.track) this.track.bought = true;
+    SaveManager.data.stats.unitsBought++;
+    Achievements.check(this);
     audio.play("coin");
     this.addUnit(button.side, button.type);
     this.saveProfile();

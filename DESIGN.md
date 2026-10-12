@@ -213,7 +213,7 @@ rounds. Each level-up grants **3 GE** and is often an unlock (section 8).
 | 14 | Explosive egg |
 | 16 | Rooster Rider |
 | 18 | Homing egg |
-| 20+ | A cosmetic color scheme or title every 3 levels |
+| 20+ | Achievements keep paying out: 20 achievements (`js/achievements.js`) give 1 GE each, and three unlock bonus colour schemes (Breakfast, Golden, Midnight) |
 
 Biomes unlock by **stage**, not level: Meadow 1, Desert 6, Snowfield 11, Volcano 16, Kitchen
 Counter 21, then they rotate (`js/biomes.js`). Each biome sets the terrain shape (height band,

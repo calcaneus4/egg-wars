@@ -71,6 +71,8 @@ const Objectives = {
     if (unit.side === LEFT && source === "yolk") game.track.yolkKills++;
     if (unit.side === LEFT && unitType(unit) === "castle") game.track.castleKilled = true;
     if (unit.side === RIGHT && unitType(unit) === "tank") game.track.tankLost = true;
+    if (unit.side === RIGHT) game.track.unitLost = true;
+    if (unit.side === LEFT && source === "yolk") SaveManager.data.stats.yolkKills++;
   },
 
   // Marks goals as complete at the end of a round and returns the Golden Eggs they pay.

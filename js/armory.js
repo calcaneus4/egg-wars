@@ -155,6 +155,7 @@ function drawArmoryScreen(game) {
         if (Armory.buy(p, track.id)) {
           SaveManager.save();
           audio.play("unlock");
+          Achievements.check(game);
         }
       }, 44);
       btn.hot = !maxed && p.goldenEggs >= cost;

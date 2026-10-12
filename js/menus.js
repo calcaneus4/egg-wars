@@ -24,6 +24,7 @@ const SETTINGS_DEFAULTS = {
 // Pushes saved player settings into the live `settings` object and color globals.
 function applyPlayerSettings() {
   const prefs = SaveManager.data.settings;
+  Achievements.registerSchemes();
   for (const [key, value] of Object.entries(SETTINGS_DEFAULTS)) {
     if (!(key in prefs)) prefs[key] = value;
   }
@@ -85,6 +86,7 @@ const Menus = {
     if (game.scene === "paused") this.drawPause(game);
     if (game.scene === "settings") this.drawSettings(game);
     if (game.scene === "armory") drawArmoryScreen(game);
+    if (game.scene === "achievements") Achievements.drawGallery(game);
     this.buttons.forEach((b) => this.drawButton(b, b.hot));
   },
 
@@ -105,15 +107,16 @@ const Menus = {
     play.hot = true;
     const armory = this.button(Armory.isOpen(p) ? "ARMORY" : `ARMORY (LV ${ARMORY_UNLOCK_LEVEL})`, W / 2, 340, 380, () => this.openArmory(game, "title"));
     armory.disabled = !Armory.isOpen(p);
-    this.button("SETTINGS", W / 2, 400, 380, () => this.openSettings(game, "title"));
+    this.button(`ACHIEVEMENTS ${Achievements.count()}/${ACHIEVEMENTS.length}`, W / 2, 400, 380, () => { game.scene = "achievements"; });
+    this.button("SETTINGS", W / 2, 460, 380, () => this.openSettings(game, "title"));
     if (!fresh) {
       ctx.font = "bold 18px Courier New";
       ctx.fillStyle = LINE;
-      centerText(`LV ${p.level}   GOLD $${p.gold}   GOLDEN EGGS ${p.goldenEggs}   WINS ${game.score.blue}`, 476);
+      centerText(`LV ${p.level}   GOLD $${p.gold}   GOLDEN EGGS ${p.goldenEggs}   WINS ${game.score.blue}`, 536);
     }
     ctx.font = "bold 16px Courier New";
-    centerText("Tap unit buttons to send troops. Tap the battlefield to drop yolk bombs.", 520);
-    centerText("Esc / P pause   M mute   R restart stage", 546);
+    centerText("Tap unit buttons to send troops. Tap the battlefield to drop yolk bombs.", 580);
+    centerText("Esc / P pause   M mute   R restart stage", 604);
     ctx.font = "bold 14px Courier New";
     const credit = "EGG WARS (c) 2026. Created by Michael K. Davis, MD.";
     ctx.fillText(credit, W - ctx.measureText(credit).width - 18, H - 18);

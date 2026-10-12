@@ -99,6 +99,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/abilities.js` - Airstrike and Shell Shield abilities with cooldowns
 - `js/hazards.js` - neutral biome hazards (quicksand, ice, lava vents, hot pans)
 - `js/objectives.js` - per-stage bonus goals
+- `js/achievements.js` - 20 achievements, toasts, gallery and bonus colour schemes
 - `js/unlocks.js` - level-based unlock table and enemy roster gating
 - `js/personalities.js` - enemy army templates (Rusher, Turtle, Artillery, Air Force)
 - `js/tutorial.js` - guided first battle and one-time tips
