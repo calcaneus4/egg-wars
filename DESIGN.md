@@ -95,7 +95,7 @@ Each track has levels `k = 0..20`. Buying level `k` costs `cost(k) = 1 + k` Gold
 | Rapid Lobbing | player fire rate x `(1 + 0.05k)` |
 | Hard-Boiled Eggs | each player egg hit has a `0.04k` chance to deal 2 damage |
 | War Chest | all round gold rewards (win and loss) x `(1 + 0.10k)` |
-| Quick Yolk | ability cooldowns (Yolk Drop for now) x `1 / (1 + 0.06k)` |
+| Quick Yolk | all cooldowns (Yolk Drop, Airstrike, Shield) x `1 / (1 + 0.06k)` |
 | Bulk Orders | reinforcement prices x `1 / (1 + 0.04k)`, rounded, at least $1 |
 
 The Armory opens at player level 2 (title screen, or the button on the results screen).

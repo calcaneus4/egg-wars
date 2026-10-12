@@ -18,10 +18,12 @@ const UNLOCKS = [
   { level: 5, kind: "unit", type: "helicopter", name: "Helicopter", desc: "Hovers over enemies and drops eggs" },
   { level: 5, kind: "special", name: "Fire Wizard", desc: "A rapid-fire soldier joins every battle" },
   { level: 7, kind: "feature", id: "bouncing", name: "Bouncer Egg", desc: "Yolk Drop option: hops toward the enemy, bursting on each bounce" },
+  { level: 7, kind: "feature", id: "airstrike", name: "Airstrike", desc: "Ability (W): a bomber drops a line of eggs on the enemy" },
   { level: 8, kind: "unit", type: "bomber", name: "Bomber", desc: "Heavy aircraft with egg bursts" },
   { level: 8, kind: "special", name: "Yolk Bomber", desc: "A super bomber joins every battle" },
   { level: 10, kind: "unit", type: "castle", name: "Castle", desc: "Buy extra catapult towers" },
   { level: 10, kind: "feature", id: "sticky", name: "Sticky Egg", desc: "Yolk Drop option: glues enemies so they slow right down" },
+  { level: 12, kind: "feature", id: "shield", name: "Shell Shield", desc: "Ability (E): every unit gains a one-hit shield" },
   { level: 14, kind: "feature", id: "explosive", name: "Boomer Egg", desc: "Yolk Drop option: big blast that digs craters" },
 ];
 

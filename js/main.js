@@ -55,6 +55,11 @@ canvas.addEventListener("pointerdown", (event) => {
     return;
   }
   if (Tutorial.hit(point.x, point.y)) return;
+  const abilityButton = !game.winner && Hud.abilityButtonAt(point.x, point.y);
+  if (abilityButton) {
+    Abilities.use(game, abilityButton.id);
+    return;
+  }
   const eggChip = !game.winner && Hud.eggButtonAt(point.x, point.y);
   if (eggChip) {
     game.profile.yolkEgg = eggChip.id;
@@ -93,6 +98,9 @@ window.addEventListener("keydown", (event) => {
     SaveManager.save();
   }
   if ((event.key === "r" || event.key === "R") && game.scene === "battle") game.restart();
+  for (const ability of ABILITIES) {
+    if (event.key.toUpperCase() === ability.key && game.scene === "battle") Abilities.use(game, ability.id);
+  }
   if ((event.key === "q" || event.key === "Q") && game.scene === "battle") {
     EggTypes.cycle(game.profile);
     SaveManager.save();

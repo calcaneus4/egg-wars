@@ -19,6 +19,7 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 - Press `R` to restart the current stage.
 - Press `Esc` or `P` to pause (resume, restart, settings, title screen).
 - Press `M` to mute or unmute.
+- Press `W` for an Airstrike (level 7) and `E` for a Shell Shield (level 12), or tap their buttons at the bottom of the screen.
 - Press `Q` (or tap the chips above the Yolk Drop button) to choose which egg the Yolk Drop uses, once you unlock more than one.
 - Settings (title screen or pause menu): master, effects and music volume, mute, color scheme, speech bubbles, screen shake, and New Game (erases saved progress).
 - Progress (stage, gold, unlocks, wins/losses) is saved automatically in the browser.
@@ -89,6 +90,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/hud.js` - battle HUD: unit shop bar, stage/time panel, enemy roster, Yolk Drop ring
 - `js/results.js` - animated end-of-round results screen
 - `js/armory.js` - permanent Golden Egg upgrades and the Armory screen
+- `js/abilities.js` - Airstrike and Shell Shield abilities with cooldowns
 - `js/unlocks.js` - level-based unlock table and enemy roster gating
 - `js/tutorial.js` - guided first battle and one-time tips
 - `js/game.js` - the `Game` class (rules, battle loop, HUD)

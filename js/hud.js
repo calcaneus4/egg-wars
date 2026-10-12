@@ -264,6 +264,63 @@ const Hud = {
     ctx.fillText(label, x + r + 12, y + 5);
     ctx.restore();
     this.drawEggPicker(game, x + r + 12, y - 34);
+    this.drawAbilityButtons(game, 470, y);
+  },
+
+  abilityButtons: [],
+
+  drawAbilityButtons(game, x, y) {
+    this.abilityButtons = [];
+    const r = 24;
+    ABILITIES.forEach((ability, i) => {
+      const cx = x + i * 150;
+      const unlocked = Abilities.unlocked(game.profile, ability);
+      const cd = game.abilityCooldowns ? game.abilityCooldowns[ability.id] : 0;
+      const total = ability.cooldown * Armory.cooldownScale(game.profile);
+      const ready = unlocked && cd <= 0;
+      this.abilityButtons.push({ x: cx - r, y: y - r, w: r * 2 + 90, h: r * 2, id: ability.id });
+      ctx.save();
+      if (!unlocked) ctx.globalAlpha = 0.35;
+      ctx.fillStyle = ready ? rgbaFromHex(BLUE, 0.25) : PAPER;
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      if (unlocked && cd > 0) {
+        ctx.strokeStyle = BLUE;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(cx, y, r - 3, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - cd / total));
+        ctx.stroke();
+      }
+      // Icon.
+      if (ability.id === "airstrike") drawUnitIcon("bomber", cx, y, 30, BLUE);
+      else {
+        ctx.strokeStyle = BLUE;
+        ctx.fillStyle = rgbaFromHex(YOLK, 0.6);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, y - 13);
+        ctx.quadraticCurveTo(cx + 13, y - 10, cx + 11, y + 2);
+        ctx.quadraticCurveTo(cx + 6, y + 12, cx, y + 15);
+        ctx.quadraticCurveTo(cx - 6, y + 12, cx - 11, y + 2);
+        ctx.quadraticCurveTo(cx - 13, y - 10, cx, y - 13);
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.fillStyle = LINE;
+      ctx.font = "bold 13px Courier New";
+      ctx.fillText(`${ability.key} ${ability.name}`, cx + r + 6, y - 2);
+      ctx.font = "bold 12px Courier New";
+      ctx.fillText(!unlocked ? `LV ${ability.level}` : ready ? "READY" : `${cd.toFixed(1)}s`, cx + r + 6, y + 13);
+      ctx.restore();
+    });
+  },
+
+  abilityButtonAt(x, y) {
+    return this.abilityButtons.find((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
   },
 
   eggButtons: [],

@@ -45,7 +45,7 @@ progression and difficulty model that every item must respect.
 - [x] **Egg type framework + Cluster egg** - egg types defined by data (damage, burst, gravity, on-impact); player chooses the Yolk Drop egg; Cluster egg splits mid-air.
 - [x] **Bouncing & Sticky eggs** - bouncing eggs hop along terrain; sticky eggs glue targets (slow) for a few seconds.
 - [x] **Explosive egg & craters** - area damage plus terrain deformation that changes unit paths.
-- [ ] **Abilities bar** - three cooldown abilities (Yolk Drop, Omelet Airstrike, Shell Shield) unlocked by level, upgradeable in the Armory.
+- [x] **Abilities bar** - three cooldown abilities (Yolk Drop, Omelet Airstrike, Shell Shield) unlocked by level, upgradeable in the Armory.
 - [ ] **New player units** - Egg Medic (heals nearby), Mortar Hen (long-range lob), Rooster Rider (fast melee charge); each unlocked by level.
 - [ ] **Enemy personalities** - Rusher, Turtle, Air Force and Artillery army templates rotated by stage, each with readable tells.
 - [ ] **Homing egg** - slow seeker egg for anti-air, unlocked mid-game.

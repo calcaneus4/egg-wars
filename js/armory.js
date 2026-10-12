@@ -34,8 +34,8 @@ const ARMORY_TRACKS = [
   {
     id: "yolk",
     name: "Quick Yolk",
-    desc: "Yolk Drop recharges faster",
-    effect: (k) => `${(settings.powerUpCooldown / (1 + 0.06 * k)).toFixed(1)}s cooldown`,
+    desc: "Yolk Drop and abilities recharge faster",
+    effect: (k) => `-${Math.round((1 - 1 / (1 + 0.06 * k)) * 100)}% cooldowns`,
   },
   {
     id: "bulk",
@@ -83,8 +83,12 @@ const Armory = {
     return 1 + 0.1 * this.level(profile, "chest");
   },
 
+  cooldownScale(profile) {
+    return 1 / (1 + 0.06 * this.level(profile, "yolk"));
+  },
+
   yolkCooldown(profile) {
-    return settings.powerUpCooldown / (1 + 0.06 * this.level(profile, "yolk"));
+    return settings.powerUpCooldown * this.cooldownScale(profile);
   },
 
   unitCost(profile, type) {

@@ -104,6 +104,7 @@ class Game {
     this.roundKills = 0;
     this.roundRewards = null;
     Effects.clear();
+    Abilities.reset(this);
     this.rally = Progression.rallyLevel(this.profile.lossStreak);
     this.rallyTimer = this.rally ? 4 : 0;
     this.spawn();
@@ -367,6 +368,7 @@ class Game {
     }
     this.roundTime += dt;
     this.powerUpCooldown = Math.max(0, this.powerUpCooldown - dt);
+    Abilities.update(this, dt);
 
     const blue = this.living(RIGHT);
     const red = this.living(LEFT);
@@ -773,6 +775,7 @@ class Game {
     });
     this.drawGoo();
     this.drawHealthBars();
+    Abilities.drawAirstrikes(this);
     Effects.draw();
     Weather.draw();
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
