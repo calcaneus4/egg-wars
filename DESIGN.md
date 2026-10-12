@@ -226,11 +226,15 @@ every player unit starts with a shield that absorbs one hit   (a >= 2)
 
 ## 10. Onboarding
 
-- **First battle (stage 1, first run):** three prompts. "Tap a unit button to send
+- **First battle (first run):** the player gets a one-off $25 so the first prompt can be done
+  straight away. Then three prompts follow. "Tap a unit button to send
   reinforcements", "Tap the battlefield to drop a Yolk Bomb", "Destroy the red army!". Each
-  prompt waits for the action or 8 seconds. All are skippable, and replayable from settings.
-- **Contextual tips:** the first time a mechanic appears (new unit, new biome hazard, boss,
-  Rally), a one-line tip shows once, and is recorded in the save.
+  prompt waits for the action or 8 seconds, shown by a progress bar, and a pulsing ring points at
+  what to tap. All are skippable (SKIP), and replayable from Settings > Tutorial & tips.
+- **Contextual tips:** the first time a mechanic appears (an unlock, Rally, the Armory having
+  Golden Eggs to spend, the last 10 seconds of a round, and later biomes, hazards and bosses), a
+  one-line tip shows once for 5 seconds, and is recorded in `flags.tips`. New features call
+  `Tutorial.queueTip(id, text)`. Code: `js/tutorial.js`.
 - Stage 1 enemy budget is `B(1) = 120`, about the original average army, and the round is
   fully playable without buying anything.
 

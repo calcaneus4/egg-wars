@@ -168,6 +168,8 @@ const Menus = {
       () => { prefs.speech = Math.max(0, prefs.speech - 1); update(); },
       () => { prefs.speech = Math.min(SPEECH_LEVELS.length - 1, prefs.speech + 1); update(); });
     row("Screen shake", prefs.screenShake ? "ON" : "OFF", null, () => { prefs.screenShake = !prefs.screenShake; update(); });
+    const tutorialDone = !!SaveManager.data.flags.tutorialDone;
+    row("Tutorial & tips", tutorialDone ? "DONE" : "ON", null, () => { if (tutorialDone) Tutorial.replay(); else Tutorial.finish(); });
     const reset = this.button(this.confirmNewGame ? "CLICK AGAIN TO ERASE SAVE" : "NEW GAME (ERASE SAVE)", W / 2, y + 14, 420, () => {
       if (!this.confirmNewGame) {
         this.confirmNewGame = true;

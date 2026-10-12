@@ -85,6 +85,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/menus.js` - title, pause and settings screens
 - `js/armory.js` - permanent Golden Egg upgrades and the Armory screen
 - `js/unlocks.js` - level-based unlock table and enemy roster gating
+- `js/tutorial.js` - guided first battle and one-time tips
 - `js/game.js` - the `Game` class (rules, battle loop, HUD)
 - `js/main.js` - startup, input and the frame loop
 - `tools/smoke-test.js` - headless check: `NODE_PATH=$(npm root -g) node tools/smoke-test.js`

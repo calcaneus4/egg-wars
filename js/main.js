@@ -54,6 +54,7 @@ canvas.addEventListener("pointerdown", (event) => {
     Menus.click(game, point.x, point.y);
     return;
   }
+  if (Tutorial.hit(point.x, point.y)) return;
   const button = game.buttonAt(point.x, point.y);
   if (!button || game.winner) {
     game.click(point.x, point.y);

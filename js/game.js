@@ -103,6 +103,7 @@ class Game {
     this.rallyTimer = this.rally ? 4 : 0;
     this.spawn();
     this.applyRally();
+    if (this.scene === "battle") Tutorial.onStageStart(this);
     audio.play("start_reveille");
   }
 
@@ -331,6 +332,7 @@ class Game {
       if (c.x - 100 * c.scale > W) c.x = -100 * c.scale;
     });
     if (this.scene !== "battle") return;
+    Tutorial.update(this, dt);
     this.updateWreckage(dt);
     this.titleTimer = Math.max(0, this.titleTimer - dt);
     this.levelUpTimer = Math.max(0, (this.levelUpTimer || 0) - dt);
@@ -630,6 +632,7 @@ class Game {
     this.eggs.push(new Egg(targetX, 72, rand(-18, 18), 30, RIGHT, settings.powerUpBurst));
     this.powerUpCooldown = Armory.yolkCooldown(this.profile);
     audio.play("fire");
+    Tutorial.notify("yolk");
     return true;
   }
 
@@ -666,6 +669,7 @@ class Game {
     if (this.winner) this.drawEnd();
     this.drawLevelUpBanner();
     this.drawRallyBanner();
+    Tutorial.draw(this);
     if (this.scene !== "battle") Menus.draw(this);
     drawScreenBorder();
   }
@@ -1032,7 +1036,7 @@ class Game {
       const bubbleX = Number.isFinite(button.x) ? button.x + button.w / 2 : 120;
       const bubbleY = Number.isFinite(button.y) ? button.y + button.h + 8 : 72;
       this.noticeBubble = {
-        text: "Not enough gold.",
+        text: "Not enough gold. Win rounds to earn more!",
         x: bubbleX,
         y: bubbleY,
         timer: 1.25,
@@ -1042,6 +1046,7 @@ class Game {
     this.gold -= cost;
     this.addUnit(button.side, button.type);
     this.saveProfile();
+    Tutorial.notify("bought");
   }
 
   buttonAt(x, y) {
