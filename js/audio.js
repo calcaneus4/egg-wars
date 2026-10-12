@@ -186,6 +186,14 @@ class AudioFx {
         this.noise(n(1.5), { volume: 0.28, filter: "bandpass", freq: 300 * v, freqTo: 1200 * v, q: 4 });
         this.noise(n(1.4), { volume: 0.18, filter: "bandpass", freq: 900 * v, freqTo: 350, q: 6, delay: 0.1 });
         return 1.5;
+      case "wave_crash":
+        this.noise(n(2.2), { volume: 0.45, filter: "lowpass", freq: 600 * v, freqTo: 2400 });
+        this.noise(n(2.5), { volume: 0.3, filter: "highpass", freq: 2500, delay: 0.6 });
+        return 2.5;
+      case "squeak":
+        this.tone(1300 * v, 0.07, { type: "sine", volume: 0.1, slideTo: 1800 * v });
+        this.tone(1700 * v, 0.1, { type: "sine", volume: 0.08, slideTo: 1200 * v, delay: 0.08 });
+        return 0.2;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;

@@ -17,7 +17,156 @@ const QUAKE_LINES = ["Whoa!", "The ground!", "Hold on!", "Not my eggs!", "Earth-
 const TORNADO_LINES = ["Wheee!", "Put me down!", "I can fly!", "Not again!", "Bawk?!", "Mommy!"];
 const TORNADO_MAX_CAUGHT = 6;
 
+const WAVE_LINES = ["Glub!", "Surf's up!", "I can't swim!", "Cowabunga!", "My boots!", "Who left the tap on?"];
+const WAVE_LENGTH = 380;
+const WAVE_HEIGHT = 150;
+const WAVE_PUSH = 130;
+
 const EVENT_TYPES = {
+  tsunami: {
+    id: "tsunami",
+    name: "TSUNAMI",
+    minStage: 6,
+    weight: 1,
+    duration: 9,
+    warn: "Is that... the sea?",
+    blurb: "A giant wave sweeps everyone along and washes the field clean!",
+    start(game, ev) {
+      if (game.biome && game.biome.id === "kitchen") ev.blurb = "Someone left the sink running! Everything washes along.";
+      ev.dir = Math.random() < 0.5 ? 1 : -1;
+      ev.len = s(WAVE_LENGTH);
+      ev.front0 = ev.dir > 0 ? -s(40) : W + s(40);
+      ev.speed = (W + ev.len + s(80)) / ev.def.duration;
+      ev.front = ev.front0;
+      ev.ducks = [0.15, 0.4, 0.62, 0.85].map((k) => ({ k, bob: rand(0, 6) }));
+      ev.dropped = 0;
+      audio.play("wave_crash");
+    },
+    // Water height above the ground at x (0 outside the wave).
+    height(ev, x) {
+      const behind = (ev.front - x) * ev.dir;
+      if (behind < 0 || behind > ev.len) return 0;
+      const k = behind / ev.len;
+      // Tall near the front, tapering off behind, with a gentle swell.
+      return s(WAVE_HEIGHT) * (k < 0.12 ? 0.55 + (k / 0.12) * 0.45 : 1 - (k - 0.12) / 0.88 * 0.85) * (1 + 0.06 * Math.sin(ev.time * 6 + x * 0.03));
+    },
+    update(game, ev, dt) {
+      ev.front = ev.front0 + ev.dir * ev.speed * ev.time;
+      const h = (x) => ev.def.height(ev, x);
+      for (const u of game.living()) {
+        if (u.isBoss || u instanceof Airplane || u instanceof Castle || u.airborne) continue;
+        const water = h(u.x);
+        if (water > 0) {
+          if (u.washed === undefined) {
+            u.washed = 0;
+            // At most one remark every second or so, so the speech bubbles stay readable.
+            if (game.canSpeak(u) && ev.time >= (ev.nextLine || 0)) {
+              u.say(choice(WAVE_LINES), 1.3);
+              ev.nextLine = ev.time + rand(0.8, 1.4);
+            }
+          }
+          const push = Math.min(s(WAVE_PUSH) - u.washed, ev.speed * 0.45 * dt * (u instanceof Tank ? 0.5 : 1));
+          if (push > 0) {
+            u.washed += push;
+            u.x = clamp(u.x + ev.dir * push, s(45), W - s(45));
+          }
+          u.lift = water * (u instanceof Tank ? 0.25 : 0.45);
+          u.stuck = 0;
+        } else if (u.washed !== undefined && u.lift) {
+          u.lift = 0;
+        }
+      }
+      // Eggs flying into the water fizzle out.
+      for (const e of [...game.eggs]) {
+        const water = h(e.x);
+        if (water > 0 && e.y >= game.terrain.yAt(e.x) - water) {
+          Effects.spawn("drop", e.x, e.y, rand(-40, 40), rand(-120, -60), 0.4, 2.5, WHITE);
+          game.removeEgg(e);
+        }
+      }
+      for (const splat of game.splats) if (h(splat.x) > 0) splat.age = Math.max(splat.age, 13);
+      for (const w of game.wreckage) {
+        if ((w.kind !== "air_debris" || w.landed) && h(w.x) > 0) {
+          w.x += ev.dir * ev.speed * 0.6 * dt;
+          w.y = game.terrain.yAt(clamp(w.x, 0, W));
+        }
+      }
+      for (const z of Hazards.zones) if (h(z.x) > 0 && z.def.period) z.timer = Math.max(z.timer, z.def.warn + 1);
+      if (Math.random() < dt * 30) {
+        const x = ev.front - ev.dir * rand(0, s(30));
+        const y = game.terrain.yAt(clamp(x, 0, W)) - h(x);
+        Effects.spawn("drop", x, y, ev.dir * rand(40, 140), rand(-200, -80), rand(0.4, 0.7), rand(2, 3.5), WHITE);
+      }
+      // Leave a couple of rubber ducks stranded once the wave has passed the middle.
+      if (ev.dropped < 2 && (ev.front - W * (0.35 + ev.dropped * 0.3)) * ev.dir > 0) {
+        ev.dropped++;
+        Events.leftovers.push({ kind: "duck", x: ev.front - ev.dir * ev.len * rand(0.5, 0.9), bob: rand(0, 6), dir: ev.dir });
+        audio.play("squeak");
+      }
+    },
+    end(game) {
+      for (const u of game.units) {
+        if (u.washed !== undefined) {
+          if (!u.airborne) u.lift = 0;
+          delete u.washed;
+        }
+      }
+    },
+    draw(game, ev) {
+      const h = (x) => ev.def.height(ev, x);
+      const tail = ev.front - ev.dir * ev.len;
+      const x0 = Math.min(tail, ev.front);
+      const x1 = Math.max(tail, ev.front);
+      const step = 8;
+      const top = [];
+      for (let x = x0; x <= x1; x += step) top.push([x, game.terrain.yAt(clamp(x, 0, W)) - h(x)]);
+      top.push([x1, game.terrain.yAt(clamp(x1, 0, W)) - h(x1 - ev.dir * 0.5)]);
+      ctx.save();
+      ctx.beginPath();
+      top.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      for (let x = x1; x >= x0; x -= step) ctx.lineTo(x, game.terrain.yAt(clamp(x, 0, W)) + 2);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(90,160,225,0.55)";
+      ctx.fill();
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      top.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+      ctx.stroke();
+      // Curling crest at the front.
+      const fy = game.terrain.yAt(clamp(ev.front, 0, W)) - s(WAVE_HEIGHT) * 0.95;
+      const cx = ev.front - ev.dir * s(34);
+      ctx.fillStyle = "rgba(90,160,225,0.75)";
+      ctx.beginPath();
+      ctx.arc(cx, fy + s(18), s(34), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = WHITE;
+      ctx.beginPath();
+      ctx.arc(cx + ev.dir * s(8), fy + s(24), s(15), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Foam blobs and wavelets inside.
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 9; i++) {
+        const x = ev.front - ev.dir * (i / 9) * ev.len * 0.9;
+        const y = game.terrain.yAt(clamp(x, 0, W)) - h(x);
+        ctx.beginPath();
+        ctx.arc(x, y, 4 + (i % 3) * 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x + 10, y + h(x) * 0.5, 7, Math.PI * 1.1, Math.PI * 1.9);
+        ctx.stroke();
+      }
+      ctx.restore();
+      for (const d of ev.ducks) {
+        const x = ev.front - ev.dir * d.k * ev.len * 0.9;
+        drawRubberDuck(x, game.terrain.yAt(clamp(x, 0, W)) - h(x) - 6 + Math.sin(ev.time * 5 + d.bob) * 3, ev.dir, Math.sin(ev.time * 4 + d.bob) * 0.25);
+      }
+    },
+  },
+
   tornado: {
     id: "tornado",
     name: "TORNADO",
@@ -70,7 +219,10 @@ const EVENT_TYPES = {
           u.holdTime = rand(1, 1.8);
           u.liftTarget = rand(s(90), s(160));
           u.liftV = 0;
-          if (game.canSpeak(u) || Math.random() < 0.3) u.say(choice(TORNADO_LINES), 1.4);
+          if (game.canSpeak(u) && ev.time >= (ev.nextLine || 0)) {
+            u.say(choice(TORNADO_LINES), 1.4);
+            ev.nextLine = ev.time + rand(0.6, 1.1);
+          }
         }
       }
       for (const e of game.eggs) {
@@ -192,11 +344,45 @@ const EVENT_TYPES = {
   },
 };
 
+// A little yellow rubber duck, used by the tsunami (and left behind on the field afterwards).
+function drawRubberDuck(x, y, dir = 1, tilt = 0, r = 9) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(tilt);
+  ctx.scale(dir, 1);
+  ctx.fillStyle = "#ffd23a";
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 1.2, r * 0.75, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(r * 0.7, -r * 0.8, r * 0.55, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#ff8a2a";
+  ctx.beginPath();
+  ctx.moveTo(r * 1.15, -r * 0.85);
+  ctx.lineTo(r * 1.65, -r * 0.7);
+  ctx.lineTo(r * 1.15, -r * 0.55);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = LINE;
+  ctx.beginPath();
+  ctx.arc(r * 0.85, -r * 0.95, 1.4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 const Events = {
   current: null,
+  leftovers: [],
 
   reset() {
     this.current = null;
+    this.leftovers = [];
   },
 
   update(game, dt) {
@@ -281,6 +467,9 @@ const Events = {
 
   // World-space drawing (inside the screen shake).
   draw(game) {
+    for (const d of this.leftovers) {
+      if (d.kind === "duck") drawRubberDuck(d.x, game.terrain.yAt(clamp(d.x, 0, W)) - 6, d.dir, Math.sin(performance.now() * 0.002 + d.bob) * 0.08);
+    }
     const ev = this.current;
     if (ev && ev.phase === "run" && ev.def.draw) ev.def.draw(game, ev);
   },
@@ -290,7 +479,7 @@ const Events = {
     if (!ev || ev.banner <= 0 || game.winner || game.scene !== "battle") return;
     const warning = ev.phase === "warn";
     const title = warning ? "! ! !" : `${ev.def.name}!`;
-    const text = warning ? ev.def.warn : ev.def.blurb;
+    const text = warning ? ev.def.warn : ev.blurb || ev.def.blurb;
     ctx.save();
     ctx.globalAlpha = Math.min(1, ev.banner / 0.5);
     ctx.font = "bold 28px Courier New";
