@@ -60,3 +60,59 @@ progression and difficulty model that every item must respect.
 ## 5. Final
 
 - [x] **Final review pass** - bugs, balance simulation against DESIGN.md, performance (object pooling, draw cost), polish; full CHANGELOG summary.
+
+---
+
+# Phase 2: Depth & Surprises
+
+Second loop. Keep the hand-drawn side view and the core flow (buy units, drop yolk, abilities).
+Add depth through weather, events, egg types, vehicles, powers and bosses. A **Variety Director**
+(DESIGN.md section 12) keeps each stage readable. It allows at most one surprise event and at
+most one brand-new thing per stage, and the rolls are random but seeded by stage.
+
+## 6. Framework
+
+- [ ] **Variety Director + Earthquake** - `js/director.js` rolls each stage's extras (event chance and timing, debut limits). `js/events.js` adds a random-event framework (warning banner, then the event), and the first event is the Earthquake: the screen rumbles, ground units stagger, eggs on the ground pop and the terrain shifts a little.
+
+## 7. Surprise events (both armies affected equally)
+
+- [ ] **Tornado** - a twister wanders across the field, lifts light units and eggs, and spins them around before dropping them.
+- [ ] **Tsunami** - a cartoon wave (with rubber ducks) rolls in from one edge, pushes ground units back and washes away splats and goo.
+- [ ] **Chicken Stampede** - a flock of panicking farm hens runs across, knocking soldiers over and shouting "BAWK!".
+- [ ] **UFO Abduction** - a flying saucer beams up one unit from each army and drops back a confused cow.
+
+## 8. Weather
+
+- [ ] **Fog** - drifting fog banks limit vision: units fire only at targets within a shorter range.
+- [ ] **Thunderstorm** - rain plus lightning strikes: a flicker warns first, then the strike damages whatever stands there.
+- [ ] **Hail & Heat wave** - hail lightly damages aircraft. Heat waves make the air shimmer and give eggs extra splash.
+
+## 9. Egg types (Yolk Drop options)
+
+- [ ] **Frost egg** - freezes hit units in an ice block for a few seconds.
+- [ ] **Zapper egg** - lightning chains from the hit unit to 3 nearby enemies.
+- [ ] **Smoke egg** - a thick cloud where units can't aim (they fire wild).
+
+## 10. Vehicles
+
+- [ ] **Catapult Wagon** - slow siege cart that lobs huge eggs from far back.
+- [ ] **Chick Balloon** - hot-air balloon that drifts over and drops chick paratroopers.
+- [ ] **Frying-Pan Monster Truck** - armoured bruiser that crushes infantry it drives over.
+
+## 11. Powers
+
+- [ ] **Power loadout** - a pre-battle picker. Choose 2 powers for the W/E slots from everything unlocked.
+- [ ] **Rooster Rally power** - for 6 s the whole army moves and fires 40% faster.
+- [ ] **Reinforcements power** - a coop drops in 4 soldiers right at your castle.
+- [ ] **Big Chill power** - freezes every enemy for 2.5 s.
+
+## 12. Bosses
+
+- [ ] **Mother Hen Queen** - giant hen that lays enemy chicks and flaps wind gusts that push eggs back.
+- [ ] **Sink Kraken** - tentacles burst from the ground under units, then it shows its head to be hit.
+
+## 13. Integration & polish
+
+- [ ] **Enemy use of new content** - personalities field the new vehicles; a new "Mad Science" personality throws frost and zapper eggs.
+- [ ] **Unlocks, achievements & tips for Phase 2** - extended unlock table, new achievements and first-time tips.
+- [ ] **Final review II** - balance sim with all new content, stress test, performance, docs and a CHANGELOG summary.

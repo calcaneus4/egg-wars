@@ -295,3 +295,34 @@ Loading runs `migrate(save)` step by step from `version` to the current version,
 saves always upgrade. Unknown or corrupt data falls back to defaults, and the bad blob is kept
 under `eggwars.save.corrupt` for debugging. Every storage access is wrapped in try/catch, so
 the game runs without storage (for example, in private mode).
+
+## 12. Variety Director (Phase 2)
+
+New content must add depth without turning each stage into chaos. Each stage's extras are
+rolled by `js/director.js` from `seededRandom(stage)`. A replay of a stage gets the same plan,
+except for event timing, which is re-rolled.
+
+**Surprise events**
+- None before stage 4, during the tutorial, or in a practice replay's first 5 seconds.
+- Chance per stage: `p(n) = min(0.45, 0.12 + 0.03 (n - 4))`. Boss stages use `p/2`.
+- At most **one** event per stage. It fires at a random time in `[0.25, 0.7] x` round length,
+  after a 2.5 s warning banner.
+- Events are neutral: they affect both armies the same way, and never deal more than 1 hit to
+  any unit. They change the board, not the score.
+- The same event never repeats on consecutive stages.
+
+**Debuts:** content the player has never seen (an event type or a weather type) is a *debut*.
+- At most one debut per stage. If the rolled weather would debut on the same stage as an event
+  debut, the event is swapped for one already seen, or skipped.
+- Debuts get a one-time tip.
+
+**Weather:** existing weights per biome. New weather types join the tables from these stages:
+fog 6, thunderstorm 9, hail 12, heat wave 12. Like other weather, they are mirrored and neutral.
+
+**Powers:** two slots (W, E). Each power has a cooldown that scales with the Armory's Quick
+Yolk track. Power strength is fixed: it is not scaled by `D(n)`, so powers grow relatively
+weaker in late stages and Armory upgrades stay meaningful.
+
+**New units:** they are added to the threat-point table with costs that match their damage per
+second and HP against the existing roster. The `P >= E(n)` guarantee from section 5 is
+rechecked with `tools/balance-sim.js` after each unit lands.
