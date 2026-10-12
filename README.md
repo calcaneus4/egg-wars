@@ -82,6 +82,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/projectiles.js` - eggs and splats
 - `js/menus.js` - title, pause and settings screens
 - `js/hud.js` - battle HUD: unit shop bar, stage/time panel, enemy roster, Yolk Drop ring
+- `js/results.js` - animated end-of-round results screen
 - `js/armory.js` - permanent Golden Egg upgrades and the Armory screen
 - `js/unlocks.js` - level-based unlock table and enemy roster gating
 - `js/tutorial.js` - guided first battle and one-time tips

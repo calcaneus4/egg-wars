@@ -16,3 +16,4 @@
 - Graphics: unit art polish - translucent team fills, helmets, cockpit windows, waving flags on tanks and castles, castle brickwork, spinning helicopter rotors, damage cracks and small health bars (replacing tally-mark HP).
 - Graphics: team-tinted egg motion trails, spinning filled eggs (burst eggs banded in yolk), irregular splats with running drips and yolk highlights that fade after ~9 s, and tumbling eggshell halves on impact.
 - UI: new battle HUD - illustrated unit shop cards with prices, counts and 1-8 hotkeys, stage/gold/timer panel with draining clock and army-strength bar, enemy roster with icons, XP bar, and a Yolk Drop button with cooldown ring; aircraft fly below the HUD.
+- UI: animated results screen - VICTORY/DEFEAT stamp, gold/XP/Golden Egg rows that count up, filling XP bar, LEVEL UP stamp with confetti, flip-in unlock cards, next-unlock teaser, tip, and Next Stage / Armory buttons (click or Enter skips the animation).

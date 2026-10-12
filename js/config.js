@@ -200,16 +200,6 @@ const settings = {
     "Crackdown Complete",
     "Breakfast Battlefield",
   ],
-  unitLegend: [
-    "1 = soldier",
-    "2 = tank",
-    "3 = motorcycle",
-    "4 = drone",
-    "5 = airplane",
-    "6 = helicopter",
-    "7 = bomber",
-    "8 = castle",
-  ],
   gameplayHints: [
     "Click battlefield when yolk drop is ready.",
     "Win fast for wipeout bonus gold.",

@@ -272,6 +272,7 @@ class Game {
       this.score.red++;
     }
     this.grantProgress(blueWon);
+    Results.start(this);
     SaveManager.data.stats.roundsPlayed++;
     this.saveProfile();
     audio.play(blueWon ? "end_jingle" : "sad_jingle");
@@ -291,7 +292,6 @@ class Game {
     SaveManager.data.stats.kills += this.roundKills;
     this.roundRewards = { xp, kills: this.roundKills, goldenEggs, levelBefore, levelsGained };
     this.newUnlocks = levelsGained ? Unlocks.between(p, levelBefore, p.level) : [];
-    if (levelsGained) this.levelUpTimer = 3.5;
   }
 
   addMany(side, type, count) {
@@ -349,7 +349,6 @@ class Game {
       if (u.recoil > 0) u.recoil = Math.max(0, u.recoil - dt * 6);
     });
     this.titleTimer = Math.max(0, this.titleTimer - dt);
-    this.levelUpTimer = Math.max(0, (this.levelUpTimer || 0) - dt);
     this.rallyTimer = Math.max(0, (this.rallyTimer || 0) - dt);
     this.units.forEach((u) => {
       if (u.shieldFlash > 0) u.shieldFlash = Math.max(0, u.shieldFlash - dt);
@@ -358,7 +357,10 @@ class Game {
     this.units.forEach((u) => {
       if (u.labelTimer !== undefined) u.labelTimer = Math.max(0, u.labelTimer - dt);
     });
-    if (this.winner) return;
+    if (this.winner) {
+      Results.update(this, dt);
+      return;
+    }
     this.roundTime += dt;
     this.powerUpCooldown = Math.max(0, this.powerUpCooldown - dt);
 
@@ -698,8 +700,7 @@ class Game {
     }
     this.drawNoticeBubble();
     this.drawStartTitle();
-    if (this.winner) this.drawEnd();
-    this.drawLevelUpBanner();
+    if (this.winner) Results.draw(this);
     this.drawRallyBanner();
     Tutorial.draw(this);
     if (this.scene !== "battle") Menus.draw(this);
@@ -831,26 +832,7 @@ class Game {
     ctx.restore();
   }
 
-  drawLevelUpBanner() {
-    if (!this.levelUpTimer || !this.roundRewards || !this.roundRewards.levelsGained) return;
-    const t = this.levelUpTimer;
-    const pop = 1 + Math.max(0, t - 3.1) * 1.2;
-    ctx.save();
-    ctx.globalAlpha = Math.min(1, t / 0.6);
-    ctx.translate(W / 2, 150);
-    ctx.scale(pop, pop);
-    ctx.font = "bold 34px Courier New";
-    const text = `LEVEL UP!  LV ${this.profile.level}`;
-    const w = ctx.measureText(text).width + 40;
-    ctx.fillStyle = YOLK;
-    ctx.strokeStyle = LINE;
-    ctx.lineWidth = 3;
-    ctx.fillRect(-w / 2, -30, w, 44);
-    ctx.strokeRect(-w / 2, -30, w, 44);
-    ctx.fillStyle = LINE;
-    ctx.fillText(text, -w / 2 + 20, 4);
-    ctx.restore();
-  }
+
 
   drawUnitLabels() {
     ctx.font = "bold 14px Courier New";
@@ -859,78 +841,6 @@ class Game {
       if (!u.label || !u.labelTimer) return;
       const width = ctx.measureText(u.label).width;
       ctx.fillText(u.label, u.x - width / 2, u.y - u.radius() - 12);
-    });
-  }
-
-  drawEnd() {
-    ctx.fillStyle = rgbaFromHex(PAPER, 0.9);
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = LINE;
-    ctx.font = "bold 44px Courier New";
-    centerText(this.winner, H / 2 - 62);
-    ctx.font = "bold 22px Courier New";
-    if (this.endGameTitle) centerText(this.endGameTitle, H / 2 - 12);
-    const bonusText = this.lastGoldBonus ? `   WIPEOUT BONUS +${this.lastGoldBonus}` : "";
-    const rewardText = this.lastGoldReward ? `   REWARD +${this.lastGoldReward}${bonusText}` : "";
-    const scoreText = settings.showScore ? `   SCORE ${this.points}` : "";
-    const shownStage = this.resultMode === "won" ? this.stage - 1 : this.stage;
-    centerText(`STAGE ${shownStage}   GOLD $ ${this.gold}${scoreText}${rewardText}`, H / 2 + 32);
-    let lineY = H / 2 + 64;
-    const r = this.roundRewards;
-    if (r) {
-      const geText = r.goldenEggs ? `   GOLDEN EGGS +${r.goldenEggs}` : "";
-      centerText(`XP +${r.xp} (${r.kills} kills)   LV ${this.profile.level}  ${this.profile.xp}/${Progression.xpToNext(this.profile.level)}${geText}`, lineY);
-      lineY += 32;
-    }
-    centerText(`TOTAL WINS  BLUE ${this.score.blue}   RED ${this.score.red}`, lineY);
-    lineY += 32;
-    if (this.newUnlocks.length) {
-      centerText(`UNLOCKED: ${this.newUnlocks.map((u) => u.name).join(", ")}`, lineY);
-      lineY += 32;
-    }
-    const teaser = Unlocks.nextText(this.profile);
-    if (teaser) {
-      ctx.font = "bold 18px Courier New";
-      centerText(teaser, lineY);
-      ctx.font = "bold 22px Courier New";
-      lineY += 32;
-    }
-    const prompt = this.resultMode === "lost" ? "Click to Try Again" : "Click for Next Stage";
-    centerText(prompt, lineY);
-    this.endButtons = [];
-    if (Armory.isOpen(this.profile)) {
-      const label = `ARMORY (${this.profile.goldenEggs} GE)`;
-      const rect = { x: W / 2 - 140, y: lineY + 18, w: 280, h: 42, label };
-      this.endButtons.push(rect);
-      ctx.fillStyle = rgbaFromHex(YOLK, 0.9);
-      ctx.strokeStyle = LINE;
-      ctx.lineWidth = 3;
-      ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-      ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
-      ctx.fillStyle = LINE;
-      ctx.font = "bold 20px Courier New";
-      centerText(label, rect.y + 28);
-      ctx.font = "bold 22px Courier New";
-    }
-    this.drawEndTextPanel("Unit Keys", settings.unitLegend, 52, 206, 300);
-    this.drawEndTextPanel("Battle Tip", [this.selectedGameplayHint], W - 345, 206, 285);
-    ctx.font = "bold 14px Courier New";
-    ctx.fillStyle = LINE;
-    const credit = "EGG WARS © copyright 2026. Created by Michael K. Davis, MD.";
-    ctx.fillText(credit, W - ctx.measureText(credit).width - 18, H - 18);
-  }
-
-  drawEndTextPanel(title, lines, x, y, maxWidth = 300) {
-    ctx.font = "bold 22px Courier New";
-    ctx.fillStyle = LINE;
-    drawText(title, x, y);
-    ctx.font = "bold 18px Courier New";
-    let lineY = y + 34;
-    lines.forEach((line) => {
-      this.wrapText(line, maxWidth).forEach((wrappedLine) => {
-        drawText(wrappedLine, x, lineY);
-        lineY += 28;
-      });
     });
   }
 
@@ -980,12 +890,10 @@ class Game {
   }
 
   click(x, y) {
-    if (this.winner && (this.endButtons || []).some((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h)) {
-      Menus.openArmory(this, "battle");
-      return;
-    }
     if (this.winner) {
-      this.startStage();
+      const action = Results.click(this, x, y);
+      if (action === "armory") Menus.openArmory(this, "battle");
+      else if (action === "continue") this.startStage();
       return;
     }
     const b = this.buttonAt(x, y);

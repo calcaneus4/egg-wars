@@ -30,7 +30,7 @@ progression and difficulty model that every item must respect.
 - [x] **Unit art polish** - flat team fills under the line art, little flags, recoil on firing, idle bobbing, damage cracks, health pips replaced by small bars.
 - [x] **Egg trails & splats** - motion trails, splats that fade over time, yolk drips, egg shells that tumble on impact.
 - [x] **HUD redesign** - unit shop bar with drawn icons, prices and hotkeys (1-8), ability buttons with cooldown rings, XP bar, stage/time panel.
-- [ ] **Results screen** - animated tally of gold / XP / Golden Eggs, level-up fanfare, unlock reveal card.
+- [x] **Results screen** - animated tally of gold / XP / Golden Eggs, level-up fanfare, unlock reveal card.
 - [ ] **Time of day** - dawn / day / dusk / night palettes per stage with lerped sky tint and stars at night.
 - [ ] **Weather** - rain, snow and wind; wind gently pushes eggs and is shown by a wind sock.
 

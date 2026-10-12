@@ -92,6 +92,7 @@ window.addEventListener("keydown", (event) => {
     if (button) game.buyUnit(button);
   }
   if ((event.key === "Enter" || event.key === " ") && game.scene === "title") game.startBattle();
+  else if ((event.key === "Enter" || event.key === " ") && game.scene === "battle" && game.winner) game.click(-1, -1);
 });
 
 requestAnimationFrame(frame);
