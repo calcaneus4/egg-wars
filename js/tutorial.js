@@ -77,6 +77,7 @@ const Tutorial = {
     }
     if (Math.abs(Weather.baseWind) >= 0.55) this.queueTip("wind", "Strong wind! It pushes every egg in flight - watch the wind sock.");
     if (game.biome && game.biome.id !== "meadow") this.queueTip(`biome:${game.biome.id}`, `Welcome to the ${game.biome.name}! A new land every ${BIOME_STAGES} stages.`);
+    if (Hazards.zones.length) this.queueTip(`hazard:${Hazards.zones[0].type}`, Hazards.zones[0].def.tip);
     if (game.rally) this.queueTip("rally", "Rally! Losing streaks give your army a boost until your next win.");
     if (Armory.isOpen(p) && p.goldenEggs > 0) this.queueTip("armory", "Spend Golden Eggs in the Armory (title or results screen) for permanent upgrades.");
   },

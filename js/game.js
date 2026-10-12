@@ -90,6 +90,7 @@ class Game {
     this.background.regenerate(this.biome);
     Sky.regenerate(this.stage);
     Weather.regenerate(this.stage, this.biome);
+    Hazards.generate(this.biome, this.terrain);
     this.units = [];
     this.eggs = [];
     this.splats = [];
@@ -383,6 +384,7 @@ class Game {
     this.roundTime += dt;
     this.powerUpCooldown = Math.max(0, this.powerUpCooldown - dt);
     Abilities.update(this, dt);
+    Hazards.update(this, dt);
 
     const blue = this.living(RIGHT);
     const red = this.living(LEFT);
@@ -400,7 +402,7 @@ class Game {
       if (this.canSpeak(u)) u.updateSpeech(dt);
       const udt = u.stuck > 0 ? dt * STICKY_SLOW : dt;
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
-      u.move(udt, enemies);
+      u.move(udt * Hazards.speedFactor(u), enemies);
       if (u instanceof Drone && u.impactTarget) {
         this.detonateDrone(u, u.impactTarget);
         continue;
@@ -820,6 +822,7 @@ class Game {
     this.terrain.draw();
     this.splats.forEach((splat) => splat.draw());
     Sky.drawShade();
+    Hazards.draw(this);
     Weather.drawWindSock(this.terrain);
     if (settings.showWreckage) this.wreckage.forEach((w) => drawWreckage(w));
     this.eggs.forEach((e) => e.draw());

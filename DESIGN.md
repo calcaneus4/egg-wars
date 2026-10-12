@@ -206,7 +206,12 @@ rounds. Each level-up grants **3 GE** and is often an unlock (section 8).
 Biomes unlock by **stage**, not level: Meadow 1, Desert 6, Snowfield 11, Volcano 16, Kitchen
 Counter 21, then they rotate (`js/biomes.js`). Each biome sets the terrain shape (height band,
 roughness, smoothing), ground tint and detail, background decorations and its own weather
-table. Biomes change the look and the terrain, never the difficulty factor `D(n)`. A boss appears every 5th stage.
+table. Biomes change the look and the terrain, never the difficulty factor `D(n)`.
+
+Hazards (`js/hazards.js`) are neutral and mirrored around the centre of the field: a pair at
+`W/2 +/- offset`, plus sometimes one in the middle. They affect both armies the same way:
+Desert quicksand (ground speed x0.4), Snowfield ice (x1.7), Volcano lava vents and Kitchen hot
+pans (1 hit to ground units on top every 5-9 s, after a 1.2 s visible warning). A boss appears every 5th stage.
 
 The table lives in `js/unlocks.js`, and only content that already exists is listed. Each
 feature adds its row when it ships. The HUD and the results screen always show the next
