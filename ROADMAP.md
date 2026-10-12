@@ -26,7 +26,7 @@ progression and difficulty model that every item must respect.
 
 - [x] **Effects engine** - pooled particle system (smoke, debris, yolk spray, sparks), screen shake (setting-aware), white hit flashes on damaged units.
 - [x] **Parallax backgrounds** - 3 layers of sketchy hills/mountains and a sun/moon drawn with jittered "hand-drawn" lines, scrolling gently.
-- [ ] **Terrain art** - filled ground with cross-hatching, grass tufts, pebbles and an outline that wobbles like ink.
+- [x] **Terrain art** - filled ground with cross-hatching, grass tufts, pebbles and an outline that wobbles like ink.
 - [ ] **Unit art polish** - flat team fills under the line art, little flags, recoil on firing, idle bobbing, damage cracks, health pips replaced by small bars.
 - [ ] **Egg trails & splats** - motion trails, splats that fade over time, yolk drips, egg shells that tumble on impact.
 - [ ] **HUD redesign** - unit shop bar with drawn icons, prices and hotkeys (1-8), ability buttons with cooldown rings, XP bar, stage/time panel.
