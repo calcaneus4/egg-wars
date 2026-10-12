@@ -120,6 +120,14 @@ class Soldier extends Unit {
     ctx.lineWidth = sw(2);
     ctx.beginPath();
     ctx.arc(this.x, y - s(23), s(6), 0, Math.PI * 2);
+    ctx.fillStyle = PAPER;
+    ctx.fill();
+    ctx.stroke();
+    // Team helmet.
+    ctx.beginPath();
+    ctx.arc(this.x, y - s(24), s(7), Math.PI, Math.PI * 2);
+    ctx.closePath();
+    teamFill(c, 0.75);
     ctx.stroke();
     line(this.x, y - s(17), this.x, y + s(4), c);
     line(this.x, y - s(8), this.x + this.side * s(15), y - s(12), c);
@@ -200,7 +208,38 @@ class Castle extends Unit {
       [right - tooth, top + tooth],
       [right, top + tooth],
     ].forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py));
+    ctx.lineTo(right, rightGround);
+    ctx.lineTo(left, leftGround);
+    ctx.closePath();
+    teamFill(c, 0.16);
+    ctx.beginPath();
+    [
+      [left, top + tooth],
+      [left, top],
+      [left + tooth, top],
+      [left + tooth, top + tooth],
+      [left + tooth * 2, top + tooth],
+      [left + tooth * 2, top],
+      [left + tooth * 3, top],
+      [left + tooth * 3, top + tooth],
+      [right - tooth * 2, top + tooth],
+      [right - tooth * 2, top],
+      [right - tooth, top],
+      [right - tooth, top + tooth],
+      [right, top + tooth],
+    ].forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py));
     ctx.stroke();
+    // Brick lines.
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    for (let row = 1; row < 6; row++) {
+      const by = top + tooth + row * s(16);
+      if (by > surfaceY - s(20)) break;
+      line(left + s(4), by, right - s(4), by, c, 1);
+      const off = row % 2 ? s(10) : s(20);
+      for (let bx = left + off; bx < right - s(4); bx += s(20)) line(bx, by, bx, by - s(16), c, 1);
+    }
+    ctx.restore();
     line(left, top + tooth, left, leftGround, c, sw(3));
     line(right, top + tooth, right, rightGround, c, sw(3));
     circle(this.x - s(13), top + s(45), s(4), c);
@@ -218,12 +257,7 @@ class Castle extends Unit {
     circle(baseX, baseY + s(16), s(9), c);
     circle(tipX, tipY, s(5), c);
 
-    for (let mark = 0; mark < this.hp; mark++) {
-      const row = Math.floor(mark / 5);
-      const col = mark % 5;
-      const y = Math.min(surfaceY - s(4), top + s(70) + row * s(10));
-      line(left + s(9) + col * s(9), y, left + s(14) + col * s(9), y, c);
-    }
+    drawFlag(this.x + this.side * s(14), top, s(34), c, this.side);
   }
 }
 
@@ -341,6 +375,7 @@ class Tank extends Unit {
       [-s(34), s(12)],
       [-s(38), s(2)],
     ]);
+    teamFill(c, 0.3);
     ctx.stroke();
 
     ctx.strokeStyle = PAPER;
@@ -363,7 +398,10 @@ class Tank extends Unit {
     ];
     if (this.side === LEFT) turret = turret.map(([x, y]) => [-x, y]);
     this.bodyPath(turret);
+    teamFill(c, 0.45);
     ctx.stroke();
+    const [fx, fy] = this.bodyPoint(-this.side * s(8), -s(20));
+    drawFlag(fx, fy, s(26) * this.visualScale, c, -this.side);
 
     const kick = (this.recoil || 0) * s(9) * this.visualScale;
     const [mx0, my0] = this.muzzle();
@@ -380,11 +418,6 @@ class Tank extends Unit {
       circle(wx, wy, s(3), c);
     });
 
-    for (let mark = 0; mark < this.hp; mark++) {
-      const [x1, y1] = this.bodyPoint(-s(22) + mark * s(12), s(34));
-      const [x2, y2] = this.bodyPoint(-s(14) + mark * s(12), s(34));
-      line(x1, y1, x2, y2, c, sw(2));
-    }
   }
 }
 
@@ -415,7 +448,10 @@ class Motorcycle extends Unit {
     line(this.x - s(16), y, this.x, y - s(16), c);
     line(this.x, y - s(16), this.x + s(16), y, c);
     line(this.x, y - s(28), this.x, y - s(10), c);
-    circle(this.x, y - s(34), s(5), c);
+    ctx.beginPath();
+    ctx.arc(this.x, y - s(34), s(5), 0, Math.PI * 2);
+    teamFill(c, 0.75);
+    ctx.stroke();
     line(this.x, y - s(22), ...this.muzzle(), c);
   }
 }
@@ -637,6 +673,7 @@ class Drone extends Airplane {
     ctx.lineWidth = sw(2);
     ctx.beginPath();
     ctx.ellipse(this.x, y, s(12), s(9), 0, 0, Math.PI * 2);
+    teamFill(c, 0.35);
     ctx.stroke();
     circle(this.x + this.side * s(4), y - s(1), s(2), c);
     const hubY = y - s(15) + wobble;

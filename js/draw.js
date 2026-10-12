@@ -17,6 +17,12 @@ function circle(x, y, r, color) {
   ctx.stroke();
 }
 
+// Translucent team-colored fill under line art.
+function teamFill(color, alpha = 0.22) {
+  ctx.fillStyle = rgbaFromHex(color, alpha);
+  ctx.fill();
+}
+
 function drawPlaneShape(x, y, side, color, lengthScale) {
   ctx.strokeStyle = color;
   ctx.lineWidth = sw(2);
@@ -28,12 +34,20 @@ function drawPlaneShape(x, y, side, color, lengthScale) {
   ctx.lineTo(...tail);
   ctx.lineTo(x - side * s(12 * lengthScale), y + s(8));
   ctx.closePath();
+  teamFill(color, 0.28);
+  ctx.stroke();
+  // Cockpit window.
+  ctx.beginPath();
+  ctx.ellipse(x + side * s(16 * lengthScale), y - s(2), s(4), s(2.5), 0, 0, Math.PI * 2);
+  ctx.fillStyle = PAPER;
+  ctx.fill();
   ctx.stroke();
   ctx.beginPath();
   ctx.moveTo(x - side * s(2), y - s(2));
   ctx.lineTo(x - side * s(18 * lengthScale), y + s(20));
   ctx.lineTo(x + side * s(14 * lengthScale), y + s(4));
   ctx.closePath();
+  teamFill(color, 0.15);
   ctx.stroke();
   line(tail[0], tail[1], tail[0] - side * s(10), tail[1] - s(14), color);
 }
@@ -126,12 +140,19 @@ function drawHelicopterShape(x, y, facing, color) {
   ctx.lineWidth = sw(2);
   ctx.beginPath();
   ctx.ellipse(x, y + s(6), s(37), s(12), 0, 0, Math.PI * 2);
+  teamFill(color, 0.25);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(x + facing * s(20), y + s(4), s(9), s(6), 0, 0, Math.PI * 2);
+  ctx.fillStyle = PAPER;
+  ctx.fill();
   ctx.stroke();
   line(x, y + s(6), x + facing * s(46), y + s(6), color);
   circle(x + facing * s(46), y + s(6), s(3), color);
   line(x, y - s(6), x, y - s(18), color);
-  line(x - s(62), y - s(18), x + s(62), y - s(18), color);
-  line(x - s(30), y - s(23), x + s(30), y - s(13), color);
+  const spin = Math.cos(performance.now() * 0.04);
+  line(x - s(62) * spin, y - s(18), x + s(62) * spin, y - s(18), color);
+  line(x - s(30), y - s(23) + spin * s(3), x + s(30), y - s(13) - spin * s(3), color);
   line(x - facing * s(34), y + s(4), x - facing * s(78), y - s(3), color);
   line(x - facing * s(78), y - s(13), x - facing * s(78), y + s(7), color);
   line(x - s(35), y + s(26), x + s(35), y + s(26), color);
@@ -158,4 +179,43 @@ function unitType(u) {
   if (u instanceof Tank) return "tank";
   if (u instanceof Motorcycle) return "motorcycle";
   return "soldier";
+}
+
+// Small waving pennant on a pole whose foot is at (x, y).
+function drawFlag(x, y, height, color, side) {
+  const tip = y - height;
+  line(x, y, x, tip, LINE, sw(1.5));
+  const wave = Math.sin(performance.now() * 0.006 + x * 0.05);
+  ctx.beginPath();
+  ctx.moveTo(x, tip);
+  ctx.quadraticCurveTo(x + side * height * 0.25, tip + height * 0.08 + wave * 2, x + side * height * 0.5, tip + height * 0.12 + wave * 3);
+  ctx.lineTo(x, tip + height * 0.3);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+
+// Zigzag cracks for a damaged unit; `seed` keeps the pattern stable between frames.
+function drawCracks(x, y, size, severity, seed) {
+  const count = Math.min(3, Math.ceil(severity * 3));
+  ctx.save();
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < count; i++) {
+    const a = seed * 7 + i * 2.1;
+    let px = x + Math.cos(a) * size * 0.25;
+    let py = y + Math.sin(a * 1.3) * size * 0.15;
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    for (let k = 0; k < 3; k++) {
+      px += Math.cos(a + k) * size * 0.12;
+      py += Math.sin(a * 2 + k * 1.7) * size * 0.1;
+      ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
 }

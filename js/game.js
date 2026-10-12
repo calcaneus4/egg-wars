@@ -676,7 +676,12 @@ class Game {
     this.splats.forEach((splat) => splat.draw());
     if (settings.showWreckage) this.wreckage.forEach((w) => drawWreckage(w));
     this.eggs.forEach((e) => e.draw());
-    this.units.sort((a, b) => a.y - b.y).forEach((u) => withHitFlash(u, () => u.draw()));
+    this.units.sort((a, b) => a.y - b.y).forEach((u) => {
+      if (u.maxHp === undefined || u.hp > u.maxHp) u.maxHp = u.hp;
+      withHitFlash(u, () => u.draw());
+      if (u.hp < u.maxHp && u.hp > 0) drawCracks(u.x, u.y, u.size, 1 - u.hp / u.maxHp, u.wobble);
+    });
+    this.drawHealthBars();
     Effects.draw();
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
       if (this.canSpeak(u)) drawSpeechBubble(u);
@@ -786,6 +791,23 @@ class Game {
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = LINE;
+  }
+
+  drawHealthBars() {
+    for (const u of this.units) {
+      if (!(u.maxHp > 1) || u.hp >= u.maxHp || u.hp <= 0) continue;
+      const w = clamp(u.size * 0.9, 18, 46);
+      const x = u.x - w / 2;
+      const y = u.y - u.radius() - 10;
+      const frac = u.hp / u.maxHp;
+      ctx.fillStyle = PAPER;
+      ctx.fillRect(x, y, w, 5);
+      ctx.fillStyle = frac > 0.5 ? teamColor(u.side) : frac > 0.25 ? YOLK : RED;
+      ctx.fillRect(x, y, w * frac, 5);
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, w, 5);
+    }
   }
 
   drawShields() {
