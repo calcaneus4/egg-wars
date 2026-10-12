@@ -88,6 +88,13 @@ const Effects = {
     }
   },
 
+  // Two or three eggshell halves that tumble away from an impact.
+  shells(x, y, count = 2) {
+    for (let i = 0; i < count; i++) {
+      this.spawn("shell", x, y, rand(-90, 90), rand(-160, -60), rand(0.9, 1.4), rand(3.5, 5), WHITE);
+    }
+  },
+
   explosion(x, y, scale = 1, color = LINE) {
     this.spawn("ring", x, y, 0, 0, 0.35, 10 * scale, YOLK);
     this.sparks(x, y, Math.round(6 * scale));
@@ -121,13 +128,13 @@ const Effects = {
         p.vx *= 1 - dt * 1.5;
         p.vy *= 1 - dt * 0.8;
         p.size += dt * 9;
-      } else if (p.kind === "debris" || p.kind === "drop") {
+      } else if (p.kind === "debris" || p.kind === "drop" || p.kind === "shell") {
         p.vy += GRAVITY * dt;
         p.angle += p.spin * dt;
         if (terrain && p.y >= terrain.yAt(p.x)) {
           p.y = terrain.yAt(p.x);
           p.vx *= 0.3;
-          p.vy = p.kind === "debris" ? -p.vy * 0.25 : 0;
+          p.vy = p.kind === "drop" ? 0 : -p.vy * 0.25;
           p.spin *= 0.5;
         }
       } else if (p.kind === "ring") {
@@ -176,6 +183,23 @@ const Effects = {
         ctx.moveTo(p.x - dx, p.y - dy);
         ctx.lineTo(p.x + dx, p.y + dy);
         ctx.stroke();
+      } else if (p.kind === "shell") {
+        ctx.globalAlpha = Math.min(1, t * 2);
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.fillStyle = p.color;
+        ctx.strokeStyle = LINE;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size, 0, Math.PI);
+        ctx.lineTo(-p.size * 0.5, -p.size * 0.25);
+        ctx.lineTo(0, p.size * 0.1);
+        ctx.lineTo(p.size * 0.5, -p.size * 0.3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
       } else if (p.kind === "ring") {
         ctx.globalAlpha = t;
         ctx.strokeStyle = p.color;

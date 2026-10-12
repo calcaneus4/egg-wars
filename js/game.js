@@ -341,6 +341,8 @@ class Game {
     }
     Tutorial.update(this, dt);
     this.updateWreckage(dt);
+    for (const splat of this.splats) splat.update(dt);
+    if (this.splats.length && this.splats[0].faded) this.splats = this.splats.filter((splat) => !splat.faded);
     Effects.update(dt, this.terrain);
     this.units.forEach((u) => {
       if (u.hitFlash > 0) u.hitFlash = Math.max(0, u.hitFlash - dt);
@@ -616,7 +618,8 @@ class Game {
     Effects.yolk(x, y, 6 + egg.burst, 1.2);
     Effects.spawn("ring", x, y, 0, 0, 0.3, 6 + egg.burst, YOLK);
     if (egg.burst >= 6) Effects.shake(2 + egg.burst * 0.2);
-    if (leaveSplat) this.splats.push(new Splat(x, y + rand(0, s(10)), this.terrain.slopeAt(x)));
+    if (leaveSplat) this.splats.push(new Splat(x, y + rand(0, s(10)), this.terrain.slopeAt(x), 1 + Math.min(0.6, egg.burst * 0.05)));
+    Effects.shells(x, y, 3);
     for (let i = 0; i < egg.burst; i++) {
       const p = i / Math.max(1, egg.burst - 1);
       const angle = (160 - p * 140) * Math.PI / 180;
@@ -628,8 +631,9 @@ class Game {
 
   addTerrainSplat(x) {
     const surfaceY = this.terrain.yAt(x);
-    this.splats.push(new Splat(x, surfaceY + rand(0, s(10)), this.terrain.slopeAt(x)));
+    this.splats.push(new Splat(x, surfaceY + rand(0, s(10)), this.terrain.slopeAt(x), rand(0.8, 1.05)));
     this.splats = this.splats.slice(-90);
+    Effects.shells(x, surfaceY - 3, 2);
     Effects.yolk(x, surfaceY, 4, 0.8);
     audio.play("egg_splat");
   }

@@ -14,3 +14,4 @@
 - Graphics: three-layer parallax background (snow-capped mountains, hatched hills, tree line) pre-rendered per stage with a hand-inked double stroke, a sketchy rotating sun, and solid ground under the terrain line.
 - Graphics: pre-rendered terrain art with surface hatching, deep cross-hatching, pebbles, grass tufts and a double-inked outline (cached per stage, ~1 ms to rebuild).
 - Graphics: unit art polish - translucent team fills, helmets, cockpit windows, waving flags on tanks and castles, castle brickwork, spinning helicopter rotors, damage cracks and small health bars (replacing tally-mark HP).
+- Graphics: team-tinted egg motion trails, spinning filled eggs (burst eggs banded in yolk), irregular splats with running drips and yolk highlights that fade after ~9 s, and tumbling eggshell halves on impact.
