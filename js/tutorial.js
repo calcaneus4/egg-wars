@@ -79,6 +79,7 @@ const Tutorial = {
     if (game.biome && game.biome.id !== "meadow") this.queueTip(`biome:${game.biome.id}`, `Welcome to the ${game.biome.name}! A new land every ${BIOME_STAGES} stages.`);
     if (Hazards.zones.length) this.queueTip(`hazard:${Hazards.zones[0].type}`, Hazards.zones[0].def.tip);
     if (game.rally) this.queueTip("rally", "Rally! Losing streaks give your army a boost until your next win.");
+    if (ABILITIES.filter((a) => Abilities.unlocked(p, a)).length >= 3) this.queueTip("powers", "You have more powers than slots! Pick your W and E powers on the Powers screen (title or pause menu).");
     if (Armory.isOpen(p) && p.goldenEggs > 0) this.queueTip("armory", "Spend Golden Eggs in the Armory (title or results screen) for permanent upgrades.");
   },
 

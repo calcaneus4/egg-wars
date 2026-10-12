@@ -358,7 +358,13 @@ class Game {
     const stats = SaveManager.data.stats;
     stats.goalsCompleted += (this.objectives || []).filter((o) => o.complete).length;
     if (blueWon) {
-      if (this.bossStage) stats.bossesBeaten++;
+      if (this.bossStage) {
+        stats.bossesBeaten++;
+        const flags = SaveManager.data.flags;
+        flags.bossKinds = Array.isArray(flags.bossKinds) ? flags.bossKinds : [];
+        const kind = Bosses.kindForStage(this.stage);
+        if (!flags.bossKinds.includes(kind)) flags.bossKinds.push(kind);
+      }
       if (streakBefore >= 2) stats.comebacks++;
       if (!stats.bestWinTime || this.roundTime < stats.bestWinTime) stats.bestWinTime = Math.round(this.roundTime * 10) / 10;
       if (this.track && !this.track.unitLost) stats.flawlessWins++;
@@ -707,7 +713,10 @@ class Game {
     }
     u.chicksLeft--;
     const chick = makeChick(u);
-    if (u.side === RIGHT) Armory.upgradeUnit(this.profile, chick);
+    if (u.side === RIGHT) {
+      Armory.upgradeUnit(this.profile, chick);
+      Stats.add("chicksDropped");
+    }
     this.units.push(chick);
     audio.play("squeak");
   }
@@ -720,6 +729,7 @@ class Game {
       const gap = Math.abs(e.x - u.x);
       if (e instanceof Soldier ? gap < u.size * 0.55 : gap - e.blockingRadius() <= u.blockingRadius() + s(10)) {
         this.damageUnit(e, e instanceof Soldier ? 2 : 1);
+        if (e.dead && u.side === RIGHT) Stats.add("truckKills");
         hitAny = true;
         if (!(e instanceof Soldier)) break;
       }

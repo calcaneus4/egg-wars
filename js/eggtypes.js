@@ -196,6 +196,7 @@ const EggTypes = {
   },
 
   freeze(u, seconds) {
+    if (u.side === LEFT && !(u.frozen > 0)) Stats.add("enemiesFrozen");
     u.frozen = Math.max(u.frozen || 0, u.isBoss ? seconds * BOSS_FREEZE_SCALE : seconds);
   },
 

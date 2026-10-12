@@ -24,12 +24,26 @@ const ACHIEVEMENTS = [
   { id: "blitz", name: "Lightning War", desc: "Win a battle in under 20 seconds.", test: (s) => s.bestWinTime > 0 && s.bestWinTime <= 20 },
   { id: "flawless", name: "Not a Scratch", desc: "Win without losing a single unit.", test: (s) => s.flawlessWins >= 1 },
   { id: "nightOwl", name: "Night Owl", desc: "Win 5 night battles.", test: (s) => s.nightWins >= 5, scheme: "midnight" },
+  { id: "survivor", name: "Expect the Unexpected", desc: "Live through 10 surprise events.", test: (s) => s.eventsSurvived >= 10 },
+  { id: "allEvents", name: "Seen It All", desc: "Witness all 5 kinds of surprise event.", test: (s, p, f) => seenCount(f, "event:") >= Object.keys(EVENT_TYPES).length },
+  { id: "weatherman", name: "Weatherman", desc: "Fight in all 7 kinds of bad weather.", test: (s, p, f) => seenCount(f, "weather:") >= Object.keys(WEATHER_INFO).length - 1 },
+  { id: "bossAll", name: "Monster Hunter", desc: "Defeat every kind of boss.", test: (s, p, f) => (f.bossKinds || []).length >= BOSS_ROTATION.length, scheme: "ocean" },
+  { id: "coldSnap", name: "Cold Snap", desc: "Freeze 50 enemies.", test: (s) => s.enemiesFrozen >= 50 },
+  { id: "monsterJam", name: "Monster Jam", desc: "Flatten 25 enemies with Monster Trucks.", test: (s) => s.truckKills >= 25 },
+  { id: "chickMagnet", name: "Chick Magnet", desc: "Drop 20 chick paratroopers.", test: (s) => s.chicksDropped >= 20 },
+  { id: "powerPlayer", name: "Power Player", desc: "Use powers 50 times.", test: (s) => s.powersUsed >= 50 },
 ];
+
+// How many things with this prefix ("event:", "weather:") the player has seen.
+function seenCount(flags, prefix) {
+  return Object.keys(flags.seen || {}).filter((k) => k.startsWith(prefix)).length;
+}
 
 // Bonus colour schemes unlocked by achievements (the five originals are always available).
 const BONUS_SCHEMES = {
   breakfast: { line: "#3a2414", paper: "#fff4dc", pale: "#f6dcae", blueTeam: "#2f6fd0", redTeam: "#d2452b", yolk: "#f7b21a", eggWhite: "#fffdf4" },
   golden: { line: "#3b2a05", paper: "#fff3c4", pale: "#f2d98a", blueTeam: "#1f5fbf", redTeam: "#b8322a", yolk: "#e0a100", eggWhite: "#fffbe6" },
+  ocean: { line: "#10324a", paper: "#e8f6fb", pale: "#bfe3ef", blueTeam: "#1f6fbf", redTeam: "#d9483b", yolk: "#f2b134", eggWhite: "#ffffff" },
   midnight: { line: "#dfe6ff", paper: "#10142e", pale: "#252b52", blueTeam: "#6fb0ff", redTeam: "#ff6f7a", yolk: "#ffd25a", eggWhite: "#f4f6ff" },
 };
 
@@ -118,9 +132,9 @@ const Achievements = {
     centerText("ACHIEVEMENTS", 70);
     ctx.font = "bold 18px Courier New";
     centerText(`${this.count()} / ${ACHIEVEMENTS.length} unlocked`, 98);
-    const cols = 4;
-    const cw = 268;
-    const ch = 84;
+    const cols = 5;
+    const cw = 224;
+    const ch = 76;
     const gx = (W - cols * cw - (cols - 1) * 10) / 2;
     ACHIEVEMENTS.forEach((a, i) => {
       const x = gx + (i % cols) * (cw + 10);
@@ -142,10 +156,10 @@ const Achievements = {
         ctx.stroke();
       }
       ctx.fillStyle = LINE;
-      ctx.font = "bold 15px Courier New";
+      ctx.font = "bold 13px Courier New";
       ctx.fillText(a.name, x + 42, y + 26);
       ctx.font = "12px Courier New";
-      game.wrapText(a.desc, cw - 52).slice(0, 2).forEach((ln, li) => ctx.fillText(ln, x + 42, y + 46 + li * 15));
+      game.wrapText(a.desc, cw - 50).slice(0, 2).forEach((ln, li) => ctx.fillText(ln, x + 42, y + 43 + li * 14));
       if (a.scheme) {
         ctx.font = "bold 11px Courier New";
         ctx.fillText(`Reward: ${a.scheme} colors`, x + 42, y + ch - 10);

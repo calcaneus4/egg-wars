@@ -114,5 +114,5 @@ most one brand-new thing per stage, and the rolls are random but seeded by stage
 ## 13. Integration & polish
 
 - [x] **Enemy use of new content** - personalities field the new vehicles; a new "Mad Science" personality throws frost and zapper eggs.
-- [ ] **Unlocks, achievements & tips for Phase 2** - extended unlock table, new achievements and first-time tips.
+- [x] **Unlocks, achievements & tips for Phase 2** - extended unlock table, new achievements and first-time tips.
 - [ ] **Final review II** - balance sim with all new content, stress test, performance, docs and a CHANGELOG summary.

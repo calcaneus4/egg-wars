@@ -43,6 +43,10 @@ function defaultSave() {
       goldenEggsEarned: 0,
       bestWipeoutTime: 0,
       eventsSurvived: 0,
+      enemiesFrozen: 0,
+      truckKills: 0,
+      chicksDropped: 0,
+      powersUsed: 0,
     },
     flags: {},
   };

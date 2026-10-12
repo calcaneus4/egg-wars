@@ -116,3 +116,14 @@ following, all in the original hand-drawn side-view style:
 - Enemies: the new vehicles join enemy armies once their stage allows (Catapult Wagon from stage 11, Monster Truck from 21, Chick Balloon from 25), weighted by personality: Artillery loves catapults, Rushers trucks, Air Force balloons.
 - Enemies: new **Mad Science** personality (stage 14+, a seeded 20% chance on a non-boss stage, never twice in a row). Its army mixes infantry, medics, mortars and catapults, and 30% of its eggs are frost shards (1.5 s freeze) or zap shards (lightning jumps to one more unit).
 - Fix: the Turtle personality never appeared, because its slot in the rotation always landed on a boss stage; the rotation now skips boss stages. The enemy roster lists the types actually on the field first, so new unit types always show.
+- Achievements: 8 new achievements (28 in all). Monster Hunter also unlocks the new **Ocean** colour scheme.
+  - Expect the Unexpected: live through 10 surprise events.
+  - Seen It All: see all 5 kinds of surprise event.
+  - Weatherman: fight in all 7 kinds of bad weather.
+  - Monster Hunter: defeat every kind of boss.
+  - Cold Snap: freeze 50 enemies.
+  - Monster Jam: flatten 25 enemies with Monster Trucks.
+  - Chick Magnet: drop 20 chick paratroopers.
+  - Power Player: use powers 50 times.
+- Achievements: the gallery switched to 5 columns so all 28 fit.
+- Tips: the Phase 2 unlocks already show NEW tips. A new tip points to the Powers screen once you have more powers than slots.

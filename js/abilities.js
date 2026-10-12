@@ -143,6 +143,7 @@ const Abilities = {
       return false;
     }
     game.abilityCooldowns[id] = ability.cooldown * Armory.cooldownScale(game.profile);
+    Stats.add("powersUsed");
     if (id === "airstrike") {
       const start = W * 0.42;
       const end = W - s(60);
