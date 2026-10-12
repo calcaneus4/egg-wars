@@ -73,7 +73,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/util.js` - small math/color helpers
 - `js/save.js` - versioned localStorage save with migrations
 - `js/progression.js` - difficulty, XP, level and reward formulas (see DESIGN.md)
-- `js/audio.js` - sound effects
+- `js/audio.js` - procedural Web Audio sound effects with buses and a voice limiter
 - `js/terrain.js` - terrain generation
 - `js/background.js` - pre-rendered parallax mountains, hills, trees and sun
 - `js/sky.js` - time-of-day sky tint, stars and moon

@@ -150,7 +150,7 @@ function drawArmoryScreen(game) {
       const btn = Menus.button(maxed ? "MAX" : `BUY ${cost} GE`, W - left - 90, y + 9, 150, () => {
         if (Armory.buy(p, track.id)) {
           SaveManager.save();
-          audio.play("fire");
+          audio.play("unlock");
         }
       }, 44);
       btn.hot = !maxed && p.goldenEggs >= cost;

@@ -29,6 +29,10 @@ function applyPlayerSettings() {
   prefs.speech = clamp(Math.round(Number(prefs.speech) || 0), 0, SPEECH_LEVELS.length - 1);
   if (!settings.colorSchemes[prefs.colorScheme]) prefs.colorScheme = SETTINGS_DEFAULTS.colorScheme;
   settings.soundVolume = prefs.muted ? 0 : (prefs.volume / 100) * 3;
+  settings.sfxVolume = 1;
+  settings.musicVolume = 0.6;
+  settings.useSampleJingles = true;
+  audio.applyVolumes();
   settings.muted = !!prefs.muted;
   settings.colorScheme = prefs.colorScheme;
   settings.speechBubbleFrequency = SPEECH_LEVELS[prefs.speech].value;
@@ -155,7 +159,7 @@ const Menus = {
       SaveManager.save();
     };
     row("Volume", `${prefs.volume}%`, () => { prefs.volume = clamp(prefs.volume - 10, 0, 100); update(); },
-      () => { prefs.volume = clamp(prefs.volume + 10, 0, 100); update(); audio.play("fire"); });
+      () => { prefs.volume = clamp(prefs.volume + 10, 0, 100); update(); });
     row("Sound", prefs.muted ? "MUTED" : "ON", null, () => { prefs.muted = !prefs.muted; update(); });
     const schemes = Object.keys(settings.colorSchemes);
     const cycle = (dir) => {
@@ -185,7 +189,12 @@ const Menus = {
 
   click(game, x, y) {
     const hit = this.buttons.find((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
-    if (!hit || hit.disabled) return;
+    if (!hit) return;
+    if (hit.disabled) {
+      audio.play("deny");
+      return;
+    }
+    audio.play("click");
     if (hit.label !== "CLICK AGAIN TO ERASE SAVE" && !hit.label.startsWith("NEW GAME")) this.confirmNewGame = false;
     hit.action();
   },

@@ -45,6 +45,11 @@ const Results = {
     const r = game.roundRewards;
     const lt = this.levelTime(game);
     if (r && r.levelsGained && before < lt && game.endTimer >= lt) this.burst();
+    this.rows(game).forEach((row, i) => {
+      const start = RESULTS_ROW_START + i * RESULTS_ROW_GAP;
+      if (before < start + RESULTS_COUNT_TIME && game.endTimer >= start && row.value > 0) audio.play("tick");
+    });
+    if (game.newUnlocks.length && before < lt + 0.3 && game.endTimer >= lt + 0.3) audio.play("unlock");
     for (const c of this.confetti) {
       c.x += c.vx * dt;
       c.y += c.vy * dt;
@@ -56,6 +61,7 @@ const Results = {
   },
 
   burst() {
+    audio.play("levelup");
     const colors = [YOLK, BLUE, RED, WHITE];
     for (let i = 0; i < 90; i++) {
       const a = rand(-Math.PI * 0.95, -Math.PI * 0.05);

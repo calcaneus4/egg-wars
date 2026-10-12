@@ -911,6 +911,7 @@ class Game {
   buyUnit(button) {
     if (button.side !== RIGHT) return;
     if (!Unlocks.unitUnlocked(this.profile, button.type)) {
+      audio.play("deny");
       this.noticeBubble = {
         text: `Unlocks at level ${Unlocks.unitUnlockLevel(button.type)}.`,
         x: button.x + button.w / 2,
@@ -921,6 +922,7 @@ class Game {
     }
     const cost = Armory.unitCost(this.profile, button.type);
     if (this.gold < cost) {
+      audio.play("deny");
       const bubbleX = Number.isFinite(button.x) ? button.x + button.w / 2 : 120;
       const bubbleY = Number.isFinite(button.y) ? button.y + button.h + 8 : 72;
       this.noticeBubble = {
@@ -932,6 +934,7 @@ class Game {
       return;
     }
     this.gold -= cost;
+    audio.play("coin");
     this.addUnit(button.side, button.type);
     this.saveProfile();
     Tutorial.notify("bought");
