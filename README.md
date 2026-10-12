@@ -12,8 +12,8 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 
 ## Basic Controls
 
-- Click blue unit buttons at the top-left of the screen to buy reinforcements.
-- Press and hold a unit button to repeatedly buy that unit while you have enough gold.
+- Click a unit card in the shop bar (top left) or press `1`-`8` to buy reinforcements.
+- Press and hold a unit card to keep buying while you have enough gold.
 - Click the battlefield when `YOLK DROP READY` is active to drop a special egg attack.
 - Click the end-game screen to continue to the next stage or try again.
 - Press `R` to restart the current stage.
@@ -22,16 +22,12 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 - Settings (title screen or pause menu): volume, mute, color scheme, speech bubbles, screen shake, and New Game (erases saved progress).
 - Progress (stage, gold, unlocks, wins/losses) is saved automatically in the browser.
 
-## Unit Buttons
+## Unit Shop
 
-- `C` = castle
-- `B` = bomber
-- `H` = helicopter
-- `A` = airplane
-- `T` = tank
-- `M` = motorcycle
-- `S` = soldier
-- `D` = drone
+The shop bar at the top left shows every unit with its price. Tap a card (or press its number
+key) to buy one; hold to keep buying. Locked units show the level they unlock at.
+
+1 soldier, 2 tank, 3 motorcycle, 4 drone, 5 airplane, 6 helicopter, 7 bomber, 8 castle.
 
 ## Units
 
@@ -85,6 +81,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/units.js` - unit classes
 - `js/projectiles.js` - eggs and splats
 - `js/menus.js` - title, pause and settings screens
+- `js/hud.js` - battle HUD: unit shop bar, stage/time panel, enemy roster, Yolk Drop ring
 - `js/armory.js` - permanent Golden Egg upgrades and the Armory screen
 - `js/unlocks.js` - level-based unlock table and enemy roster gating
 - `js/tutorial.js` - guided first battle and one-time tips

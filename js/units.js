@@ -459,7 +459,7 @@ class Motorcycle extends Unit {
 class Airplane extends Unit {
   constructor(x, side, terrain, lane = 0) {
     super(x, side, terrain);
-    this.flightY = H * 0.1 + (lane % 4) * (H * 0.2 / 3) + rand(-s(6), s(6));
+    this.flightY = H * 0.19 + (lane % 4) * (H * 0.17 / 3) + rand(-s(6), s(6));
     this.speed = settings.airplaneSpeed;
     this.size = s(52);
     this.hp = settings.airplaneHp;

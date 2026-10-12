@@ -86,6 +86,11 @@ window.addEventListener("keydown", (event) => {
     SaveManager.save();
   }
   if ((event.key === "r" || event.key === "R") && game.scene === "battle") game.restart();
+  const slot = Number(event.key);
+  if (game.scene === "battle" && !game.winner && Number.isInteger(slot) && slot >= 1 && slot <= SHOP_ORDER.length) {
+    const button = game.buttons.find((b) => b.type === SHOP_ORDER[slot - 1]);
+    if (button) game.buyUnit(button);
+  }
   if ((event.key === "Enter" || event.key === " ") && game.scene === "title") game.startBattle();
 });
 

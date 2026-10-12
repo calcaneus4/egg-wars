@@ -694,8 +694,7 @@ class Game {
     this.drawUnitLabels();
     ctx.restore();
     if (this.scene !== "title") {
-      this.drawProgressHud();
-      this.drawTally();
+      Hud.draw(this);
     }
     this.drawNoticeBubble();
     this.drawStartTitle();
@@ -743,24 +742,6 @@ class Game {
     ctx.stroke();
     ctx.fillStyle = LINE;
     ctx.fillText(text, x + padX, y + bubbleH - padY - 4);
-  }
-
-  drawProgressHud() {
-    ctx.font = "bold 20px Courier New";
-    ctx.fillStyle = LINE;
-    const timeLeft = Math.max(0, Math.ceil(this.roundLimit - this.roundTime));
-    const scoreText = settings.showScore ? `   SCORE ${this.points}` : "";
-    centerText(`STAGE ${this.stage}   GOLD $ ${this.gold}${scoreText}   TIME ${timeLeft}`, 104);
-    ctx.font = "bold 18px Courier New";
-    const power = this.powerUpCooldown <= 0 ? "YOLK DROP READY" : `YOLK DROP ${this.powerUpCooldown.toFixed(1)}s`;
-    centerText(`Tap battlefield: ${power}`, H - 22);
-    this.drawXpBar(W / 2 - 210, 116, 420);
-    const teaser = Unlocks.nextText(this.profile);
-    if (teaser && !this.winner) {
-      ctx.font = "bold 14px Courier New";
-      ctx.fillStyle = LINE;
-      centerText(teaser, 150);
-    }
   }
 
   drawXpBar(x, y, width) {
@@ -879,64 +860,6 @@ class Game {
       const width = ctx.measureText(u.label).width;
       ctx.fillText(u.label, u.x - width / 2, u.y - u.radius() - 12);
     });
-  }
-
-  drawTally() {
-    this.buttons = [];
-    this.drawTeamTally("BLUE", RIGHT, 24, 20, true);
-    this.drawTeamTally("RED", LEFT, W - this.tallyWidth("RED", false) - 24, 20, false);
-  }
-
-  drawTeamTally(label, side, x, y, buttons) {
-    const rows = [
-      [["C", "castle"], ["B", "bomber"], ["H", "helicopter"], ["A", "airplane"]],
-      [["T", "tank"], ["M", "motorcycle"], ["S", "soldier"], ["D", "drone"]],
-    ];
-    drawText(label, x, y);
-    const labelWidth = ctx.measureText(label + "  ").width;
-    rows.forEach((types, row) => {
-      let rowX = row === 0 ? x + labelWidth : x;
-      const rowY = y + row * 28;
-      for (const [letter, type] of types) {
-        const rect = { x: rowX, y: rowY - 17, w: 28, h: 28, side, type };
-        if (buttons) {
-          const locked = !Unlocks.unitUnlocked(this.profile, type);
-          ctx.save();
-          if (locked) ctx.globalAlpha = 0.4;
-          ctx.strokeStyle = LINE;
-          ctx.lineWidth = 2;
-          ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
-          drawText(letter, rowX + 8, rowY);
-          rect.locked = locked;
-          this.buttons.push(rect);
-          rowX += rect.w + 8;
-          const count = this.units.filter((u) => u.side === side && unitType(u) === type).length;
-          const meta = locked ? ` LV${Unlocks.unitUnlockLevel(type)} ` : ` ${count} $${Armory.unitCost(this.profile, type)} `;
-          drawText(meta, rowX, rowY);
-          ctx.restore();
-          rowX += ctx.measureText(meta).width + 18;
-        } else {
-          const meta = `${letter}:${this.units.filter((u) => u.side === side && unitType(u) === type).length} `;
-          drawText(meta, rowX, rowY);
-          rowX += ctx.measureText(meta).width + 14;
-        }
-      }
-    });
-  }
-
-  tallyWidth(label, buttons = true) {
-    ctx.font = "bold 22px Courier New";
-    const rows = [
-      [["C", "castle"], ["B", "bomber"], ["H", "helicopter"], ["A", "airplane"]],
-      [["T", "tank"], ["M", "motorcycle"], ["S", "soldier"], ["D", "drone"]],
-    ];
-    const rowWidth = (types) => types.reduce((width, [letter, type]) => {
-      if (!buttons) return width + ctx.measureText(`${letter}:00 `).width + 14;
-      return width + 28 + 8 + ctx.measureText(` 00 $${settings.unitSpawnCosts[type]} `).width + 18;
-    }, 0);
-    const firstRow = ctx.measureText(label + "  ").width + rowWidth(rows[0]);
-    const secondRow = rowWidth(rows[1]);
-    return Math.max(firstRow, secondRow);
   }
 
   drawEnd() {
