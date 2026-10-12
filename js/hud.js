@@ -8,8 +8,34 @@ const SHOP_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-"];
 const SHOP_ROW = 8;
 const SHOP_CARD = { x: 12, y: 8, w: 58, h: 60, gap: 6 };
 
-// Tiny line-art glyph for each unit type, centred on (x, y) and roughly `size` wide.
+// Icons are drawn once per (type, colour, size) into a small offscreen canvas and reused,
+// because the HUD shows ~20 of them every frame.
+const UNIT_ICON_CACHE = new Map();
+
 function drawUnitIcon(type, x, y, size, color) {
+  const key = `${type}|${color}|${size}`;
+  let icon = UNIT_ICON_CACHE.get(key);
+  if (!icon) {
+    const pad = Math.ceil(size * 0.4);
+    const dim = Math.ceil(size + pad * 2);
+    icon = document.createElement("canvas");
+    icon.width = dim;
+    icon.height = dim;
+    const main = ctx;
+    ctx = icon.getContext("2d");
+    try {
+      drawUnitIconDirect(type, dim / 2, dim / 2, size, color);
+    } finally {
+      ctx = main;
+    }
+    if (UNIT_ICON_CACHE.size > 200) UNIT_ICON_CACHE.clear();
+    UNIT_ICON_CACHE.set(key, icon);
+  }
+  ctx.drawImage(icon, x - icon.width / 2, y - icon.height / 2);
+}
+
+// Tiny line-art glyph for each unit type, centred on (x, y) and roughly `size` wide.
+function drawUnitIconDirect(type, x, y, size, color) {
   const k = size / 40;
   ctx.save();
   ctx.translate(x, y);

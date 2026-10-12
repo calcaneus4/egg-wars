@@ -3,7 +3,7 @@
 // Visual effects: pooled particles, screen shake and hit flashes.
 // Particles are plain objects reused from a fixed pool, so a busy battle doesn't churn memory.
 
-const PARTICLE_POOL_SIZE = 700;
+const PARTICLE_POOL_SIZE = 450;
 
 const Effects = {
   pool: [],

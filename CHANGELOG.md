@@ -1,5 +1,50 @@
 # Changelog
 
+## Summary
+
+Egg Wars began as one 2,000-line `game.js` with a fixed army, linear difficulty and no saving.
+It is now a modular browser game (31 scripts under `js/`, still no build step) with the
+following, all in the original hand-drawn side-view style:
+
+- **Progression:**
+  - A versioned save with migrations.
+  - Player levels and XP.
+  - Golden Eggs and a 6-track, 20-level Armory.
+  - A level-by-level unlock schedule with something new every 1-3 levels.
+  - 20 achievements, some of which unlock colour schemes.
+  - Per-stage bonus goals.
+  - A World Map with practice replays.
+  - A lifetime stats page.
+- **Fair difficulty** (see `DESIGN.md`):
+  - A logarithmic difficulty curve, with enemy armies bought from a points budget.
+  - Enemy personalities and boss stages that cost the same budget.
+  - The Rally comeback boost after losing streaks.
+  - Rewards for losing.
+  - A balance simulator (`tools/balance-sim.js`) and auto-battle playtests confirming that player power stays ahead of difficulty.
+- **Onboarding:** a guided first battle, one-time tips, and readable banners for enemies, bosses, biomes and hazards.
+- **Content:**
+  - Units: 3 new units (Medic, Mortar Hen, Rooster Rider).
+  - Egg types: 5 new ones (Cluster, Bouncer, Sticky, Boomer with terrain craters, Seeker).
+  - Abilities: 2 (Airstrike, Shell Shield).
+  - Enemies: 4 enemy personalities and 3 bosses with enraged phases.
+  - Biomes: 5, each with neutral hazards.
+  - Weather: rain, snow and wind that pushes eggs.
+- **Graphics:**
+  - Parallax backgrounds and time of day.
+  - Hatched terrain art and unit fills, flags, cracks and health bars.
+  - Pooled particle effects, screen shake and hit flashes.
+  - Egg trails, drips and shells.
+  - An illustrated HUD, an animated results screen, and title, pause and settings menus.
+- **Sound:**
+  - Procedural Web Audio effects with variation and voice limiting.
+  - Procedural music whose intensity follows the battle.
+  - Master, effects and music sliders, plus mute.
+- **Tooling:**
+  - A headless smoke test (`tools/smoke-test.js`).
+  - The balance simulator.
+
+## Entries
+
 - Planning: added ROADMAP.md (prioritized feature checklist) and DESIGN.md (progression, difficulty and reward formulas).
 - Code: split `game.js` into `js/` scripts (config, util, audio, terrain, draw, units, projectiles, game, main) and added a headless smoke test (`tools/smoke-test.js`).
 - Progression: versioned localStorage save (stage, gold, unlocks, wins/losses) with migrations, corrupt-data fallback and autosave; `Shift+N` starts a new game.
@@ -36,3 +81,4 @@
 - Progression: 20 achievements (wins, levels, stages, bosses, kills, Yolk Drop kills, purchases, Armory, goals, biomes, comebacks, blitz, flawless, night wins) with slide-in toasts, +1 Golden Egg each, a gallery on the title screen, lifetime stat tracking, and three unlockable colour schemes (Breakfast, Golden, Midnight).
 - Progression: World Map - a winding 25-stage path through the five biome bands with cleared/current/locked nodes, boss crowns and stage previews (biome, time of day, enemy or boss); cleared stages replay as practice for half gold/XP without moving progress. Title screen reorganised (World Map, Armory + Trophies row).
 - Progression: Battle Record stats page (title > STATS) - battles, win rate, stage, level, bosses, goals, time in battle, kills, Yolk Drop kills, eggs thrown, purchases, favourite unit with icon, fastest win and wipeout, gold and Golden Eggs earned.
+- Final review: 60-stage headless stress run with every feature (no errors); HUD icons cached and egg trails batched (draw ~22 ms -> ~16 ms in software rendering, HUD 2.3 -> 0.4 ms); particle pool trimmed; boss stages rebalanced after win-rate sims (+12 s, boss counts half HP at timeout, softer Mech/Fortress volleys); title shows all hotkeys; README and DESIGN refreshed with playtest results.

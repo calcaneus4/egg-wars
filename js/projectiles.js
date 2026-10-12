@@ -32,20 +32,20 @@ class Egg {
   }
 
   draw() {
-    // Fading motion trail, tinted by team.
+    // Motion trail, tinted by team: one tapered stroke instead of a stroke per segment.
     const n = this.trail.length / 2;
     if (n > 1) {
       ctx.save();
       ctx.lineCap = "round";
+      ctx.lineJoin = "round";
       ctx.strokeStyle = teamColor(this.side);
-      for (let i = 1; i < n; i++) {
-        ctx.globalAlpha = (i / n) * 0.35;
-        ctx.lineWidth = 1 + (i / n) * this.radius * 0.8;
-        ctx.beginPath();
-        ctx.moveTo(this.trail[(i - 1) * 2], this.trail[(i - 1) * 2 + 1]);
-        ctx.lineTo(this.trail[i * 2], this.trail[i * 2 + 1]);
-        ctx.stroke();
-      }
+      ctx.globalAlpha = 0.22;
+      ctx.lineWidth = this.radius * 0.9;
+      ctx.beginPath();
+      ctx.moveTo(this.trail[0], this.trail[1]);
+      for (let i = 1; i < n; i++) ctx.lineTo(this.trail[i * 2], this.trail[i * 2 + 1]);
+      ctx.lineTo(this.x, this.y);
+      ctx.stroke();
       ctx.restore();
     }
     ctx.save();

@@ -8,6 +8,9 @@ const BOSS_EVERY = 5;
 const BOSS_BUDGET_SHARE = 0.4;
 // Hit points per threat point, matching ordinary units (a 10-point tank has 5 HP).
 const BOSS_HP_PER_POINT = 0.5;
+// Boss stages get extra time, and the boss counts half its HP in the timeout tiebreak.
+const BOSS_EXTRA_SECONDS = 12;
+const BOSS_SCORE_WEIGHT = 0.5;
 
 class Boss extends Unit {
   constructor(x, side, terrain, maxHp) {
@@ -51,9 +54,9 @@ class RoosterMech extends Boss {
     this.speed = 7;
     this.size = s(150);
     this.groundOffset = s(90);
-    this.slowAttack = 2.6;
-    this.fastAttack = 1.6;
-    this.specialEvery = 6;
+    this.slowAttack = 3.2;
+    this.fastAttack = 2.2;
+    this.specialEvery = 7;
   }
 
   radius() {
@@ -66,8 +69,8 @@ class RoosterMech extends Boss {
 
   attack(game, enemies) {
     const ground = enemies.filter((e) => !(e instanceof Airplane));
-    const targets = (ground.length ? ground : enemies).slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, 3);
-    targets.forEach((t, i) => game.lobEgg(this.x - this.side * s(30), this.y - s(70), t.x + rand(-20, 20), t.y, this.side, 3, 1.4 + i * 0.25));
+    const targets = (ground.length ? ground : enemies).slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, 2);
+    targets.forEach((t, i) => game.lobEgg(this.x - this.side * s(30), this.y - s(70), t.x + rand(-30, 30), t.y, this.side, 2, 1.4 + i * 0.25));
     this.recoil = 1;
     audio.play("fire");
   }
@@ -149,9 +152,9 @@ class OmeletFortress extends Boss {
     this.size = s(170);
     this.width = s(150);
     this.height = s(220);
-    this.slowAttack = 3;
-    this.fastAttack = 2;
-    this.specialEvery = 7;
+    this.slowAttack = 3.4;
+    this.fastAttack = 2.4;
+    this.specialEvery = 8;
   }
 
   get y() {
@@ -170,10 +173,10 @@ class OmeletFortress extends Boss {
 
   attack(game, enemies) {
     const top = this.terrain.yAt(this.x) - this.height;
-    const count = this.enraged ? 7 : 5;
+    const count = this.enraged ? 6 : 4;
     for (let i = 0; i < count; i++) {
       const tx = W * 0.08 + (i + Math.random() * 0.5) * (W * 0.55 / count);
-      game.lobEgg(this.x, top - s(20), tx, game.terrain.yAt(tx), this.side, 2, 1.8 + Math.random() * 0.5);
+      game.lobEgg(this.x, top - s(20), tx, game.terrain.yAt(tx), this.side, 1, 1.8 + Math.random() * 0.5);
     }
     Effects.muzzle(this.x, top - s(20), -this.side);
     audio.play("fire");

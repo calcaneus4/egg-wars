@@ -120,7 +120,7 @@ const Menus = {
     }
     ctx.font = "bold 16px Courier New";
     centerText("Tap unit buttons to send troops. Tap the battlefield to drop yolk bombs.", 580);
-    centerText("Esc / P pause   M mute   R restart stage", 604);
+    centerText("1-9 buy units   Q egg type   W/E abilities   Esc pause   M mute   R restart", 604);
     ctx.font = "bold 14px Courier New";
     const credit = "EGG WARS (c) 2026. Created by Michael K. Davis, MD.";
     ctx.fillText(credit, W - ctx.measureText(credit).width - 18, H - 18);

@@ -130,6 +130,7 @@ class Game {
     this.rallyTimer = this.rally ? 4 : 0;
     this.spawn();
     this.applyRally();
+    if (this.bossStage) this.roundLimit += BOSS_EXTRA_SECONDS;
     Objectives.start(this);
     const flags = SaveManager.data.flags;
     flags.biomes = Array.isArray(flags.biomes) ? flags.biomes : [];
@@ -280,7 +281,8 @@ class Game {
   }
 
   armyScore(units) {
-    return units.reduce((sum, u) => sum + Math.max(0, u.hp) + (u instanceof Airplane ? 4 : 0) + (u instanceof Castle ? 5 : 0), 0);
+    // A boss counts half its HP so a wounded boss doesn't win every timeout on its own.
+    return units.reduce((sum, u) => sum + Math.max(0, u.hp) * (u.isBoss ? BOSS_SCORE_WEIGHT : 1) + (u instanceof Airplane && !u.isBoss ? 4 : 0) + (u instanceof Castle ? 5 : 0), 0);
   }
 
   finishRound(blueWon, fullDestruction = false) {

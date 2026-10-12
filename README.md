@@ -2,27 +2,28 @@
 
 Egg Wars is a playful 2-D battlefield game drawn in a loose black-line sketch style. Blue and red armies march, roll, fly, hover, and crash across randomly generated terrain while lobbing projectile eggs through the air. Eggs arc under gravity, splat on the ground, burst into smaller projectiles, and gradually turn the battlefield into breakfast chaos.
 
-The game can be played as a Python/Pygame version or as a browser-based web version.
+This repository contains the browser version. Open `index.html` to play.
 
 ## Game Objective
 
 Lead the blue team through as many stages as possible. Each round ends when one side is wiped out or when the timer expires. If time runs out, the side with the stronger remaining army wins.
 
-Winning stages earns gold. Gold can be spent during battle to buy more blue units. The red team is the enemy and spawns automatically.
+Every round, won or lost, earns gold, XP and often Golden Eggs. Gold buys reinforcements during battle. Golden Eggs buy permanent upgrades in the Armory. The red team is the enemy and spawns automatically. Its army changes personality from stage to stage, and every 5th stage brings a boss.
 
 ## Basic Controls
 
-- Click a unit card in the shop bar (top left) or press `1`-`8` to buy reinforcements.
+- Click a unit card in the shop bar (top left) or press its key (`1`-`9`, `0`, `-`) to buy reinforcements.
 - Press and hold a unit card to keep buying while you have enough gold.
 - Click the battlefield when `YOLK DROP READY` is active to drop a special egg attack.
-- Click the end-game screen to continue to the next stage or try again.
+- On the results screen, click (or press Enter) to skip the tally, then choose Next Stage / Try Again or the Armory.
 - Press `R` to restart the current stage.
 - Press `Esc` or `P` to pause (resume, restart, settings, title screen).
 - Press `M` to mute or unmute.
 - Press `W` for an Airstrike (level 7) and `E` for a Shell Shield (level 12), or tap their buttons at the bottom of the screen.
 - Press `Q` (or tap the chips above the Yolk Drop button) to choose which egg the Yolk Drop uses, once you unlock more than one.
 - Settings (title screen or pause menu): master, effects and music volume, mute, color scheme, speech bubbles, screen shake, and New Game (erases saved progress).
-- Progress (stage, gold, unlocks, wins/losses) is saved automatically in the browser.
+- Progress (level, XP, gold, Golden Eggs, Armory, unlocks, achievements and stats) is saved automatically in the browser.
+- The title screen also has the World Map (replay cleared stages for practice), Trophies (achievements) and Stats.
 
 ## Unit Shop
 
@@ -48,20 +49,21 @@ key) to buy one; hold to keep buying. Locked units show the level they unlock at
 
 ## Progression
 
-Enemy armies grow slowly and smoothly with each stage (a logarithmic curve, see `DESIGN.md`), and the round timer grows a little longer too. You earn XP every round (more for wins and kills) and level up. New units, special units and
-features unlock by player level, and the HUD always shows what comes next. Some highlights:
-
-- Level 2: **Airplane** and the **Armory** (permanent upgrades bought with Golden Eggs)
-- Level 3: **Mega Knight**
-- Level 5: **Helicopter** and **Fire Wizard**
-- Level 8: **Bomber** and **Yolk Bomber**
-- Level 10: buy extra **Castles**
-
-Fast full-destruction victories earn bonus gold.
+- **Levels and XP:** you earn XP every round, more for wins and kills, and level up. Something new unlocks every few levels: aircraft, special units (Mega Knight, Fire Wizard, Yolk Bomber), new egg types (Cluster, Bouncer, Sticky, Boomer, Seeker), abilities (Airstrike, Shell Shield) and new units (Egg Medic, Mortar Hen, Rooster Rider). The HUD always shows what comes next.
+- **Armory:** six permanent upgrade tracks, bought with Golden Eggs.
+- **Difficulty:** it rises slowly on a logarithmic curve. Your upgrades are designed to keep you ahead of it (see `DESIGN.md`). After two losses in a row a **Rally** boost helps you out.
+- **Biomes:** they change every 5 stages: Meadow, Desert Dunes, Snowfield, Volcano and Kitchen Counter. Each has its own terrain, weather and hazards.
+- **Extras:** bonus goals, 20 achievements (some unlock colour schemes), boss battles and a lifetime stats page.
 
 ## Style and Features
 
-Egg Wars uses simple line-art visuals, randomly generated terrain, moving clouds, retro sound effects, egg splatter residue, wreckage debris, speech bubbles, and configurable color schemes. Settings can be edited in `js/config.js`.
+Egg Wars keeps its hand-drawn line-art look, now with:
+- parallax backgrounds, day/dusk/night/dawn skies, and rain, snow and wind
+- particle explosions, egg splats with drips, screen shake and hit flashes
+- an illustrated HUD and an animated results screen
+- procedural sound effects and music
+
+Tunable settings are in `js/config.js`.
 
 ## Running the Game
 

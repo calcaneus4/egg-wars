@@ -1,7 +1,8 @@
 "use strict";
 
 const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+// `let` so helpers can temporarily draw into offscreen canvases (see drawUnitIcon).
+let ctx = canvas.getContext("2d");
 
 const W = canvas.width;
 const H = canvas.height;

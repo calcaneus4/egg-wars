@@ -155,6 +155,21 @@ the three combat tracks, spread evenly and capped at 20:
 The script exits non-zero if `P < E(n)` at any checked stage from 3 on. Run it after changing
 any balance constant.
 
+**Playtest check (final review).** Headless auto-battles were run with the player level and Armory
+levels from the table above, 8 rounds per row. "Idle" means the player does nothing. "Active"
+means the player only drops Classic Yolk Drops on cooldown.
+
+| stage | type | idle wins | active wins |
+|---|---|---|---|
+| 1 | normal | 8/8 | 8/8 |
+| 3 / 4 / 9 | normal | 5-6/8 | 8/8 |
+| 5 / 10 / 20 | boss | 6/8 | 8/8 |
+| 21 / 30 / 50 | normal | 7-8/8 | 8/8 |
+
+The first pass found boss stages too hard (0-1/8 idle). Two fixes brought them in line with
+normal stages: boss stages get +12 s, and a boss counts half its HP in the timeout tiebreak.
+The Mech and Fortress volleys were also softened.
+
 `E(n)` grows like `ln(n)^2`, while GE income grows faster than linearly in `n`. So `P / E`
 rises over time, and losing players earn GE too (section 6). With every track maxed
 (`P = 9.36`), `E(n)` would only catch up around stage 10^6. Unlocked units, abilities and egg types are additional power on top of `P`;

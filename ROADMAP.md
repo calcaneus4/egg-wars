@@ -59,4 +59,4 @@ progression and difficulty model that every item must respect.
 
 ## 5. Final
 
-- [ ] **Final review pass** - bugs, balance simulation against DESIGN.md, performance (object pooling, draw cost), polish; full CHANGELOG summary.
+- [x] **Final review pass** - bugs, balance simulation against DESIGN.md, performance (object pooling, draw cost), polish; full CHANGELOG summary.
