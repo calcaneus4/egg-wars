@@ -23,3 +23,4 @@
 - Sound: procedural background music - lookahead step sequencer with bass, chord pads, a per-stage seeded melody and drums; moods follow time of day (plus a calm title theme); an intensity layer adds lead, snare and hats as eggs fly; music fades out under victory/defeat stings.
 - Sound: separate Master / Effects / Music volume sliders (with live previews) in Settings, saved in the profile; M toggles mute anywhere and the HUD shows a MUTED badge.
 - Depth: data-driven egg type framework (damage, burst, mid-air split, visuals) and the Cluster egg (level 4) - a Yolk Drop option that splits into 6 eggs mid-air; choose the Yolk Drop egg with Q or the HUD chips (saved).
+- Depth: Bouncer egg (level 7, hops toward the enemy bursting on each of 3 bounces) and Sticky egg (level 10, gooey burst that glues hit units so they move and fire at 35% speed for 3 s, with goo shown on them); both selectable Yolk Drop eggs.

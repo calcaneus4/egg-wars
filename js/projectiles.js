@@ -10,6 +10,7 @@ class Egg {
     this.kind = EggTypes.get(kind);
     this.burst += this.kind.burst;
     this.age = 0;
+    this.bouncesLeft = this.kind.bounces || 0;
     this.radius = s(this.kind.split ? 10 : 8);
     this.trail = [];
     this.spin = rand(-6, 6);
@@ -54,7 +55,21 @@ class Egg {
     ctx.ellipse(0, 0, this.radius, this.radius * 1.2, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    if (this.kind.band === "cluster") {
+    if (this.kind.band === "sticky") {
+      ctx.fillStyle = "rgba(120,190,60,0.85)";
+      ctx.beginPath();
+      ctx.ellipse(0, this.radius * 0.35, this.radius * 0.9, this.radius * 0.55, 0, 0, Math.PI);
+      ctx.fill();
+    } else if (this.kind.band === "bouncing") {
+      ctx.strokeStyle = BLUE;
+      ctx.lineWidth = 1.5;
+      for (const k of [-0.4, 0, 0.4]) {
+        ctx.beginPath();
+        ctx.moveTo(-this.radius * 0.8, this.radius * k);
+        ctx.lineTo(this.radius * 0.8, this.radius * k);
+        ctx.stroke();
+      }
+    } else if (this.kind.band === "cluster") {
       // Cluster eggs show the little eggs packed inside.
       ctx.fillStyle = YOLK;
       for (let i = 0; i < 3; i++) {

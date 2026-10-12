@@ -9,6 +9,11 @@
 //   split       { count, after, spread, childKind, childBurst } - splits in mid-air
 //   band        colour of the stripe drawn on the egg (null = plain)
 //   yolkDrop    true if the player can pick it for the Yolk Drop
+//   bounces     times it hops off the ground before splatting (bursting `bounceBurst` each hop)
+//   sticky      seconds a hit unit stays glued (moves and fires at STICKY_SLOW speed)
+//   burstKind   egg kind of the small eggs thrown out by its burst
+
+const STICKY_SLOW = 0.35;
 
 const EGG_TYPES = {
   normal: {
@@ -33,6 +38,33 @@ const EGG_TYPES = {
     yolkDrop: true,
     yolkBurst: 0,
     split: { count: 6, after: 0.55, spread: 150, childKind: "normal", childBurst: 2 },
+  },
+  bouncing: {
+    id: "bouncing",
+    name: "Bouncer",
+    desc: "Hops along the ground toward the enemy, bursting on every bounce.",
+    level: 7,
+    damage: 1,
+    burst: 0,
+    band: "bouncing",
+    yolkDrop: true,
+    yolkBurst: 3,
+    dropVx: 150,
+    bounces: 3,
+    bounceBurst: 2,
+  },
+  sticky: {
+    id: "sticky",
+    name: "Sticky",
+    desc: "Gooey burst that glues enemies: they move and fire at a third of their speed for 3 s.",
+    level: 10,
+    damage: 1,
+    burst: 0,
+    band: "sticky",
+    yolkDrop: true,
+    yolkBurst: 8,
+    burstKind: "sticky",
+    sticky: 3,
   },
 };
 

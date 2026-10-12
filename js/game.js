@@ -382,13 +382,15 @@ class Game {
     for (const u of this.living()) {
       const enemies = u.side === RIGHT ? red : blue;
       if (this.canSpeak(u)) u.updateSpeech(dt);
-      u.move(dt, enemies);
+      const udt = u.stuck > 0 ? dt * STICKY_SLOW : dt;
+      if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
+      u.move(udt, enemies);
       if (u instanceof Drone && u.impactTarget) {
         this.detonateDrone(u, u.impactTarget);
         continue;
       }
       if (u instanceof Drone) continue;
-      if (u.ready(dt)) this.fire(u, enemies);
+      if (u.ready(udt)) this.fire(u, enemies);
     }
 
     for (const e of [...this.eggs]) {
@@ -404,6 +406,7 @@ class Game {
       for (const t of enemies) {
         if (dist(e.x, e.y, t.x, t.y) <= e.radius + t.radius()) {
           t.takeHit();
+          if (e.kind.sticky) t.stuck = Math.max(t.stuck || 0, e.kind.sticky);
           for (let extra = 1; extra < e.kind.damage && !t.dead; extra++) t.takeHit();
           if (e.side === RIGHT && !t.dead && Math.random() < Armory.doubleHitChance(Armory.level(this.profile, "dmg"))) t.takeHit();
           this.maybeSay(t, settings.speechHitComments, 1.05);
@@ -420,6 +423,10 @@ class Game {
         }
       }
       if (!this.eggs.includes(e)) continue;
+      if (e.vy > 0 && e.y + e.radius >= this.terrain.yAt(e.x) && e.bouncesLeft > 0) {
+        this.bounceEgg(e);
+        continue;
+      }
       if (e.vy > 0 && e.y + e.radius >= this.terrain.yAt(e.x)) {
         if (e.burst) this.burst(e, e.x, this.terrain.yAt(e.x), true);
         else this.addTerrainSplat(e.x);
@@ -638,9 +645,22 @@ class Game {
       const p = i / Math.max(1, egg.burst - 1);
       const angle = (160 - p * 140) * Math.PI / 180;
       const speed = rand(115, 175);
-      this.eggs.push(new Egg(x, y - egg.radius, Math.cos(angle) * speed, -Math.abs(Math.sin(angle) * speed) - rand(20, 65), egg.side));
+      this.eggs.push(new Egg(x, y - egg.radius, Math.cos(angle) * speed, -Math.abs(Math.sin(angle) * speed) - rand(20, 65), egg.side, 0, egg.kind.burstKind || "normal"));
     }
     audio.play("egg_splat");
+  }
+
+  // A bouncing egg hops off the ground, throwing a small burst each time.
+  bounceEgg(e) {
+    const ground = this.terrain.yAt(e.x);
+    e.bouncesLeft--;
+    e.y = ground - e.radius;
+    e.vy = -Math.max(140, Math.abs(e.vy) * 0.62);
+    e.vx *= 0.9;
+    const hop = { ...e, burst: e.kind.bounceBurst || 0, kind: EggTypes.get("normal") };
+    if (hop.burst) this.burst(hop, e.x, ground, true);
+    else this.addTerrainSplat(e.x);
+    Effects.shake(1.5);
   }
 
   addTerrainSplat(x) {
@@ -672,7 +692,8 @@ class Game {
     if (this.winner || this.powerUpCooldown > 0) return false;
     const targetX = clamp(x, s(40), W - s(40));
     const kind = EggTypes.selected(this.profile);
-    this.eggs.push(new Egg(targetX, 72, rand(-18, 18), 30, RIGHT, kind.yolkBurst, kind.id));
+    const vx = kind.dropVx ? kind.dropVx * RIGHT : rand(-18, 18);
+    this.eggs.push(new Egg(targetX, 72, vx, 30, RIGHT, kind.yolkBurst, kind.id));
     this.powerUpCooldown = Armory.yolkCooldown(this.profile);
     audio.play("fire");
     Tutorial.notify("yolk");
@@ -703,6 +724,7 @@ class Game {
       withHitFlash(u, () => u.draw());
       if (u.hp < u.maxHp && u.hp > 0) drawCracks(u.x, u.y, u.size, 1 - u.hp / u.maxHp, u.wobble);
     });
+    this.drawGoo();
     this.drawHealthBars();
     Effects.draw();
     Weather.draw();
@@ -794,6 +816,25 @@ class Game {
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = LINE;
+  }
+
+  drawGoo() {
+    ctx.save();
+    for (const u of this.units) {
+      if (!(u.stuck > 0)) continue;
+      ctx.globalAlpha = Math.min(1, u.stuck) * 0.8;
+      ctx.fillStyle = "rgba(120,190,60,0.75)";
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 1;
+      const r = u.radius() * 0.55;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(u.x + (i - 1) * r * 0.7, u.y + r * 0.2 + Math.sin(performance.now() * 0.004 + i) * 1.5, r * 0.45, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
   }
 
   drawHealthBars() {
