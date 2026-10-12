@@ -5,15 +5,19 @@ const SPLAT_HOLD_SECONDS = 9;
 const SPLAT_FADE_SECONDS = 6;
 
 class Egg {
-  constructor(x, y, vx, vy, side, burst = 0) {
+  constructor(x, y, vx, vy, side, burst = 0, kind = "normal") {
     Object.assign(this, { x, y, vx, vy, side, burst });
-    this.radius = s(8);
+    this.kind = EggTypes.get(kind);
+    this.burst += this.kind.burst;
+    this.age = 0;
+    this.radius = s(this.kind.split ? 10 : 8);
     this.trail = [];
     this.spin = rand(-6, 6);
     this.angle = rand(0, Math.PI * 2);
   }
 
   update(dt) {
+    this.age += dt;
     this.trail.push(this.x, this.y);
     if (this.trail.length > EGG_TRAIL_LENGTH * 2) this.trail.splice(0, 2);
     this.x += this.vx * dt;
@@ -50,7 +54,15 @@ class Egg {
     ctx.ellipse(0, 0, this.radius, this.radius * 1.2, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    if (this.burst) {
+    if (this.kind.band === "cluster") {
+      // Cluster eggs show the little eggs packed inside.
+      ctx.fillStyle = YOLK;
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc((i - 1) * this.radius * 0.45, (i % 2 ? -1 : 1) * this.radius * 0.25, this.radius * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (this.burst) {
       // Burst eggs carry a yolk-colored band so they read as "special".
       ctx.strokeStyle = YOLK;
       ctx.beginPath();

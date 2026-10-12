@@ -393,10 +393,18 @@ class Game {
 
     for (const e of [...this.eggs]) {
       e.update(dt);
+      const children = EggTypes.maybeSplit(e);
+      if (children) {
+        this.removeEgg(e);
+        this.eggs.push(...children);
+        audio.play("fire");
+        continue;
+      }
       const enemies = e.side === RIGHT ? red : blue;
       for (const t of enemies) {
         if (dist(e.x, e.y, t.x, t.y) <= e.radius + t.radius()) {
           t.takeHit();
+          for (let extra = 1; extra < e.kind.damage && !t.dead; extra++) t.takeHit();
           if (e.side === RIGHT && !t.dead && Math.random() < Armory.doubleHitChance(Armory.level(this.profile, "dmg"))) t.takeHit();
           this.maybeSay(t, settings.speechHitComments, 1.05);
           if (t.dead) {
@@ -663,7 +671,8 @@ class Game {
   dropPowerUp(x) {
     if (this.winner || this.powerUpCooldown > 0) return false;
     const targetX = clamp(x, s(40), W - s(40));
-    this.eggs.push(new Egg(targetX, 72, rand(-18, 18), 30, RIGHT, settings.powerUpBurst));
+    const kind = EggTypes.selected(this.profile);
+    this.eggs.push(new Egg(targetX, 72, rand(-18, 18), 30, RIGHT, kind.yolkBurst, kind.id));
     this.powerUpCooldown = Armory.yolkCooldown(this.profile);
     audio.play("fire");
     Tutorial.notify("yolk");

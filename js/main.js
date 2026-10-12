@@ -55,6 +55,13 @@ canvas.addEventListener("pointerdown", (event) => {
     return;
   }
   if (Tutorial.hit(point.x, point.y)) return;
+  const eggChip = !game.winner && Hud.eggButtonAt(point.x, point.y);
+  if (eggChip) {
+    game.profile.yolkEgg = eggChip.id;
+    SaveManager.save();
+    audio.play("click");
+    return;
+  }
   const button = game.buttonAt(point.x, point.y);
   if (!button || game.winner) {
     game.click(point.x, point.y);
@@ -86,6 +93,11 @@ window.addEventListener("keydown", (event) => {
     SaveManager.save();
   }
   if ((event.key === "r" || event.key === "R") && game.scene === "battle") game.restart();
+  if ((event.key === "q" || event.key === "Q") && game.scene === "battle") {
+    EggTypes.cycle(game.profile);
+    SaveManager.save();
+    audio.play("click");
+  }
   const slot = Number(event.key);
   if (game.scene === "battle" && !game.winner && Number.isInteger(slot) && slot >= 1 && slot <= SHOP_ORDER.length) {
     const button = game.buttons.find((b) => b.type === SHOP_ORDER[slot - 1]);

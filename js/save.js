@@ -19,6 +19,7 @@ function defaultSave() {
       goldenEggs: 0,
       lossStreak: 0,
       rallyGoldStreak: 0,
+      yolkEgg: "normal",
       armory: { hp: 0, rate: 0, dmg: 0, chest: 0, yolk: 0, bulk: 0 },
     },
     settings: {},

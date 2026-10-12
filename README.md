@@ -19,6 +19,7 @@ Winning stages earns gold. Gold can be spent during battle to buy more blue unit
 - Press `R` to restart the current stage.
 - Press `Esc` or `P` to pause (resume, restart, settings, title screen).
 - Press `M` to mute or unmute.
+- Press `Q` (or tap the chips above the Yolk Drop button) to choose which egg the Yolk Drop uses, once you unlock more than one.
 - Settings (title screen or pause menu): master, effects and music volume, mute, color scheme, speech bubbles, screen shake, and New Game (erases saved progress).
 - Progress (stage, gold, unlocks, wins/losses) is saved automatically in the browser.
 
@@ -82,6 +83,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/effects.js` - pooled particles, screen shake and hit flashes
 - `js/draw.js` - shared drawing helpers
 - `js/units.js` - unit classes
+- `js/eggtypes.js` - data-driven egg types (Classic, Cluster, ...)
 - `js/projectiles.js` - eggs and splats
 - `js/menus.js` - title, pause and settings screens
 - `js/hud.js` - battle HUD: unit shop bar, stage/time panel, enemy roster, Yolk Drop ring

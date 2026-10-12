@@ -247,7 +247,6 @@ const settings = {
   roundSecondsPerDifficulty: 10,
   roundJitterSeconds: 5,
   powerUpCooldown: 5,
-  powerUpBurst: 8,
   goldWinBase: 25,
   goldPerStage: 2,
   fullDestructionGoldBonus: 20,

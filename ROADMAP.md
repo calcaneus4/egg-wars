@@ -42,7 +42,7 @@ progression and difficulty model that every item must respect.
 
 ## 4. Depth & Options
 
-- [ ] **Egg type framework + Cluster egg** - egg types defined by data (damage, burst, gravity, on-impact); player chooses the Yolk Drop egg; Cluster egg splits mid-air.
+- [x] **Egg type framework + Cluster egg** - egg types defined by data (damage, burst, gravity, on-impact); player chooses the Yolk Drop egg; Cluster egg splits mid-air.
 - [ ] **Bouncing & Sticky eggs** - bouncing eggs hop along terrain; sticky eggs glue targets (slow) for a few seconds.
 - [ ] **Explosive egg & craters** - area damage plus terrain deformation that changes unit paths.
 - [ ] **Abilities bar** - three cooldown abilities (Yolk Drop, Omelet Airstrike, Shell Shield) unlocked by level, upgradeable in the Armory.

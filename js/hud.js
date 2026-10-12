@@ -258,8 +258,42 @@ const Hud = {
     ctx.fill();
     ctx.fillStyle = LINE;
     ctx.font = "bold 15px Courier New";
-    const label = ready ? "YOLK DROP READY - tap the battlefield" : `YOLK DROP ${game.powerUpCooldown.toFixed(1)}s`;
+    const kind = EggTypes.selected(game.profile);
+    const name = kind.id === "normal" ? "YOLK DROP" : `${kind.name.toUpperCase()} DROP`;
+    const label = ready ? `${name} READY - tap the battlefield` : `${name} ${game.powerUpCooldown.toFixed(1)}s`;
     ctx.fillText(label, x + r + 12, y + 5);
     ctx.restore();
+    this.drawEggPicker(game, x + r + 12, y - 34);
+  },
+
+  eggButtons: [],
+
+  // Small chips to choose the Yolk Drop egg (only shown once more than one type is unlocked).
+  drawEggPicker(game, x, y) {
+    this.eggButtons = [];
+    const types = EggTypes.unlockedYolkDrops(game.profile);
+    if (types.length < 2) return;
+    const selected = EggTypes.selected(game.profile);
+    ctx.save();
+    ctx.font = "bold 12px Courier New";
+    types.forEach((type) => {
+      const w = ctx.measureText(type.name).width + 16;
+      const rect = { x, y, w, h: 20, id: type.id };
+      this.eggButtons.push(rect);
+      ctx.fillStyle = type === selected ? rgbaFromHex(YOLK, 0.85) : PAPER;
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = type === selected ? 2 : 1;
+      ctx.fillRect(x, y, w, 20);
+      ctx.strokeRect(x, y, w, 20);
+      ctx.fillStyle = LINE;
+      ctx.fillText(type.name, x + 8, y + 14);
+      x += w + 6;
+    });
+    ctx.fillText("Q", x + 2, y + 14);
+    ctx.restore();
+  },
+
+  eggButtonAt(x, y) {
+    return this.eggButtons.find((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
   },
 };

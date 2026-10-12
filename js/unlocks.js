@@ -14,6 +14,7 @@ const UNLOCKS = [
   { level: 2, kind: "unit", type: "airplane", name: "Airplane", desc: "Fast bomber of the skies" },
   { level: 2, kind: "feature", id: "armory", name: "Armory", desc: "Spend Golden Eggs on permanent upgrades" },
   { level: 3, kind: "special", name: "Mega Knight", desc: "A giant tank joins every battle" },
+  { level: 4, kind: "feature", id: "cluster", name: "Cluster Egg", desc: "Yolk Drop option: splits into 6 eggs mid-air (press Q)" },
   { level: 5, kind: "unit", type: "helicopter", name: "Helicopter", desc: "Hovers over enemies and drops eggs" },
   { level: 5, kind: "special", name: "Fire Wizard", desc: "A rapid-fire soldier joins every battle" },
   { level: 8, kind: "unit", type: "bomber", name: "Bomber", desc: "Heavy aircraft with egg bursts" },
