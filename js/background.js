@@ -12,7 +12,11 @@ const BACKGROUND_LAYERS = [
 ];
 
 function seededRandom(seed) {
+  // Mix the seed first so nearby seeds (stage 3, 4, 5...) give unrelated sequences.
   let s = seed >>> 0;
+  s = Math.imul(s ^ (s >>> 16), 0x45d9f3b) >>> 0;
+  s = Math.imul(s ^ (s >>> 16), 0x45d9f3b) >>> 0;
+  s = (s ^ (s >>> 16)) >>> 0;
   return () => {
     s = (s * 1664525 + 1013904223) >>> 0;
     return s / 4294967296;

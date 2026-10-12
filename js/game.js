@@ -111,6 +111,7 @@ class Game {
     this.rallyTimer = this.rally ? 4 : 0;
     this.spawn();
     this.applyRally();
+    Objectives.start(this);
     if (this.scene === "battle") Tutorial.onStageStart(this);
     audio.play("start_reveille");
   }
@@ -306,10 +307,12 @@ class Game {
     const levelsGained = Progression.addXp(p, xp);
     let goldenEggs = blueWon ? Progression.winGoldenEggs(playedStage) : Progression.lossGoldenEggs(p.lossStreak);
     if (blueWon && this.bossStage) goldenEggs += 3;
+    const objectiveEggs = Objectives.finish(this, blueWon);
+    goldenEggs += objectiveEggs;
     goldenEggs += levelsGained * Progression.goldenEggsPerLevel;
     p.goldenEggs += goldenEggs;
     SaveManager.data.stats.kills += this.roundKills;
-    this.roundRewards = { xp, kills: this.roundKills, goldenEggs, levelBefore, levelsGained };
+    this.roundRewards = { xp, kills: this.roundKills, goldenEggs, objectiveEggs, levelBefore, levelsGained };
     this.newUnlocks = levelsGained ? Unlocks.between(p, levelBefore, p.level) : [];
   }
 
@@ -446,7 +449,7 @@ class Game {
           if (e.side === RIGHT && !t.dead && Math.random() < Armory.doubleHitChance(Armory.level(this.profile, "dmg"))) t.takeHit();
           this.maybeSay(t, settings.speechHitComments, 1.05);
           if (t.dead) {
-            this.onUnitKilled(t);
+            this.onUnitKilled(t, e.source);
             this.playUnitDestroyed(t);
             this.addWreckage(t);
           } else {
@@ -503,7 +506,8 @@ class Game {
     }
   }
 
-  onUnitKilled(unit) {
+  onUnitKilled(unit, source = null) {
+    Objectives.onKill(this, unit, source);
     if (unit.side === LEFT && !this.winner) this.roundKills++;
   }
 
@@ -728,18 +732,20 @@ class Game {
       const p = i / Math.max(1, egg.burst - 1);
       const angle = (160 - p * 140) * Math.PI / 180;
       const speed = rand(115, 175);
-      this.eggs.push(new Egg(x, y - egg.radius, Math.cos(angle) * speed, -Math.abs(Math.sin(angle) * speed) - rand(20, 65), egg.side, 0, egg.kind.burstKind || "normal"));
+      const child = new Egg(x, y - egg.radius, Math.cos(angle) * speed, -Math.abs(Math.sin(angle) * speed) - rand(20, 65), egg.side, 0, egg.kind.burstKind || "normal");
+      child.source = egg.source;
+      this.eggs.push(child);
     }
     audio.play("egg_splat");
   }
 
   // Applies `hits` hits to a unit with all the usual feedback (kills, wreckage, sounds).
-  damageUnit(t, hits) {
+  damageUnit(t, hits, source = null) {
     if (t.dead) return;
     for (let i = 0; i < hits && !t.dead; i++) t.takeHit();
     this.maybeSay(t, settings.speechHitComments, 1.05);
     if (t.dead) {
-      this.onUnitKilled(t);
+      this.onUnitKilled(t, source);
       this.playUnitDestroyed(t);
       this.addWreckage(t);
     } else {
@@ -755,7 +761,7 @@ class Game {
     for (const t of targets) {
       const d = dist(x, y, t.x, t.y) - t.radius() * 0.5;
       if (d > r) continue;
-      this.damageUnit(t, d < r * 0.5 ? e.kind.damage : 1);
+      this.damageUnit(t, d < r * 0.5 ? e.kind.damage : 1, e.source);
     }
     this.removeEgg(e);
     Effects.explosion(x, y, 2.2, LINE);
@@ -817,7 +823,9 @@ class Game {
     const count = kind.yolkCount || 1;
     for (let i = 0; i < count; i++) {
       const vx = kind.dropVx ? kind.dropVx * RIGHT : count > 1 ? (i - (count - 1) / 2) * 60 : rand(-18, 18);
-      this.eggs.push(new Egg(targetX + (i - (count - 1) / 2) * 20, 72, vx, 30, RIGHT, kind.yolkBurst, kind.id));
+      const egg = new Egg(targetX + (i - (count - 1) / 2) * 20, 72, vx, 30, RIGHT, kind.yolkBurst, kind.id);
+      egg.source = "yolk";
+      this.eggs.push(egg);
     }
     this.powerUpCooldown = Armory.yolkCooldown(this.profile);
     audio.play("fire");
@@ -868,6 +876,7 @@ class Game {
     this.drawStartTitle();
     if (this.winner) Results.draw(this);
     this.drawRallyBanner();
+    Objectives.draw(this);
     this.drawPersonalityBanner();
     Bosses.drawBar(this);
     Tutorial.draw(this);
@@ -1142,6 +1151,7 @@ class Game {
       return;
     }
     this.gold -= cost;
+    if (this.track) this.track.bought = true;
     audio.play("coin");
     this.addUnit(button.side, button.type);
     this.saveProfile();

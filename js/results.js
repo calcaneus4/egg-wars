@@ -22,7 +22,9 @@ const Results = {
     const r = game.roundRewards || { xp: 0, kills: 0, goldenEggs: 0 };
     const rows = [{ label: "GOLD", value: game.lastGoldReward, prefix: "$", note: game.lastGoldBonus ? `incl. wipeout +${game.lastGoldBonus}` : "" }];
     rows.push({ label: "XP", value: r.xp, prefix: "+", note: `${r.kills} kills` });
-    if (r.goldenEggs) rows.push({ label: "GOLDEN EGGS", value: r.goldenEggs, prefix: "+", note: "", egg: true });
+    const goals = game.objectives || [];
+    const done = goals.filter((o) => o.complete).length;
+    if (r.goldenEggs) rows.push({ label: "GOLDEN EGGS", value: r.goldenEggs, prefix: "+", note: goals.length ? `goals ${done}/${goals.length}` : "", egg: true });
     return rows;
   },
 

@@ -8,6 +8,7 @@ class Egg {
   constructor(x, y, vx, vy, side, burst = 0, kind = "normal") {
     Object.assign(this, { x, y, vx, vy, side, burst });
     this.kind = EggTypes.get(kind);
+    this.source = null;
     this.burst += this.kind.burst;
     this.age = 0;
     this.bouncesLeft = this.kind.bounces || 0;

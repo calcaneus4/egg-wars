@@ -161,6 +161,7 @@ const EggTypes = {
         split.childKind || "normal",
       ));
     }
+    for (const child of children) child.source = egg.source;
     Effects.spawn("ring", egg.x, egg.y, 0, 0, 0.25, 8, YOLK);
     Effects.sparks(egg.x, egg.y, 6);
     return children;

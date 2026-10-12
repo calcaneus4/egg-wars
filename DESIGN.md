@@ -174,6 +174,12 @@ lost:
           (so a losing player can still buy upgrades)
 ```
 
+`objectiveBonus`: each stage rolls 1 bonus goal (2 from stage 3 on) from a seeded pool
+(`js/objectives.js`). The goals are: win under 60% of the time limit (+2 GE), win without
+losing a tank, win without buying, win with 60% of the army alive, 3 Yolk Drop kills, destroy
+the enemy castle (+1 GE each). The last two pay even on a loss, so a losing round can still
+earn Golden Eggs.
+
 `survivorBonus = round(3 * sqrt(armyScore))`, where `armyScore` is the surviving player HP
 (+4 per aircraft, +5 per castle). This is usually 20-35 gold. The original game paid 4 gold
 per point, often 300+ gold per win, which made reinforcement prices meaningless.
