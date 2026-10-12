@@ -79,6 +79,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/progression.js` - difficulty, XP, level and reward formulas (see DESIGN.md)
 - `js/audio.js` - sound effects
 - `js/terrain.js` - terrain generation
+- `js/background.js` - pre-rendered parallax mountains, hills, trees and sun
 - `js/effects.js` - pooled particles, screen shake and hit flashes
 - `js/draw.js` - shared drawing helpers
 - `js/units.js` - unit classes

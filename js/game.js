@@ -3,6 +3,7 @@
 class Game {
   constructor() {
     this.terrain = new Terrain();
+    this.background = new Background();
     this.units = [];
     this.eggs = [];
     this.splats = [];
@@ -85,6 +86,7 @@ class Game {
 
   startStage() {
     this.terrain.regenerate();
+    this.background.regenerate();
     this.units = [];
     this.eggs = [];
     this.splats = [];
@@ -332,11 +334,14 @@ class Game {
       c.x += c.speed * dt;
       if (c.x - 100 * c.scale > W) c.x = -100 * c.scale;
     });
-    if (this.scene !== "battle") return;
+    this.background.update(dt);
+    if (this.scene !== "battle") {
+      Effects.shakeX = Effects.shakeY = 0;
+      return;
+    }
     Tutorial.update(this, dt);
     this.updateWreckage(dt);
-    if (this.scene === "battle") Effects.update(dt, this.terrain);
-    else Effects.shakeX = Effects.shakeY = 0;
+    Effects.update(dt, this.terrain);
     this.units.forEach((u) => {
       if (u.hitFlash > 0) u.hitFlash = Math.max(0, u.hitFlash - dt);
       if (u.recoil > 0) u.recoil = Math.max(0, u.recoil - dt * 6);
@@ -665,11 +670,7 @@ class Game {
     ctx.fillRect(0, 0, W, H);
     ctx.save();
     ctx.translate(Effects.shakeX, Effects.shakeY);
-    ctx.strokeStyle = LINE;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(1010, 130, 36, 0, Math.PI * 2);
-    ctx.stroke();
+    this.background.draw();
     this.clouds.forEach((c) => drawCloud(c.x, c.y, c.scale));
     this.terrain.draw();
     this.splats.forEach((splat) => splat.draw());

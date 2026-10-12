@@ -51,6 +51,14 @@ class Terrain {
   }
 
   draw() {
+    // Solid ground so background layers don't show through below the surface.
+    ctx.fillStyle = PAPER;
+    ctx.beginPath();
+    this.points.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+    ctx.lineTo(W + 100, H + 10);
+    ctx.lineTo(-100, H + 10);
+    ctx.closePath();
+    ctx.fill();
     ctx.strokeStyle = LINE;
     ctx.lineWidth = settings.terrainLine;
     ctx.beginPath();
