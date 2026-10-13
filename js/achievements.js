@@ -21,7 +21,7 @@ const ACHIEVEMENTS = [
   { id: "goals10", name: "Goal Getter", desc: "Complete 10 bonus goals.", test: (s) => s.goalsCompleted >= 10 },
   { id: "tourist", name: "Tourist", desc: "Fight in all five biomes.", test: (s, p, f) => (f.biomes || []).length >= 5 },
   { id: "comeback", name: "Never Give Up", desc: "Win right after losing twice in a row.", test: (s) => s.comebacks >= 1 },
-  { id: "blitz", name: "Lightning War", desc: "Win a battle in under 20 seconds.", test: (s) => s.bestWinTime > 0 && s.bestWinTime <= 20 },
+  { id: "blitz", name: "Lightning War", desc: "Win a battle in under 25 seconds.", test: (s) => s.bestWinTime > 0 && s.bestWinTime <= 25 },
   { id: "flawless", name: "Not a Scratch", desc: "Win without losing a single unit.", test: (s) => s.flawlessWins >= 1 },
   { id: "nightOwl", name: "Night Owl", desc: "Win 5 night battles.", test: (s) => s.nightWins >= 5, scheme: "midnight" },
   { id: "survivor", name: "Expect the Unexpected", desc: "Live through 10 surprise events.", test: (s) => s.eventsSurvived >= 10 },

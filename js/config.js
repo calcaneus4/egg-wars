@@ -256,9 +256,9 @@ const settings = {
   airplaneShotSpread: 18,
   airplaneFireRange: 320,
   // Round time T(n) = roundBaseSeconds + roundSecondsPerDifficulty * (D(n) - 1) +/- roundJitterSeconds.
-  roundBaseSeconds: 38,
-  roundSecondsPerDifficulty: 10,
-  roundJitterSeconds: 5,
+  roundBaseSeconds: 57,
+  roundSecondsPerDifficulty: 15,
+  roundJitterSeconds: 6,
   powerUpCooldown: 5,
   goldWinBase: 25,
   goldPerStage: 2,

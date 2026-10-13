@@ -116,3 +116,49 @@ most one brand-new thing per stage, and the rolls are random but seeded by stage
 - [x] **Enemy use of new content** - personalities field the new vehicles; a new "Mad Science" personality throws frost and zapper eggs.
 - [x] **Unlocks, achievements & tips for Phase 2** - extended unlock table, new achievements and first-time tips.
 - [x] **Final review II** - balance sim with all new content, stress test, performance, docs and a CHANGELOG summary.
+
+---
+
+# Phase 3: Challenge, Focus & More Surprises
+
+Third loop. Starting point (`tools/winrate-sim.js`, a player with the progression from
+balance-sim): idle wins about 80% of the time, active play (Yolk Drops and powers) about 98%,
+and rounds last about 40 s. Goals:
+- **Difficulty:** occasional losses. Target roughly 45-65% idle and 75-90% active, with every
+  stage beatable (Rally after 2 losses).
+- **Round length:** rounds about 50% longer.
+- **Screen:** fewer choices on screen at once, picked at random per stage.
+- **Surprises:** more humour.
+- **Performance:** no added lag. Measure frame time after each item.
+
+## 14. Challenge
+
+- [x] **Longer rounds** - round time ×1.5 (timer, boss bonus and tiebreaks still work); winrate-sim tool committed.
+- [ ] **Enemy reinforcements** - the red army calls in small reinforcement waves during the round (banner, units march in from the right), paid from an extra budget that scales with D(n).
+- [ ] **Tougher enemies & tuning** - enemy HP and budget tuned with winrate-sim to the target; Rally and boss stages rechecked so no stage is a wall.
+
+## 15. Focus (less on screen)
+
+- [ ] **Stage kit: units** - each stage offers at most 6 unit cards (soldier and tank plus 4 seeded-random picks from your unlocked units), in a single shop row with keys 1-6.
+- [ ] **Stage kit: eggs** - each stage offers at most 3 Yolk Drop eggs (Classic plus 2 random unlocked ones).
+
+## 16. Surprise events
+
+- [ ] **Goats** - a herd of goats wanders in and headbutts troops of both armies (knock-back, no damage), sometimes eating a splat.
+- [ ] **Bee Swarm** - a buzzing swarm chases the nearest units and stings them (1 hit), then flies off.
+- [ ] **Frog Plague** - frogs rain down and hop around; ground units trip over them (slowed), eggs bounce off.
+- [ ] **Slime Monsters** - green slimes ooze out of the ground and attack whoever is nearest; either army can splat them.
+
+## 17. New content (each stage still shows only a few things)
+
+- [ ] **Biome: Swamp** - murky water and reeds, mud-pit hazard (very slow), fireflies at dusk.
+- [ ] **Biome: Candy Mountains** - candy-striped hills, gumdrops, a syrup-geyser hazard.
+- [ ] **Weather: Sandstorm** - drifting dust lowers aircraft accuracy and wind pushes eggs hard.
+- [ ] **Egg: Popcorn** - pops into a shower of kernels on landing.
+- [ ] **Vehicle: Rolling-Pin Roller** - a steamroller that flattens the ground in front of it and pushes infantry back.
+- [ ] **Power: Scarecrow Decoy** - a scarecrow draws all enemy fire for 6 s.
+- [ ] **Boss: Pancake Golem** - a stack of pancakes; every third of its HP a pancake slides off and fights on its own.
+
+## 18. Final
+
+- [ ] **Final review III** - winrate check, 60-stage stress test, frame-time check, docs and a CHANGELOG summary.

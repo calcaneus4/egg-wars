@@ -9,7 +9,7 @@ const BOSS_BUDGET_SHARE = 0.4;
 // Hit points per threat point, matching ordinary units (a 10-point tank has 5 HP).
 const BOSS_HP_PER_POINT = 0.5;
 // Boss stages get extra time, and the boss counts half its HP in the timeout tiebreak.
-const BOSS_EXTRA_SECONDS = 12;
+const BOSS_EXTRA_SECONDS = 18;
 const BOSS_SCORE_WEIGHT = 0.5;
 
 class Boss extends Unit {

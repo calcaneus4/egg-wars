@@ -369,3 +369,18 @@ the same budget share and HP formula (section 3).
 - Weather and events never deal more than 1 hit at a time.
 - Lightning and Kraken tentacles warn for 1.2-1.3 s first.
 - The UFO takes exactly one matching unit from each army.
+
+## 13. Challenge targets (Phase 3)
+
+Measured with `tools/winrate-sim.js`. The simulated player's level and Armory follow the
+balance-sim progression, and it never buys units.
+
+| Mode   | Phase 2 baseline | Target |
+|--------|------------------|--------|
+| idle   | ~80%             | 45-65% |
+| active | ~98%             | 75-90% |
+
+- Active means a Yolk Drop on the enemy army and both powers used whenever ready.
+- No stage may fall below about 25% active. Rally (section 9) then adds gold, a free tank and
+  a smaller enemy budget after two losses, so every stage stays beatable.
+- Rounds last about 1.5× their Phase 2 length.

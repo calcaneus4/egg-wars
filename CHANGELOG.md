@@ -155,3 +155,6 @@ yolk, use powers) or the hand-drawn side view:
   - Profiling showed the software-renderer frame cost is still ~15 ms; the rare spikes were batched canvas flushes. Fog now draws a cached sprite instead of 14 gradients per frame.
   - README, DESIGN.md (Phase 2 numbers) and the changelog summary are up to date.
 - Fix: Monster Trucks (both armies) were invisible. Their speed read a setting that doesn't exist (`motorcycleSpeed`), so their position became NaN on the first frame. The enemy roster still counted them, and they could never be destroyed, which could stall a battle until the timer ran out. Trucks now use 60% of top motorcycle speed.
+- Phase 3 plan: ROADMAP section 14-18 and DESIGN.md section 13 (win-rate targets).
+- Tools: `tools/winrate-sim.js` plays real headless battles with a player whose level and Armory follow the balance-sim progression, and reports idle and active win rates per stage. Phase 2 baseline: ~80% idle, ~98% active.
+- Balance: rounds are 50% longer (base 57 s instead of 38 s, +15 s per difficulty point instead of 10; bosses +18 s instead of 12). Lightning War now asks for a win under 25 s.
