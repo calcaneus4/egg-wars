@@ -139,8 +139,8 @@ and rounds last about 40 s. Goals:
 
 ## 15. Focus (less on screen)
 
-- [ ] **Stage kit: units** - each stage offers at most 6 unit cards (soldier and tank plus 4 seeded-random picks from your unlocked units), in a single shop row with keys 1-6.
-- [ ] **Stage kit: eggs** - each stage offers at most 3 Yolk Drop eggs (Classic plus 2 random unlocked ones).
+- [x] **Stage kit: units** - each stage offers at most 6 unit cards (soldier and tank plus 4 seeded-random picks from your unlocked units), in a single shop row with keys 1-6.
+- [x] **Stage kit: eggs** - each stage offers at most 3 Yolk Drop eggs (Classic plus 2 random unlocked ones).
 
 ## 16. Surprise events
 

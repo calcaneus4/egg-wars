@@ -107,7 +107,7 @@ window.addEventListener("keydown", (event) => {
   }
   const slot = SHOP_KEYS.indexOf(event.key);
   if (game.scene === "battle" && !game.winner && slot >= 0) {
-    const button = game.buttons.find((b) => b.type === SHOP_ORDER[slot]);
+    const button = game.buttons.find((b) => b.type === Kit.units[slot]);
     if (button) game.buyUnit(button);
   }
   if ((event.key === "Enter" || event.key === " ") && game.scene === "title") game.startBattle();

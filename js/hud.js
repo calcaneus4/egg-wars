@@ -4,7 +4,7 @@
 // (top right), XP bar and next-unlock teaser, and the Yolk Drop ability ring (bottom left).
 
 const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle", "medic", "mortar", "rider", "catapult", "truck", "balloon"];
-const SHOP_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "[", "]"];
+const SHOP_KEYS = ["1", "2", "3", "4", "5", "6"];
 const SHOP_ROW = 8;
 const SHOP_CARD = { x: 12, y: 8, w: 58, h: 60, gap: 6 };
 
@@ -153,12 +153,10 @@ const Hud = {
 
   drawShop(game) {
     const p = game.profile;
-    SHOP_ORDER.forEach((type, i) => {
-      // Cards 9+ go in a second, shorter row that only appears once one of them is unlocked.
-      const row = Math.floor(i / SHOP_ROW);
-      if (row > 0 && !SHOP_ORDER.slice(SHOP_ROW).some((t) => Unlocks.unitUnlocked(p, t)) && Unlocks.unitUnlockLevel(type) - p.level > 2) return;
-      const x = SHOP_CARD.x + (i % SHOP_ROW) * (SHOP_CARD.w + SHOP_CARD.gap);
-      const y = SHOP_CARD.y + row * (SHOP_CARD.h + 4);
+    // Only this stage's kit is on sale: one row of at most six cards (js/kit.js).
+    Kit.units.forEach((type, i) => {
+      const x = SHOP_CARD.x + i * (SHOP_CARD.w + SHOP_CARD.gap);
+      const y = SHOP_CARD.y;
       const { w, h } = SHOP_CARD;
       const locked = !Unlocks.unitUnlocked(p, type);
       const cost = Armory.unitCost(p, type);

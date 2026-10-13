@@ -14,7 +14,7 @@ From stage 4 on, battles can be interrupted by an occasional **surprise event**:
 
 ## Basic Controls
 
-- Click a unit card in the shop bar (top left) or press its key (`1`-`9`, `0`, `-`, `=`, `[`, `]`) to buy reinforcements.
+- Click a unit card in the shop bar (top left) or press its key (`1`-`6`) to buy reinforcements. Each stage offers its own kit of up to 6 units and 3 Yolk Drop eggs, picked at random from what you have unlocked (new unlocks always show up first).
 - Press and hold a unit card to keep buying while you have enough gold.
 - Click the battlefield when `YOLK DROP READY` is active to drop a special egg attack.
 - On the results screen, click (or press Enter) to skip the tally, then choose Next Stage / Try Again or the Armory.
@@ -32,9 +32,9 @@ From stage 4 on, battles can be interrupted by an occasional **surprise event**:
 The shop bar at the top left shows every unit with its price. Tap a card (or press its number
 key) to buy one; hold to keep buying. Locked units show the level they unlock at.
 
-1 soldier, 2 tank, 3 motorcycle, 4 drone, 5 airplane, 6 helicopter, 7 bomber, 8 castle,
-9 Egg Medic, 0 Mortar Hen, - Rooster Rider, = Catapult Wagon, [ Monster Truck, ] Chick Balloon
-(a second shop row appears as these unlock).
+Soldiers and tanks are always on offer; the other four cards are this stage's picks from your
+unlocked units (until you have six, the next unit to unlock is shown as a locked card). Against
+an Air Force there is always an anti-air unit in the kit once you have one.
 
 ## Units
 

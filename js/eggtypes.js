@@ -163,6 +163,8 @@ const EGG_TYPES = {
 };
 
 const EggTypes = {
+  // This stage's Yolk Drop eggs (set by js/kit.js); null offers every unlocked egg.
+  kit: null,
   clouds: [],
   zaps: [],
 
@@ -303,13 +305,13 @@ const EggTypes = {
   },
 
   unlockedYolkDrops(profile) {
-    return Object.values(EGG_TYPES).filter((t) => t.yolkDrop && profile.level >= t.level);
+    return Object.values(EGG_TYPES).filter((t) => t.yolkDrop && profile.level >= t.level && (!this.kit || this.kit.includes(t.id)));
   },
 
   // The player's chosen Yolk Drop egg, falling back to Classic if it isn't unlocked.
   selected(profile) {
     const type = EGG_TYPES[profile.yolkEgg];
-    return type && type.yolkDrop && profile.level >= type.level ? type : EGG_TYPES.normal;
+    return type && type.yolkDrop && profile.level >= type.level && (!this.kit || this.kit.includes(type.id)) ? type : EGG_TYPES.normal;
   },
 
   cycle(profile, dir = 1) {

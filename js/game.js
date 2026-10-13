@@ -133,6 +133,7 @@ class Game {
     this.applyRally();
     if (this.bossStage) this.roundLimit += BOSS_EXTRA_SECONDS;
     Reinforcements.plan(this);
+    Kit.build(this);
     Objectives.start(this);
     const flags = SaveManager.data.flags;
     flags.biomes = Array.isArray(flags.biomes) ? flags.biomes : [];
