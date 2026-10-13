@@ -231,6 +231,22 @@ class AudioFx {
         this.tone(196, 0.25, { type: "sawtooth", volume: 0.06 });
         this.tone(262, 0.45, { type: "sawtooth", volume: 0.06, delay: 0.22 });
         return 0.7;
+      case "bleat":
+        this.tone(420 * v, 0.45, { type: "sawtooth", volume: 0.05, slideTo: 380 * v });
+        for (let i = 0; i < 5; i++) this.tone(430 * v + (i % 2) * 30, 0.06, { type: "square", volume: 0.025, delay: i * 0.07 });
+        return 0.45;
+      case "buzz":
+        this.tone(170 * v, 1.2, { type: "sawtooth", volume: 0.035, slideTo: 190 * v });
+        this.tone(176 * v, 1.2, { type: "sawtooth", volume: 0.03, slideTo: 165 * v });
+        return 1.2;
+      case "croak":
+        this.tone(120 * v, 0.12, { type: "square", volume: 0.07, slideTo: 90 });
+        this.tone(140 * v, 0.14, { type: "square", volume: 0.06, slideTo: 80, delay: 0.14 });
+        return 0.3;
+      case "slime":
+        this.tone(300 * v, 0.3, { type: "sine", volume: 0.12, slideTo: 80 });
+        this.noise(0.25, { volume: 0.15, filter: "lowpass", freq: 600 });
+        return 0.3;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;

@@ -144,10 +144,10 @@ and rounds last about 40 s. Goals:
 
 ## 16. Surprise events
 
-- [ ] **Goats** - a herd of goats wanders in and headbutts troops of both armies (knock-back, no damage), sometimes eating a splat.
-- [ ] **Bee Swarm** - a buzzing swarm chases the nearest units and stings them (1 hit), then flies off.
-- [ ] **Frog Plague** - frogs rain down and hop around; ground units trip over them (slowed), eggs bounce off.
-- [ ] **Slime Monsters** - green slimes ooze out of the ground and attack whoever is nearest; either army can splat them.
+- [x] **Goats** - a herd of goats wanders in and headbutts troops of both armies (knock-back, no damage), sometimes eating a splat.
+- [x] **Bee Swarm** - a buzzing swarm chases the nearest units and stings them (1 hit), then flies off.
+- [x] **Frog Plague** - frogs rain down and hop around; ground units trip over them (slowed), eggs bounce off.
+- [x] **Slime Monsters** - green slimes ooze out of the ground and attack whoever is nearest; either army can splat them.
 
 ## 17. New content (each stage still shows only a few things)
 

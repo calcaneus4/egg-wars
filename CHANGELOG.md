@@ -162,3 +162,9 @@ yolk, use powers) or the hand-drawn side view:
 - Challenge: enemy HP gets a +15% toughness bonus that ramps in over stages 4-10. The Turtle army has less extra HP (+5%) but moves faster, so it fights instead of winning by timeout.
 - Measured with winrate-sim (10 runs per stage): idle wins dropped from ~80% to ~33%, while active play (Yolk Drops and powers) still wins ~98%. Passive play now loses, attentive play wins. The no-wall check is now "Armory alone within 10% of the enemy".
 - Focus: **stage kits** (`js/kit.js`). Each stage now offers one row of at most 6 unit cards (keys 1-6): soldier and tank, plus 4 seeded-random picks from your unlocked units. It also offers at most 3 Yolk Drop eggs: Classic plus 2 picks. Fresh unlocks always appear first, until you have 6 units the next unlock shows as a locked teaser card, and an Air Force stage always offers anti-air when you have it. Replays offer the same kit.
+- Events (`js/critters.js`), four new surprise events picked by the Variety Director:
+  - **Goats** (stage 5+): 3-5 goats wander in, pick a target, lower their heads and charge, butting troops of either army backwards and knocking them over (no damage). They munch on splats too.
+  - **Bee Swarm** (stage 7+): a buzzing swarm chases the nearest unit of either army, stinging each victim once.
+  - **Frog Plague** (stage 6+): frogs rain from the sky and hop about. Ground troops trip over them, and falling eggs bounce off them.
+  - **Slime Monsters** (stage 9+): 2-3 wobbling slimes ooze out of the ground, slime whoever is closest (1 hit, then sticky), and can be splatted by either army's eggs.
+- Fix: with no powers unlocked, both power slots previewed the same power; now only the first empty slot shows the preview.

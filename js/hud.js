@@ -355,8 +355,8 @@ const Hud = {
     const loadout = Abilities.loadout(game.profile);
     const nextLocked = ABILITIES.find((a) => !Abilities.unlocked(game.profile, a));
     POWER_SLOT_KEYS.forEach((key, i) => {
-      // An empty slot previews the next power to unlock.
-      const ability = loadout[i] || nextLocked;
+      // The first empty slot previews the next power to unlock; a second empty slot stays blank.
+      const ability = loadout[i] || (loadout.indexOf(null) === i ? nextLocked : null);
       if (!ability) return;
       const cx = x + i * 195;
       const unlocked = !!loadout[i];
