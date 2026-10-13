@@ -692,13 +692,182 @@ class SinkKraken extends Boss {
   }
 }
 
-const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken"];
+// Pancake Golem: a walking stack of pancakes. It lobs sticky syrup, sprays a fan of it when
+// enraged, and every time it loses a third of its HP a pancake slides off and rolls into battle.
+const PANCAKE_STACK = 3;
+
+class PancakeMinion extends Soldier {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed = settings.soldierSpeed * 1.3;
+    this.size = s(30);
+    this.groundOffset = s(12);
+    this.hp = 4;
+    this.fireRate = 0.8;
+    this.melee = true;
+  }
+
+  move(dt, enemies) {
+    const before = this.x;
+    super.move(dt, enemies);
+    this.rollAngle = (this.rollAngle || 0) + (this.x - before) / s(12);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(this.rollAngle || 0);
+    ctx.fillStyle = "#e0b070";
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(2);
+    ctx.beginPath();
+    ctx.arc(0, 0, s(13), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "#a8743a";
+    ctx.beginPath();
+    ctx.arc(0, 0, s(8), 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+    // Angry eyebrows stay upright.
+    ctx.save();
+    ctx.fillStyle = LINE;
+    ctx.beginPath();
+    ctx.arc(x - s(4), y - s(3), s(1.8), 0, Math.PI * 2);
+    ctx.arc(x + s(4), y - s(3), s(1.8), 0, Math.PI * 2);
+    ctx.fill();
+    line(x - s(7), y - s(8), x - s(2), y - s(6), c, sw(1.5));
+    line(x + s(7), y - s(8), x + s(2), y - s(6), c, sw(1.5));
+    ctx.restore();
+  }
+}
+
+class PancakeGolem extends Boss {
+  constructor(x, side, terrain, maxHp) {
+    super(x, side, terrain, maxHp);
+    this.name = "PANCAKE GOLEM";
+    this.speed = 5;
+    this.size = s(140);
+    this.groundOffset = s(70);
+    this.slowAttack = 2.8;
+    this.fastAttack = 1.9;
+    this.specialEvery = 6.5;
+    this.shed = 0;
+  }
+
+  radius() {
+    return this.size * 0.5;
+  }
+
+  blockingRadius() {
+    return this.size * 0.36;
+  }
+
+  attack(game, enemies) {
+    const ground = enemies.filter((e) => !(e instanceof Airplane));
+    const targets = (ground.length ? ground : enemies).slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, 2);
+    targets.forEach((t, i) => game.lobEgg(this.x + this.side * s(30), this.y - s(60), t.x + rand(-25, 25), t.y, this.side, 2, 1.5 + i * 0.25, "sticky"));
+    audio.play("slime");
+  }
+
+  special(game) {
+    // Syrup fan.
+    for (let i = 0; i < 6; i++) {
+      const tx = this.x + this.side * s(120 + i * 80);
+      game.lobEgg(this.x, this.y - s(70), tx, this.terrain.yAt(clamp(tx, 0, W)), this.side, 1, 1.3 + i * 0.12, "sticky");
+    }
+    if (game.canSpeak(this)) this.say("SYRUP STORM!", 1.3);
+  }
+
+  updateBoss(game, dt, enemies) {
+    // Shed a pancake at each third of HP lost.
+    const shouldShed = Math.min(PANCAKE_STACK - 1, Math.floor((1 - this.hp / this.maxHp) * PANCAKE_STACK));
+    while (this.shed < shouldShed) {
+      this.shed++;
+      const minion = new PancakeMinion(this.x + this.side * s(40), this.side, this.terrain);
+      minion.hp = Math.max(2, Math.ceil(minion.hp * Progression.enemyHpScale(game.stage)));
+      game.units.push(minion);
+      Effects.debris(this.x, this.y - s(40), 6, "#a8743a");
+      audio.play("bawk");
+      if (game.canSpeak(this)) this.say("Get them, flapjack!", 1.4);
+    }
+    super.updateBoss(game, dt, enemies);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const ground = this.terrain.yAt(x);
+    const t = performance.now() * 0.004 + this.wobble;
+    const step = Math.sin(t);
+    const cakes = PANCAKE_STACK - this.shed;
+    ctx.save();
+    // Stubby legs.
+    line(x - s(22), ground - s(28), x - s(26) + step * s(8), ground, c, sw(6));
+    line(x + s(22), ground - s(28), x + s(26) - step * s(8), ground, c, sw(6));
+    // The stack, bottom to top.
+    let top = ground - s(30);
+    for (let i = 0; i < cakes; i++) {
+      const cy = top - s(16);
+      ctx.fillStyle = "#e0b070";
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = sw(2.5);
+      ctx.beginPath();
+      ctx.ellipse(x + Math.sin(t + i) * s(3), cy, s(68 - i * 4), s(18), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "#a8743a";
+      ctx.lineWidth = sw(1.5);
+      ctx.beginPath();
+      ctx.ellipse(x + Math.sin(t + i) * s(3), cy - s(4), s(60 - i * 4), s(10), 0, Math.PI * 0.1, Math.PI * 0.9);
+      ctx.stroke();
+      top = cy - s(10);
+    }
+    // Syrup drips and a butter pat on top.
+    ctx.fillStyle = "rgba(170,95,30,0.85)";
+    ctx.beginPath();
+    ctx.ellipse(x, top + s(4), s(46), s(10), 0, 0, Math.PI * 2);
+    ctx.fill();
+    for (let k = -2; k <= 2; k++) {
+      ctx.beginPath();
+      ctx.ellipse(x + k * s(18), top + s(18) + Math.abs(k) * s(3), s(4), s(10 + (k % 2 ? 4 : 0)), 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#ffe27a";
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(1.5);
+    ctx.fillRect(x - s(12), top - s(8), s(24), s(12));
+    ctx.strokeRect(x - s(12), top - s(8), s(24), s(12));
+    // Face on the top pancake.
+    const fy = top + s(10);
+    ctx.fillStyle = WHITE;
+    for (const ex of [-1, 1]) {
+      ctx.beginPath();
+      ctx.arc(x + ex * s(18), fy, s(7), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = this.enraged ? RED : LINE;
+    for (const ex of [-1, 1]) {
+      ctx.beginPath();
+      ctx.arc(x + ex * s(18) + this.side * s(2), fy + s(1), s(3), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake"];
 const BOSS_NAMES = {
   mech: "Giant Rooster Mech",
   fortress: "Omelet Fortress",
   zeppelin: "Scrambler Zeppelin",
   hen: "Mother Hen Queen",
   kraken: "Sink Kraken",
+  pancake: "Pancake Golem",
 };
 
 const Bosses = {
@@ -706,7 +875,7 @@ const Bosses = {
     return stage % BOSS_EVERY === 0;
   },
 
-  // The first five boss stages meet each boss once, in order. After that the boss is a seeded
+  // The first boss stages meet each boss once, in order. After that the boss is a seeded
   // random pick that never repeats the previous boss stage's boss.
   kindForStage(stage) {
     const n = Math.floor(stage / BOSS_EVERY) - 1;
@@ -725,6 +894,7 @@ const Bosses = {
       : kind === "fortress" ? new OmeletFortress(W - s(220), LEFT, game.terrain, hp)
         : kind === "hen" ? new HenQueen(W - s(330), LEFT, game.terrain, hp)
           : kind === "kraken" ? new SinkKraken(W * 0.74, LEFT, game.terrain, hp)
+            : kind === "pancake" ? new PancakeGolem(W - s(340), LEFT, game.terrain, hp)
             : new ScramblerZeppelin(W * 0.7, LEFT, game.terrain, hp);
     boss.statScaled = true;
     game.units.push(boss);

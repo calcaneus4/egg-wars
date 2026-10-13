@@ -157,7 +157,7 @@ and rounds last about 40 s. Goals:
 - [x] **Egg: Popcorn** - pops into a shower of kernels on landing.
 - [x] **Vehicle: Rolling-Pin Roller** - a slow roller that shoves light enemy units back as it advances and bonks the one in front (terrain flattening dropped: redrawing the ground every frame would cost frame time).
 - [x] **Power: Scarecrow Decoy** - a scarecrow draws all enemy fire for 6 s.
-- [ ] **Boss: Pancake Golem** - a stack of pancakes; every third of its HP a pancake slides off and fights on its own.
+- [x] **Boss: Pancake Golem** - a stack of pancakes; every third of its HP a pancake slides off and fights on its own.
 
 ## 18. Final
 
