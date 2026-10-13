@@ -220,6 +220,7 @@ class Game {
       catapult: settings.maxRightCatapults,
       truck: settings.maxRightTrucks,
       balloon: settings.maxRightBalloons,
+      roller: settings.maxRightRollers,
     };
   }
 
@@ -256,6 +257,7 @@ class Game {
       catapult: settings.maxLeftCatapults,
       truck: settings.maxLeftTrucks,
       balloon: settings.maxLeftBalloons,
+      roller: settings.maxLeftRollers,
     };
   }
 
@@ -408,6 +410,7 @@ class Game {
       if (type === "catapult") this.units.push(new CatapultWagon(s(40) + n * s(52), side, this.terrain));
       if (type === "truck") this.units.push(new MonsterTruck(s(200) - n * s(56), side, this.terrain));
       if (type === "balloon") this.units.push(new ChickBalloon(-s(60) - n * s(100), side, this.terrain, n));
+      if (type === "roller") this.units.push(new RollingPinRoller(s(215) - n * s(60), side, this.terrain));
     } else {
       if (type === "tank") this.units.push(new Tank(W - s(255) + n * s(64), side, this.terrain));
       if (type === "motorcycle") this.units.push(new Motorcycle(W - s(197) + n * s(46), side, this.terrain));
@@ -423,6 +426,7 @@ class Game {
       if (type === "catapult") this.units.push(new CatapultWagon(W - s(40) - n * s(52), side, this.terrain));
       if (type === "truck") this.units.push(new MonsterTruck(W - s(200) + n * s(56), side, this.terrain));
       if (type === "balloon") this.units.push(new ChickBalloon(W + s(60) + n * s(100), side, this.terrain, n));
+      if (type === "roller") this.units.push(new RollingPinRoller(W - s(215) + n * s(60), side, this.terrain));
     }
   }
 
@@ -503,7 +507,7 @@ class Game {
         continue;
       }
       if (u instanceof Drone) continue;
-      if (u.ready(udt)) this.fire(u, enemies);
+      if (u.ready(udt)) this.fire(u, this.decoy && u.side === LEFT && !u.melee && !(u instanceof MonsterTruck) && !(u instanceof RollingPinRoller) && !(u instanceof Medic) ? [this.decoy] : enemies);
     }
 
     for (const e of [...this.eggs]) {
@@ -600,7 +604,7 @@ class Game {
       return;
     }
     let kind = null;
-    if (unit instanceof Tank || unit instanceof MonsterTruck || unit instanceof CatapultWagon) kind = "tank";
+    if (unit instanceof Tank || unit instanceof MonsterTruck || unit instanceof CatapultWagon || unit instanceof RollingPinRoller) kind = "tank";
     if (unit instanceof Motorcycle) kind = "motorcycle";
     if (unit instanceof Castle) kind = "castle";
     if (!kind) return;
@@ -664,6 +668,7 @@ class Game {
     if (!enemies.length) return;
     if (u instanceof ChickBalloon) return this.dropChick(u, enemies);
     if (u instanceof MonsterTruck) return this.crush(u, enemies);
+    if (u instanceof RollingPinRoller) return this.bonk(u, enemies);
     if (u instanceof Helicopter) {
       const enemyAir = enemies.filter((e) => e instanceof Airplane);
       const enemyGroundGone = !enemies.some((e) => e instanceof Castle || e instanceof Tank || e instanceof Motorcycle || e instanceof Soldier);
@@ -743,6 +748,19 @@ class Game {
     } else {
       u.fireClock = 0.1;
     }
+  }
+
+  // Rolling-Pin Roller: bonks the unit it is pushing (or blocking it).
+  bonk(u, enemies) {
+    const reach = u.blockingRadius() + s(16);
+    const target = enemies.find((e) => !(e instanceof Airplane) && !e.airborne && (e.x - u.x) * u.side > 0 && Math.abs(e.x - u.x) - e.blockingRadius() <= reach);
+    if (!target) {
+      u.fireClock = 0.15;
+      return;
+    }
+    this.damageUnit(target, 1);
+    Effects.spawn("ring", target.x, target.y, 0, 0, 0.2, 5, YOLK);
+    audio.play("tank_hit");
   }
 
   // Medic: heal the most damaged ally in range by one hit point.
@@ -993,6 +1011,7 @@ class Game {
     Events.draw(this);
     this.drawHealthBars();
     Abilities.drawAirstrikes(this);
+    Abilities.drawDecoy(this);
     EggTypes.draw();
     Effects.draw();
     Weather.draw();

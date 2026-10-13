@@ -29,6 +29,13 @@ const ABILITIES = [
     desc: "COCK-A-DOODLE! For 6 s your whole army moves and fires 40% faster.",
   },
   {
+    id: "scarecrow",
+    name: "Scarecrow",
+    level: 14,
+    cooldown: 30,
+    desc: "A scarecrow pops up ahead of your army and draws the enemy's fire for 6 s.",
+  },
+  {
     id: "shield",
     name: "Shield",
     level: 12,
@@ -45,7 +52,8 @@ const ABILITIES = [
 ];
 
 const POWER_SLOT_KEYS = ["W", "E"];
-const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "rooster", "chill"];
+const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "rooster", "scarecrow", "chill"];
+const SCARECROW_SECONDS = 6;
 const REINFORCE_COUNT = 4;
 const ROOSTER_SECONDS = 6;
 const ROOSTER_BOOST = 1.4;
@@ -55,8 +63,35 @@ const AIRSTRIKE_SPEED = 420;
 const AIRSTRIKE_DROPS = 9;
 
 const Abilities = {
+  // The Scarecrow: a stand-in target the enemy shoots at instead of the player's army. It can't
+  // be hurt and is only ever handed to ranged attacks (never to melee, rams or bosses).
+  makeDecoy(game) {
+    const front = game.living(RIGHT).filter((u) => Hazards.isGround(u)).reduce((m, u) => Math.max(m, u.x), s(150));
+    const x = clamp(front + s(70), s(150), W * 0.62);
+    const terrain = game.terrain;
+    return {
+      isDecoy: true,
+      side: RIGHT,
+      x,
+      size: s(40),
+      hp: 1,
+      dead: false,
+      timer: SCARECROW_SECONDS,
+      get y() {
+        return terrain.yAt(this.x) - s(30);
+      },
+      radius() {
+        return s(20);
+      },
+      blockingRadius() {
+        return s(14);
+      },
+    };
+  },
+
   reset(game) {
     game.abilityCooldowns = {};
+    game.decoy = null;
     for (const a of ABILITIES) game.abilityCooldowns[a.id] = 0;
     game.airstrikes = [];
   },
@@ -114,6 +149,10 @@ const Abilities = {
       game.abilityCooldowns[id] = Math.max(0, game.abilityCooldowns[id] - dt);
     }
     game.chillFlash = Math.max(0, (game.chillFlash || 0) - dt);
+    if (game.decoy && (game.decoy.timer -= dt) <= 0) {
+      Effects.smoke(game.decoy.x, game.decoy.y, 6);
+      game.decoy = null;
+    }
     for (const u of game.units) {
       if (!(u.pumped > 0)) continue;
       u.pumped = Math.max(0, u.pumped - dt);
@@ -162,6 +201,11 @@ const Abilities = {
         game.units.push(trooper);
       }
       audio.play("start_reveille");
+    }
+    if (id === "scarecrow") {
+      game.decoy = this.makeDecoy(game);
+      Effects.smoke(game.decoy.x, game.decoy.y + s(20), 5);
+      audio.play("bawk");
     }
     if (id === "rooster") {
       for (const u of game.living(RIGHT)) u.pumped = ROOSTER_SECONDS;
@@ -217,6 +261,16 @@ const Abilities = {
       ctx.lineTo(cx + 14, cy + 3);
       ctx.lineTo(cx + 6, cy + 6);
       ctx.fill();
+    } else if (id === "scarecrow") {
+      line(cx, cy + 14, cx, cy - 6, "#8a5a2b", 2);
+      line(cx - 12, cy - 2, cx + 12, cy - 2, "#8a5a2b", 2);
+      ctx.fillStyle = "#e8c66a";
+      ctx.beginPath();
+      ctx.arc(cx, cy - 9, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#b5651d";
+      ctx.fillRect(cx - 8, cy - 16, 16, 3);
     } else if (id === "chill") {
       ctx.strokeStyle = "#5aa8e0";
       for (let k = 0; k < 3; k++) {
@@ -237,6 +291,50 @@ const Abilities = {
       ctx.fill();
       ctx.stroke();
     }
+    ctx.restore();
+  },
+
+  drawDecoy(game) {
+    const d = game.decoy;
+    if (!d) return;
+    const g = game.terrain.yAt(d.x);
+    const sway = Math.sin(performance.now() * 0.005) * 0.08;
+    ctx.save();
+    ctx.translate(d.x, g);
+    ctx.rotate(sway);
+    ctx.globalAlpha = Math.min(1, d.timer * 2);
+    line(0, 0, 0, -s(62), "#8a5a2b", sw(3));
+    line(-s(24), -s(44), s(24), -s(44), "#8a5a2b", sw(3));
+    // Patched shirt.
+    ctx.fillStyle = rgbaFromHex(BLUE, 0.5);
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(1.5);
+    ctx.beginPath();
+    ctx.moveTo(-s(20), -s(46));
+    ctx.lineTo(s(20), -s(46));
+    ctx.lineTo(s(12), -s(18));
+    ctx.lineTo(-s(12), -s(18));
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    // Burlap head and straw hat.
+    ctx.fillStyle = "#e8c66a";
+    ctx.beginPath();
+    ctx.arc(0, -s(56), s(9), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = LINE;
+    ctx.fillRect(-s(4), -s(58), s(2), s(2));
+    ctx.fillRect(s(2), -s(58), s(2), s(2));
+    ctx.fillStyle = "#c98a3a";
+    ctx.beginPath();
+    ctx.ellipse(0, -s(63), s(15), s(3.5), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.rect(-s(7), -s(72), s(14), s(9));
+    ctx.fill();
+    ctx.stroke();
     ctx.restore();
   },
 

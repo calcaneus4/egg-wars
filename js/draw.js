@@ -178,6 +178,7 @@ function unitType(u) {
   if (u instanceof CatapultWagon) return "catapult";
   if (u instanceof MonsterTruck) return "truck";
   if (u instanceof ChickBalloon) return "balloon";
+  if (u instanceof RollingPinRoller) return "roller";
   if (u instanceof Castle) return "castle";
   if (u instanceof Drone) return "drone";
   if (u instanceof Helicopter) return "helicopter";

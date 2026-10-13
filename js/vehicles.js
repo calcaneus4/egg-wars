@@ -224,3 +224,82 @@ function makeChick(balloon) {
   chick.lift = Math.max(0, chick.terrain.yAt(balloon.x) - chick.groundOffset - (balloon.y + s(24)));
   return chick;
 }
+
+// Rolling-Pin Roller: a slow, heavy roller that shoves the enemy front line back as it advances.
+// Light ground units can't stop it: they get pushed along in front of it and bonked now and then.
+// Tanks, other vehicles, castles and bosses block it as usual.
+class RollingPinRoller extends Unit {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed = settings.tankSpeed * 1.3;
+    this.size = s(54);
+    this.groundOffset = s(20);
+    this.hp = 7;
+    this.fireRate = 0.7;
+    this.heavy = true;
+    this.roll = 0;
+  }
+
+  pushable(e) {
+    return !(e instanceof Airplane) && !e.heavy && !e.isBoss && !(e instanceof Tank) && !(e instanceof Castle) && !e.airborne;
+  }
+
+  move(dt, enemies) {
+    const before = this.x;
+    super.move(dt, enemies.filter((e) => !this.pushable(e)));
+    this.roll += Math.abs(this.x - before) * 0.15;
+    // Shove whatever light unit is right in front.
+    const front = this.x + this.side * this.blockingRadius();
+    for (const e of enemies) {
+      if (!this.pushable(e)) continue;
+      const gap = (e.x - front) * this.side;
+      if (gap < e.blockingRadius() && gap > -this.blockingRadius()) e.x = clamp(front + this.side * e.blockingRadius(), s(45), W - s(45));
+    }
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    const d = this.side;
+    ctx.save();
+    ctx.strokeStyle = c;
+    ctx.lineWidth = sw(2);
+    // The rolling pin itself, with turning grain lines.
+    const py = y + s(6);
+    ctx.beginPath();
+    ctx.ellipse(x + d * s(12), py, s(14), s(14), 0, 0, Math.PI * 2);
+    ctx.fillStyle = "#d9a86c";
+    ctx.fill();
+    ctx.strokeStyle = LINE;
+    ctx.stroke();
+    for (let k = 0; k < 3; k++) {
+      const a = this.roll + (k * Math.PI * 2) / 3;
+      line(x + d * s(12), py, x + d * s(12) + Math.cos(a) * s(13), py + Math.sin(a) * s(13), "#a8743a", sw(1.2));
+    }
+    // Handles poking out of the pin.
+    line(x + d * s(12), py, x + d * s(12), py - s(18), LINE, sw(3));
+    // Cart and driver behind it.
+    ctx.strokeStyle = c;
+    ctx.beginPath();
+    ctx.rect(x - d * s(22) - s(14), y - s(10), s(28), s(16));
+    teamFill(c, 0.35);
+    ctx.stroke();
+    drawWheel(x - d * s(22) - s(8), y + s(10), s(6), this.roll, c);
+    drawWheel(x - d * s(22) + s(8), y + s(10), s(6), this.roll, c);
+    line(x - d * s(10), y - s(4), x + d * s(10), py - s(14), c, sw(2));
+    ctx.beginPath();
+    ctx.arc(x - d * s(20), y - s(18), s(5), 0, Math.PI * 2);
+    teamFill(c, 0.8);
+    ctx.stroke();
+    // Chef's hat on the driver.
+    ctx.fillStyle = WHITE;
+    ctx.strokeStyle = LINE;
+    ctx.beginPath();
+    ctx.rect(x - d * s(20) - s(4), y - s(27), s(8), s(5));
+    ctx.arc(x - d * s(20), y - s(28), s(5), Math.PI, 0);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+}
