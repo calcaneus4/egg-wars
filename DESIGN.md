@@ -398,3 +398,27 @@ balance-sim progression, and it never buys units.
 - *No-wall guarantee (section 5):* relaxed to `P >= 0.9 E(n)`. Armory upgrades alone stay
   within 10% of the enemy; the Yolk Drop, powers and buying units are expected to make up the
   rest, and Rally helps after two losses.
+
+### Phase 3 content numbers
+
+- **Stage kit** (`js/kit.js`): soldier and tank, plus 4 seeded picks from your unlocked units,
+  and Classic plus 2 seeded picks from your unlocked eggs.
+  - Never-offered unlocks come first.
+  - Until you have 6 units, a locked teaser card is shown.
+  - Air Force stages always include anti-air.
+- **Rolling-Pin Roller:** level 8, $32, 14 threat, cap 2, 7 HP. Pushes light ground units and
+  bonks the one in front about once every 1.4 s.
+- **Popcorn egg:** level 11. Three pops 0.45 s apart, 5 kernels each (radius 0.7, no splat).
+- **Scarecrow power:** level 14, 30 s cooldown, 6 s decoy. Only ranged, non-boss enemies are
+  fooled.
+- **Sandstorm:** stage 8+, wind 0.85-1.0, aircraft get ±90 px of extra aim error.
+- **Biomes:** Soggy Swamp (mud pits, x0.3 speed) and Candy Mountains (syrup geysers, 2.5 s glue).
+  The cycle is now 7 biomes = 35 stages.
+- **Critter events:**
+  - Goats (stage 5+): no damage.
+  - Bees (stage 7+): one sting per unit.
+  - Frogs (stage 6+): trip and slow units, bounce eggs.
+  - Slimes (stage 9+): 3 HP each, at most one hit per unit.
+  - Biome multipliers raise the odds where they fit (frogs x4 in the swamp).
+- **Pancake Golem:** sticky lobs; enraged syrup fan. Sheds a 4 HP (scaled) melee minion at 2/3
+  and 1/3 HP.

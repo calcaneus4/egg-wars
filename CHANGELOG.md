@@ -43,6 +43,29 @@ following, all in the original hand-drawn side-view style:
   - A headless smoke test (`tools/smoke-test.js`).
   - The balance simulator.
 
+## Phase 3 summary
+
+The third loop made the game harder, calmer on screen, and sillier:
+- **Challenge:**
+  - Rounds are 50% longer.
+  - The enemy calls in 1-3 reinforcement waves per round.
+  - Enemy HP has a +15% toughness bonus, ramped in over stages 4-10.
+  - `tools/winrate-sim.js`: idle wins fell from ~80% to ~35%, while active play still wins ~95%.
+    Doing nothing now loses, and attentive play wins.
+  - The no-wall check allows the Armory alone to be at most 10% weaker than the enemy.
+- **Focus:** each stage offers one row of at most 6 unit cards (keys 1-6) and at most 3 Yolk Drop
+  eggs, picked at random from your unlocks.
+- **New events:** goats, bee swarm, frog plague and slime monsters (9 events in all), weighted
+  towards the biomes where they belong.
+- **New content:**
+  - 2 biomes: Soggy Swamp and Candy Mountains.
+  - Sandstorm weather.
+  - Popcorn egg.
+  - Rolling-Pin Roller vehicle.
+  - Scarecrow decoy power.
+  - Pancake Golem boss.
+- **Fixes:** invisible Monster Trucks (NaN speed); both power slots previewing the same power.
+
 ## Phase 2 summary
 
 The second loop added depth and surprises without changing the core flow (buy units, drop
