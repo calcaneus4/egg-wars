@@ -162,3 +162,36 @@ and rounds last about 40 s. Goals:
 ## 18. Final
 
 - [x] **Final review III** - winrate check, 60-stage stress test, frame-time check, docs and a CHANGELOG summary.
+
+---
+
+# Phase 4: Monsters, Mysteries & More
+
+Fourth loop. Keep the look, the controls and the calm screen: at most 6 unit cards, 3 egg chips,
+2 power slots and one event at a time. Every new item must keep the frame cost flat (checked in
+the final review). New content arrives through the kit, the Variety Director and the boss
+rotation, so a single stage never shows much at once.
+
+## 19. Surprise events (one per stage at most; neutral; at most 1 hit per unit)
+
+- [ ] **Sasquatch** - a big hairy fellow strolls across, picks up a random trooper, sniffs it, and sets it down somewhere else.
+- [ ] **Panicky Tourists** - a tour bus parks mid-field; tourists run about snapping photos, and their camera flashes make troops stop and pose ("Cheese!").
+- [ ] **Ghosts** - (night-leaning) ghosts drift through the field; spooked troops turn tail and run back for a moment.
+- [ ] **Giant Snake** - a huge snake slithers along the ground, bumping troops into the air as it passes.
+- [ ] **Rock Monster** - a rock golem rises from the ground and stomps the nearest troops; either army can crumble it with eggs.
+
+## 20. New content (each arrives through the kit, Director or rotation)
+
+- [ ] **Weather: Meteor Shower** - night only: small meteors streak down with a warning glow.
+- [ ] **Weather: Blizzard** - snowfield: heavy snow, whiteout edges, ground units 15% slower.
+- [ ] **Biome: Spooky Graveyard** - tombstones, dead trees, fog; a "restless grave" hazard that pops out skeleton hands to grab passers-by (brief hold).
+- [ ] **Biome: Sunny Beach** - sand and surf, palm trees, sandcastles; tide pools slow units; tourists favour it.
+- [ ] **Egg: Magnet** - pulls nearby enemies together toward the impact point (sets up other eggs).
+- [ ] **Vehicle: Hover Coop** - fast hovercraft that ignores hazards, mud and goo, firing quick eggs.
+- [ ] **Power: Golden Goose** - a goose waddles out and lays gold coins (+gold over 8 s).
+- [ ] **Boss: Toaster Titan** - a giant toaster that pops flaming toast; enraged, it fires toast volleys.
+- [ ] **Calm HUD pass** - enemy roster capped at 8 icons, shorter tips, and stacked banners never overlap.
+
+## 21. Final
+
+- [ ] **Final review IV** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
