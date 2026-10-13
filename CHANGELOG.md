@@ -204,3 +204,10 @@ yolk, use powers) or the hand-drawn side view:
   - The 60-stage stress test (forced events, all weather, random eggs, powers and purchases) had no errors.
   - Software-rendered frame time is ~16-17 ms, the same as before Phase 3; critter events add ≤1 ms.
   - Final winrate-sim (10 runs at each of 10 stages): idle 38%, active 97%, rounds average ~60 s (was ~40 s). No stage below 9/10 active.
+- Events (`js/monsters.js`), five new surprise events (14 in all), each weighted toward the biomes where they fit:
+  - **Sasquatch** (stage 6+, mostly snow): strolls across, picks up a trooper, sniffs it ("He smells like pine cones!") and sets it down somewhere else.
+  - **Panicky Tourists** (stage 5+): a TOURS bus parks mid-field and tourists in loud shirts run around snapping photos. Every camera flash makes nearby troops stop and pose ("Cheese!").
+  - **Ghosts** (stage 8+, far likelier at night and in graveyards): four sheets drift through the battle. Spooked infantry back away for a moment, and tanks just shiver.
+  - **Giant Snake** (stage 10+): a long green snake slithers across with a flicking tongue, bumping light troops into the air (1 hit on landing). Heavies only wobble.
+  - **Rock Monster** (stage 12+, mostly volcano): a boulder golem rises and stomps the nearest troops (1 hit each, at most once). Eggs from either army crumble it.
+- Director: events can be likelier at dusk and night (`nightWeight`).

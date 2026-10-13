@@ -43,7 +43,8 @@ const Director = {
     if (weatherDebut) pool = pool.filter((e) => this.seen(`event:${e.id}`));
     if (!pool.length) return plan;
     // Some events feel at home in certain biomes (frogs in the swamp...) and come up more there.
-    const weight = (e) => e.weight * ((e.biomes && game.biome && e.biomes[game.biome.id]) || 1);
+    const night = Sky.phase === "night" || Sky.phase === "dusk";
+    const weight = (e) => e.weight * ((e.biomes && game.biome && e.biomes[game.biome.id]) || 1) * (night && e.nightWeight ? e.nightWeight : 1);
     const total = pool.reduce((sum, e) => sum + weight(e), 0);
     let roll = random() * total;
     const pick = pool.find((e) => (roll -= weight(e)) <= 0) || pool[0];

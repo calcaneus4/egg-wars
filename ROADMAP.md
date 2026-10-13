@@ -174,11 +174,11 @@ rotation, so a single stage never shows much at once.
 
 ## 19. Surprise events (one per stage at most; neutral; at most 1 hit per unit)
 
-- [ ] **Sasquatch** - a big hairy fellow strolls across, picks up a random trooper, sniffs it, and sets it down somewhere else.
-- [ ] **Panicky Tourists** - a tour bus parks mid-field; tourists run about snapping photos, and their camera flashes make troops stop and pose ("Cheese!").
-- [ ] **Ghosts** - (night-leaning) ghosts drift through the field; spooked troops turn tail and run back for a moment.
-- [ ] **Giant Snake** - a huge snake slithers along the ground, bumping troops into the air as it passes.
-- [ ] **Rock Monster** - a rock golem rises from the ground and stomps the nearest troops; either army can crumble it with eggs.
+- [x] **Sasquatch** - a big hairy fellow strolls across, picks up a random trooper, sniffs it, and sets it down somewhere else.
+- [x] **Panicky Tourists** - a tour bus parks mid-field; tourists run about snapping photos, and their camera flashes make troops stop and pose ("Cheese!").
+- [x] **Ghosts** - (night-leaning) ghosts drift through the field; spooked troops turn tail and run back for a moment.
+- [x] **Giant Snake** - a huge snake slithers along the ground, bumping troops into the air as it passes.
+- [x] **Rock Monster** - a rock golem rises from the ground and stomps the nearest troops; either army can crumble it with eggs.
 
 ## 20. New content (each arrives through the kit, Director or rotation)
 

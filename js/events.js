@@ -714,7 +714,9 @@ const Events = {
 
   // Movement multiplier for a unit this frame (events can slow units down).
   speedFactor(u) {
-    if (u.knock > 0) return 0;
+    if (u.knock > 0 || u.posing > 0) return 0;
+    // Spooked troops back away from the front for a moment.
+    if (u.spooked > 0) return -0.8;
     return u.stagger > 0 ? 0.35 : 1;
   },
 
@@ -729,6 +731,8 @@ const Events = {
   tickUnit(game, u, dt) {
     if (u.stagger > 0) u.stagger = Math.max(0, u.stagger - dt);
     if (u.knock > 0) u.knock = Math.max(0, u.knock - dt);
+    if (u.posing > 0) u.posing = Math.max(0, u.posing - dt);
+    if (u.spooked > 0) u.spooked = Math.max(0, u.spooked - dt);
     if (!u.airborne) return false;
     if (u.caughtBy) return true;
     if (u.parachute) {

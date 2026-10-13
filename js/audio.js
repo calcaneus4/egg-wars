@@ -251,6 +251,21 @@ class AudioFx {
         this.noise(0.05, { volume: 0.3, filter: "bandpass", freq: 2200 * v, q: 3 });
         this.tone(900 * v, 0.04, { type: "square", volume: 0.04, slideTo: 500 });
         return 0.06;
+      case "roar":
+        this.tone(110 * v, 0.7, { type: "sawtooth", volume: 0.08, slideTo: 70 });
+        this.noise(0.6, { volume: 0.18, filter: "lowpass", freq: 500 * v, freqTo: 150 });
+        return 0.7;
+      case "camera":
+        this.noise(0.04, { volume: 0.2, filter: "highpass", freq: 4000 });
+        this.tone(2200, 0.05, { type: "square", volume: 0.03, delay: 0.05 });
+        return 0.1;
+      case "boo":
+        this.tone(300 * v, 1.1, { type: "sine", volume: 0.07, slideTo: 220 * v });
+        this.tone(306 * v, 1.1, { type: "sine", volume: 0.05, slideTo: 230 * v });
+        return 1.1;
+      case "hiss":
+        this.noise(n(1.2), { volume: 0.25, filter: "highpass", freq: 3500 * v });
+        return 1.2;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;
