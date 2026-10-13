@@ -11,6 +11,8 @@ const HAZARD_TYPES = {
   lava: { biome: "volcano", width: 70, period: [5, 8], warn: 1.2, name: "Lava vents", tip: "Lava vents erupt every few seconds - don't park on them!" },
   ice: { biome: "snow", width: 150, speed: 1.7, name: "Ice", tip: "Ice patches make ground units slide across faster." },
   sand: { biome: "desert", width: 120, speed: 0.4, name: "Quicksand", tip: "Quicksand slows ground units to a crawl - a great place to drop eggs." },
+  mud: { biome: "swamp", width: 130, speed: 0.3, name: "Mud pits", tip: "Mud pits bog ground units right down - perfect for a Yolk Drop." },
+  syrup: { biome: "candy", width: 80, period: [6, 9], warn: 1.2, sticky: 2.5, name: "Syrup geysers", tip: "Syrup geysers glue troops in place for a moment - both armies." },
   geyser: { biome: "kitchen", width: 80, period: [6, 9], warn: 1.2, name: "Hot pans", tip: "Hot pans blast steam every few seconds - keep your troops clear." },
 };
 
@@ -67,6 +69,15 @@ const Hazards = {
   },
 
   erupt(game, z, ground) {
+    if (z.def.sticky) {
+      // Syrup: a sticky fountain that glues troops instead of hurting them.
+      for (let i = 0; i < 16; i++) Effects.spawn("drop", z.x + rand(-z.half * 0.4, z.half * 0.4), ground - 6, rand(-50, 50), rand(-340, -180), rand(0.6, 1), rand(2.5, 4), "#d98a2b");
+      audio.play("slime");
+      for (const u of game.living()) {
+        if (this.isGround(u) && Math.abs(u.x - z.x) <= z.half + u.blockingRadius() * 0.5) u.stuck = Math.max(u.stuck || 0, z.def.sticky);
+      }
+      return;
+    }
     const lava = z.type === "lava";
     for (let i = 0; i < 18; i++) {
       Effects.spawn(lava ? "drop" : "smoke", z.x + rand(-z.half * 0.5, z.half * 0.5), ground - 6, rand(-60, 60), rand(-380, -200), rand(0.6, 1.1), lava ? rand(2.5, 4.5) : rand(6, 10), lava ? "#ff7a28" : WHITE);
@@ -98,6 +109,34 @@ const Hazards = {
           ctx.lineTo(x + 10, y - 1);
           ctx.stroke();
         }
+      } else if (z.type === "mud") {
+        ctx.fillStyle = "rgba(95,70,40,0.6)";
+        ctx.strokeStyle = rgbaFromHex(LINE, 0.55);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(left, game.terrain.yAt(left));
+        for (let x = left; x <= right; x += 6) ctx.lineTo(x, game.terrain.yAt(x) + 1);
+        for (let x = right; x >= left; x -= 6) ctx.lineTo(x, game.terrain.yAt(x) + 12);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        const t = performance.now() * 0.002;
+        for (let i = 0; i < 3; i++) {
+          const bx = left + ((i + 0.5) / 3) * (right - left);
+          const r = 2 + ((t + i) % 1) * 3;
+          ctx.beginPath();
+          ctx.arc(bx, game.terrain.yAt(bx) - r * 0.5, r, Math.PI, 0);
+          ctx.stroke();
+        }
+      } else if (z.type === "syrup") {
+        const hot = z.timer < z.def.warn || z.flash > 0;
+        ctx.fillStyle = hot ? "rgba(230,150,50,0.85)" : "rgba(210,140,60,0.55)";
+        ctx.strokeStyle = LINE;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(z.x, ground, z.half * 0.6, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
       } else if (z.type === "sand") {
         ctx.fillStyle = "rgba(190,140,70,0.45)";
         ctx.strokeStyle = rgbaFromHex(LINE, 0.5);

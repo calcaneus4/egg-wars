@@ -111,6 +111,7 @@ function drawSlime(sl, t) {
 Object.assign(EVENT_TYPES, {
   goats: {
     id: "goats",
+    biomes: { meadow: 2.5, snow: 1.5 },
     name: "GOATS",
     minStage: 5,
     weight: 1,
@@ -185,6 +186,7 @@ Object.assign(EVENT_TYPES, {
 
   bees: {
     id: "bees",
+    biomes: { meadow: 2.5, candy: 2.5 },
     name: "BEE SWARM",
     minStage: 7,
     weight: 1,
@@ -255,6 +257,7 @@ Object.assign(EVENT_TYPES, {
 
   frogs: {
     id: "frogs",
+    biomes: { swamp: 4 },
     name: "FROG PLAGUE",
     minStage: 6,
     weight: 1,
@@ -321,6 +324,7 @@ Object.assign(EVENT_TYPES, {
 
   slimes: {
     id: "slimes",
+    biomes: { swamp: 2.5, candy: 1.5 },
     name: "SLIME MONSTERS",
     minStage: 9,
     weight: 0.8,

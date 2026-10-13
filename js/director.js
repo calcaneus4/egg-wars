@@ -42,9 +42,11 @@ const Director = {
     // Only one debut per stage: if the weather is new, pick from events already seen.
     if (weatherDebut) pool = pool.filter((e) => this.seen(`event:${e.id}`));
     if (!pool.length) return plan;
-    const total = pool.reduce((sum, e) => sum + e.weight, 0);
+    // Some events feel at home in certain biomes (frogs in the swamp...) and come up more there.
+    const weight = (e) => e.weight * ((e.biomes && game.biome && e.biomes[game.biome.id]) || 1);
+    const total = pool.reduce((sum, e) => sum + weight(e), 0);
     let roll = random() * total;
-    const pick = pool.find((e) => (roll -= e.weight) <= 0) || pool[0];
+    const pick = pool.find((e) => (roll -= weight(e)) <= 0) || pool[0];
     plan.event = pick.id;
     // Timing is re-rolled on replays so a retry doesn't play out identically.
     plan.eventAt = game.roundLimit * rand(0.25, 0.7);

@@ -177,6 +177,42 @@ class Background {
       g.closePath();
       g.fill();
       g.stroke();
+    } else if (kind === "willows") {
+      // Droopy swamp willows.
+      g.moveTo(x, y + 2);
+      g.lineTo(x, y - h);
+      g.stroke();
+      g.beginPath();
+      g.ellipse(x, y - h, h * 0.45, h * 0.25, 0, 0, Math.PI * 2);
+      g.fill();
+      g.stroke();
+      for (let k = -2; k <= 2; k++) {
+        g.beginPath();
+        g.moveTo(x + k * h * 0.18, y - h);
+        g.quadraticCurveTo(x + k * h * 0.25, y - h * 0.6, x + k * h * 0.22, y - h * 0.3);
+        g.stroke();
+      }
+    } else if (kind === "candy") {
+      // Lollipops and candy canes.
+      if (random() < 0.5) {
+        g.moveTo(x, y + 2);
+        g.lineTo(x, y - h * 0.6);
+        g.stroke();
+        g.beginPath();
+        g.arc(x, y - h * 0.8, h * 0.28, 0, Math.PI * 2);
+        g.fill();
+        g.stroke();
+        g.beginPath();
+        g.arc(x, y - h * 0.8, h * 0.14, 0, Math.PI * 1.5);
+        g.stroke();
+      } else {
+        g.moveTo(x, y + 2);
+        g.lineTo(x, y - h * 0.8);
+        g.arc(x + h * 0.15, y - h * 0.8, h * 0.15, Math.PI, 0);
+        g.lineWidth = 3;
+        g.stroke();
+        g.lineWidth = 1.5;
+      }
     } else if (kind === "kitchen") {
       // Jars, bottles and a pepper mill on the back counter.
       const pick = Math.floor(random() * 3);

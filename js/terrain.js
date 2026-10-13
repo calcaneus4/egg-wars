@@ -210,6 +210,39 @@ class Terrain {
         g.stroke();
       }
     }
+    if (biome.candy) {
+      // Candy-cane stripes and sprinkles.
+      g.lineWidth = 9;
+      g.strokeStyle = "rgba(230,60,90,0.28)";
+      for (let x = -80; x < W + 80; x += 34) {
+        g.beginPath();
+        g.moveTo(x, H * 0.55);
+        g.lineTo(x + 90, H);
+        g.stroke();
+      }
+      const sprinkles = ["#e2445c", "#3fa7d6", "#f6c445", "#7bc96f", "#ffffff"];
+      for (let i = 0; i < 160; i++) {
+        const x = random() * W;
+        const y = this.yAt(x) + 6 + random() * 90;
+        g.save();
+        g.translate(x, y);
+        g.rotate(random() * Math.PI);
+        g.fillStyle = sprinkles[i % sprinkles.length];
+        g.fillRect(-3, -1, 6, 2.2);
+        g.restore();
+      }
+    }
+    if (biome.reeds) {
+      // Murky puddles just under the surface.
+      g.fillStyle = "rgba(60,90,70,0.35)";
+      for (let i = 0; i < 18; i++) {
+        const x = random() * W;
+        const y = this.yAt(x) + 14 + random() * 50;
+        g.beginPath();
+        g.ellipse(x, y, 14 + random() * 22, 4 + random() * 3, 0, 0, Math.PI * 2);
+        g.fill();
+      }
+    }
     if (biome.tiles) {
       // Checked tiles under the counter top.
       const size = 34;
@@ -226,6 +259,60 @@ class Terrain {
 
   // Biome detail on top of the surface line.
   renderBiomeSurface(g, random, biome) {
+    if (biome.reeds) {
+      // Reeds and cattails poking out of the bog.
+      g.lineWidth = 1.5;
+      for (let x = 10; x < W; x += 20 + random() * 40) {
+        if (random() < 0.4) continue;
+        const y = this.yAt(x);
+        const n = 2 + Math.floor(random() * 3);
+        for (let k = 0; k < n; k++) {
+          const bx = x + k * 4;
+          const h = 14 + random() * 14;
+          const lean = (random() - 0.5) * 8;
+          g.strokeStyle = rgbaFromHex(LINE, 0.8);
+          g.beginPath();
+          g.moveTo(bx, y + 1);
+          g.quadraticCurveTo(bx + lean * 0.3, y - h * 0.6, bx + lean, y - h);
+          g.stroke();
+          if (k === 0) {
+            g.fillStyle = "#7a4a2a";
+            g.beginPath();
+            g.ellipse(bx + lean * 0.85, y - h * 0.85, 2.2, 5, 0, 0, Math.PI * 2);
+            g.fill();
+          }
+        }
+      }
+    }
+    if (biome.candy) {
+      // White icing dripping over the edge, with gumdrops.
+      g.fillStyle = "#fff8fb";
+      g.strokeStyle = rgbaFromHex(LINE, 0.5);
+      g.lineWidth = 1;
+      g.beginPath();
+      this.points.forEach(([x, y], i) => (i ? g.lineTo(x, y - 2) : g.moveTo(x, y - 2)));
+      for (let i = this.points.length - 1; i >= 0; i--) {
+        const [x, y] = this.points[i];
+        g.lineTo(x, y + 5 + Math.max(0, Math.sin(x * 0.11)) * 7);
+      }
+      g.closePath();
+      g.fill();
+      g.stroke();
+      const drops = ["#e2445c", "#7bc96f", "#f6c445", "#9b6bd6"];
+      for (let i = 0; i < 12; i++) {
+        const x = 30 + random() * (W - 60);
+        const y = this.yAt(x);
+        g.fillStyle = drops[i % drops.length];
+        g.strokeStyle = LINE;
+        g.beginPath();
+        g.arc(x, y - 1, 5, Math.PI, 0);
+        g.lineTo(x + 5, y + 1);
+        g.lineTo(x - 5, y + 1);
+        g.closePath();
+        g.fill();
+        g.stroke();
+      }
+    }
     if (biome.snowCap) {
       g.fillStyle = "#ffffff";
       g.strokeStyle = rgbaFromHex(LINE, 0.5);

@@ -1,7 +1,7 @@
 "use strict";
 
 // Biomes: each run of five stages takes place in a different land with its own terrain shape,
-// ground colour, background decorations and weather. After Kitchen Counter the cycle repeats.
+// ground colour, background decorations and weather. After Candy Mountains the cycle repeats.
 
 const BIOME_STAGES = 5;
 
@@ -54,6 +54,26 @@ const BIOMES = [
     tiles: true,
     decor: "kitchen",
     weather: { clear: 3, fog: 1, heat: 1.5 },
+  },
+  {
+    id: "swamp",
+    name: "Soggy Swamp",
+    terrain: { minY: 0.7, maxY: 0.84, rough: 60, smooth: 7 },
+    ground: [80, 105, 55, 0.3],
+    grass: false,
+    reeds: true,
+    decor: "willows",
+    weather: { clear: 2, rain: 2, fog: 2.5, storm: 1 },
+  },
+  {
+    id: "candy",
+    name: "Candy Mountains",
+    terrain: { minY: 0.6, maxY: 0.86, rough: 120, smooth: 4 },
+    ground: [255, 160, 195, 0.3],
+    grass: false,
+    candy: true,
+    decor: "candy",
+    weather: { clear: 4, windy: 1.5, heat: 1, hail: 0.5 },
   },
 ];
 

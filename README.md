@@ -58,7 +58,7 @@ an Air Force there is always an anti-air unit in the kit once you have one.
 - **Levels and XP:** you earn XP every round, more for wins and kills, and level up. Something new unlocks every few levels: aircraft, special units (Mega Knight, Fire Wizard, Yolk Bomber), new egg types (Cluster, Bouncer, Frost, Sticky, Smoke, Boomer, Zapper, Seeker), powers (Reinforcements, Airstrike, Rooster Rally, Shell Shield, Big Chill) and new units (Egg Medic, Catapult Wagon, Monster Truck, Mortar Hen, Chick Balloon, Rooster Rider). The HUD always shows what comes next.
 - **Armory:** six permanent upgrade tracks, bought with Golden Eggs.
 - **Difficulty:** it rises slowly on a logarithmic curve. Your upgrades are designed to keep you ahead of it (see `DESIGN.md`). After two losses in a row a **Rally** boost helps you out.
-- **Biomes:** they change every 5 stages: Meadow, Desert Dunes, Snowfield, Volcano and Kitchen Counter. Each has its own terrain, weather and hazards.
+- **Biomes:** they change every 5 stages: Meadow, Desert Dunes, Snowfield, Volcano, Kitchen Counter, Soggy Swamp and Candy Mountains. Each has its own terrain, weather and hazards.
 - **Weather:** clear, rain, snow and wind, plus fog (short sight lines), thunderstorms (telegraphed lightning), hail (dings aircraft) and heat waves (swollen eggs) in later stages.
 - **Enemies:** six army personalities (Balanced, Rushers, Turtle Shell, Artillery, Air Force and the occasional Mad Science army with freezing and shocking eggs) and five bosses (Giant Rooster Mech, Omelet Fortress, Scrambler Zeppelin, Mother Hen Queen and Sink Kraken).
 - **Extras:** bonus goals, 28 achievements (some unlock colour schemes), boss battles and a lifetime stats page.

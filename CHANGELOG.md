@@ -168,3 +168,7 @@ yolk, use powers) or the hand-drawn side view:
   - **Frog Plague** (stage 6+): frogs rain from the sky and hop about. Ground troops trip over them, and falling eggs bounce off them.
   - **Slime Monsters** (stage 9+): 2-3 wobbling slimes ooze out of the ground, slime whoever is closest (1 hit, then sticky), and can be splatted by either army's eggs.
 - Fix: with no powers unlocked, both power slots previewed the same power; now only the first empty slot shows the preview.
+- Biomes: two new lands join the cycle after the Kitchen (now 7 biomes, 35 stages per lap).
+  - **Soggy Swamp**: murky green ground with puddles, reeds and cattails, droopy willows in the background, frequent fog and rain, and **mud pits** that slow ground units to 30%.
+  - **Candy Mountains**: candy-striped pink hills with sprinkles, an icing edge and gumdrops, lollipops and candy canes in the background, and **syrup geysers** that glue troops in place for 2.5 s (no damage).
+- Events: events can favour biomes. Frogs are 4x as likely in the swamp, slimes in the swamp and candy lands, and goats and bees in the meadow.
