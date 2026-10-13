@@ -200,20 +200,32 @@ const Weather = {
     }
   },
 
+  // One soft fog puff, rendered once per colour scheme and scaled for every fog bank.
+  fogSprite() {
+    if (this.fogPuff && this.fogPuffKey === PAPER) return this.fogPuff;
+    const size = 128;
+    const c = document.createElement("canvas");
+    c.width = c.height = size;
+    const g = c.getContext("2d");
+    const grad = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    grad.addColorStop(0, rgbaFromHex(PAPER, 0.6));
+    grad.addColorStop(0.6, rgbaFromHex(PAPER, 0.3));
+    grad.addColorStop(1, rgbaFromHex(PAPER, 0));
+    g.fillStyle = grad;
+    g.fillRect(0, 0, size, size);
+    this.fogPuff = c;
+    this.fogPuffKey = PAPER;
+    return c;
+  },
+
   // Fog banks, heat shimmer, the storm's gloom and lightning; drawn over the battlefield.
   drawOverlay(game) {
     if (this.type === "fog") {
       ctx.save();
       ctx.fillStyle = rgbaFromHex(PAPER, 0.12);
       ctx.fillRect(0, 0, W, H);
-      for (const f of this.fogBanks) {
-        const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
-        g.addColorStop(0, rgbaFromHex(PAPER, 0.6));
-        g.addColorStop(0.6, rgbaFromHex(PAPER, 0.3));
-        g.addColorStop(1, rgbaFromHex(PAPER, 0));
-        ctx.fillStyle = g;
-        ctx.fillRect(f.x - f.r, f.y - f.r, f.r * 2, f.r * 2);
-      }
+      const puff = this.fogSprite();
+      for (const f of this.fogBanks) ctx.drawImage(puff, f.x - f.r, f.y - f.r, f.r * 2, f.r * 2);
       ctx.restore();
     }
     if (this.type === "heat") {

@@ -10,16 +10,18 @@ Lead the blue team through as many stages as possible. Each round ends when one 
 
 Every round, won or lost, earns gold, XP and often Golden Eggs. Gold buys reinforcements during battle. Golden Eggs buy permanent upgrades in the Armory. The red team is the enemy and spawns automatically. Its army changes personality from stage to stage, and every 5th stage brings a boss.
 
+From stage 4 on, battles can be interrupted by an occasional **surprise event**: an earthquake, a tornado, a tsunami full of rubber ducks, a chicken stampede or a UFO abduction. Events are rare (at most one per stage), always announced a moment before they hit, and treat both armies the same.
+
 ## Basic Controls
 
-- Click a unit card in the shop bar (top left) or press its key (`1`-`9`, `0`, `-`) to buy reinforcements.
+- Click a unit card in the shop bar (top left) or press its key (`1`-`9`, `0`, `-`, `=`, `[`, `]`) to buy reinforcements.
 - Press and hold a unit card to keep buying while you have enough gold.
 - Click the battlefield when `YOLK DROP READY` is active to drop a special egg attack.
 - On the results screen, click (or press Enter) to skip the tally, then choose Next Stage / Try Again or the Armory.
 - Press `R` to restart the current stage.
 - Press `Esc` or `P` to pause (resume, restart, settings, title screen).
 - Press `M` to mute or unmute.
-- Press `W` for an Airstrike (level 7) and `E` for a Shell Shield (level 12), or tap their buttons at the bottom of the screen.
+- Press `W` and `E` (or tap their buttons at the bottom of the screen) to use your two equipped **powers**. Pick which powers sit in those slots on the Powers screen (title or pause menu): Reinforcements, Airstrike, Rooster Rally, Shell Shield and Big Chill.
 - Press `Q` (or tap the chips above the Yolk Drop button) to choose which egg the Yolk Drop uses, once you unlock more than one.
 - Settings (title screen or pause menu): master, effects and music volume, mute, color scheme, speech bubbles, screen shake, and New Game (erases saved progress).
 - Progress (level, XP, gold, Golden Eggs, Armory, unlocks, achievements and stats) is saved automatically in the browser.
@@ -31,7 +33,8 @@ The shop bar at the top left shows every unit with its price. Tap a card (or pre
 key) to buy one; hold to keep buying. Locked units show the level they unlock at.
 
 1 soldier, 2 tank, 3 motorcycle, 4 drone, 5 airplane, 6 helicopter, 7 bomber, 8 castle,
-9 Egg Medic, 0 Mortar Hen, - Rooster Rider (a second shop row appears as these unlock).
+9 Egg Medic, 0 Mortar Hen, - Rooster Rider, = Catapult Wagon, [ Monster Truck, ] Chick Balloon
+(a second shop row appears as these unlock).
 
 ## Units
 
@@ -45,20 +48,26 @@ key) to buy one; hold to keep buying. Locked units show the level they unlock at
 - **Egg Medics** (level 6) don't fight; they heal the most hurt ally nearby.
 - **Mortar Hens** (level 11) are slow but lob bursting eggs across the whole field.
 - **Rooster Riders** (level 16) charge in fast and peck enemies up close.
+- **Catapult Wagons** (level 6) hang back and fling huge bursting eggs across the field.
+- **Monster Trucks** (level 11) are frying pans on monster wheels: infantry can't stop them, and they drive right over it.
+- **Chick Balloons** (level 13) float over the enemy and drop chick paratroopers.
 - **Drones** launch from ground level, climb into the air, hover over targets, then dive kamikaze-style into enemies.
 
 ## Progression
 
-- **Levels and XP:** you earn XP every round, more for wins and kills, and level up. Something new unlocks every few levels: aircraft, special units (Mega Knight, Fire Wizard, Yolk Bomber), new egg types (Cluster, Bouncer, Sticky, Boomer, Seeker), abilities (Airstrike, Shell Shield) and new units (Egg Medic, Mortar Hen, Rooster Rider). The HUD always shows what comes next.
+- **Levels and XP:** you earn XP every round, more for wins and kills, and level up. Something new unlocks every few levels: aircraft, special units (Mega Knight, Fire Wizard, Yolk Bomber), new egg types (Cluster, Bouncer, Frost, Sticky, Smoke, Boomer, Zapper, Seeker), powers (Reinforcements, Airstrike, Rooster Rally, Shell Shield, Big Chill) and new units (Egg Medic, Catapult Wagon, Monster Truck, Mortar Hen, Chick Balloon, Rooster Rider). The HUD always shows what comes next.
 - **Armory:** six permanent upgrade tracks, bought with Golden Eggs.
 - **Difficulty:** it rises slowly on a logarithmic curve. Your upgrades are designed to keep you ahead of it (see `DESIGN.md`). After two losses in a row a **Rally** boost helps you out.
 - **Biomes:** they change every 5 stages: Meadow, Desert Dunes, Snowfield, Volcano and Kitchen Counter. Each has its own terrain, weather and hazards.
-- **Extras:** bonus goals, 20 achievements (some unlock colour schemes), boss battles and a lifetime stats page.
+- **Weather:** clear, rain, snow and wind, plus fog (short sight lines), thunderstorms (telegraphed lightning), hail (dings aircraft) and heat waves (swollen eggs) in later stages.
+- **Enemies:** six army personalities (Balanced, Rushers, Turtle Shell, Artillery, Air Force and the occasional Mad Science army with freezing and shocking eggs) and five bosses (Giant Rooster Mech, Omelet Fortress, Scrambler Zeppelin, Mother Hen Queen and Sink Kraken).
+- **Extras:** bonus goals, 28 achievements (some unlock colour schemes), boss battles and a lifetime stats page.
 
 ## Style and Features
 
 Egg Wars keeps its hand-drawn line-art look, now with:
-- parallax backgrounds, day/dusk/night/dawn skies, and rain, snow and wind
+- solid parallax backgrounds, day/dusk/night/dawn skies, and seven kinds of weather
+- surprise events with tornadoes, waves, hens, UFOs and the odd stranded rubber duck
 - particle explosions, egg splats with drips, screen shake and hit flashes
 - an illustrated HUD and an animated results screen
 - procedural sound effects and music
@@ -87,25 +96,28 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/terrain.js` - terrain generation
 - `js/background.js` - pre-rendered parallax mountains, hills, trees and sun
 - `js/sky.js` - time-of-day sky tint, stars and moon
-- `js/weather.js` - rain, snow, wind (pushes eggs) and the wind sock
+- `js/weather.js` - rain, snow, wind (pushes eggs), fog, thunderstorms, hail, heat waves and the wind sock
 - `js/effects.js` - pooled particles, screen shake and hit flashes
 - `js/draw.js` - shared drawing helpers
 - `js/units.js` - unit classes
-- `js/eggtypes.js` - data-driven egg types (Classic, Cluster, ...)
+- `js/vehicles.js` - Catapult Wagon, Monster Truck and Chick Balloon
+- `js/eggtypes.js` - data-driven egg types (Classic, Cluster, Frost, Smoke, Zapper, ...) plus smoke clouds, ice and chain lightning
 - `js/projectiles.js` - eggs and splats
-- `js/bosses.js` - boss battles every 5th stage
+- `js/bosses.js` - boss battles every 5th stage (five bosses)
 - `js/menus.js` - title, pause and settings screens
 - `js/worldmap.js` - world map, stage select and practice replays
 - `js/hud.js` - battle HUD: unit shop bar, stage/time panel, enemy roster, Yolk Drop ring
 - `js/results.js` - animated end-of-round results screen
 - `js/stats.js` - lifetime statistics page
 - `js/armory.js` - permanent Golden Egg upgrades and the Armory screen
-- `js/abilities.js` - Airstrike and Shell Shield abilities with cooldowns
+- `js/abilities.js` - the five powers, the W/E loadout and the Powers screen
 - `js/hazards.js` - neutral biome hazards (quicksand, ice, lava vents, hot pans)
+- `js/director.js` - Variety Director: decides each stage's surprise event and limits debuts
+- `js/events.js` - surprise events (earthquake, tornado, tsunami, stampede, UFO)
 - `js/objectives.js` - per-stage bonus goals
-- `js/achievements.js` - 20 achievements, toasts, gallery and bonus colour schemes
+- `js/achievements.js` - 28 achievements, toasts, gallery and bonus colour schemes
 - `js/unlocks.js` - level-based unlock table and enemy roster gating
-- `js/personalities.js` - enemy army templates (Rusher, Turtle, Artillery, Air Force)
+- `js/personalities.js` - enemy army templates (Rusher, Turtle, Artillery, Air Force, Mad Science)
 - `js/tutorial.js` - guided first battle and one-time tips
 - `js/game.js` - the `Game` class (rules, battle loop, HUD)
 - `js/main.js` - startup, input and the frame loop

@@ -326,3 +326,46 @@ weaker in late stages and Armory upgrades stay meaningful.
 **New units:** they are added to the threat-point table with costs that match their damage per
 second and HP against the existing roster. The `P >= E(n)` guarantee from section 5 is
 rechecked with `tools/balance-sim.js` after each unit lands.
+
+### Phase 2 content numbers
+
+**New units.** Their threat points sit next to similar existing units, so a personality that
+buys them fields the same strength as one that doesn't. Enemies can field a type from stage
+`2L - 1`, where `L` is its unlock level.
+
+| Unit           | Level | Cost | Threat | Cap | Notes |
+|----------------|------:|-----:|-------:|----:|-------|
+| Catapult Wagon |     6 |  $35 |     15 |   2 | 4 HP; stops within half the field; 6-burst lob every ~16 s |
+| Monster Truck  |    11 |  $30 |     14 |   2 | 6 HP; infantry can't block it; 2 hits to infantry, 1 to vehicles |
+| Chick Balloon  |    13 |  $40 |     16 |   1 | 3 HP; drops up to 4 one-hit chicks over enemy ground troops |
+
+**New eggs** (Yolk Drop, unlocked at levels 9, 13 and 15).
+- **Frost:** freezes enemies within radius 150 for 2.5 s; bosses for a third as long.
+- **Smoke:** a cloud of radius 150 lasts 7 s; shots fired from inside it get ±240 px of aim error.
+- **Zapper:** chain lightning across up to 4 enemies within 260 of each other, 1 hit each.
+
+**Powers.** Fixed strength (see above).
+
+| Power          | Level | Cooldown | Effect |
+|----------------|------:|---------:|--------|
+| Reinforcements |     4 |     26 s | 4 soldiers parachute in beside your castle |
+| Airstrike      |     7 |     22 s | 9-egg bombing run over the enemy half |
+| Rooster Rally  |    10 |     30 s | your army runs 40% faster (moves and fires) for 6 s |
+| Shell Shield   |    12 |     32 s | every unit gets a one-hit shield |
+| Big Chill      |    17 |     40 s | freezes every enemy for 2.5 s |
+
+**Enemy personalities.**
+- The five-template cycle counts only non-boss stages, so every template gets its turn.
+- Mad Science replaces the cycle on a seeded 20% of non-boss stages from stage 14, never twice
+  in a row. It spends 92% of the budget, and 30% of its eggs are frost or zap shards.
+
+**Bosses.** Mech, Fortress, Zeppelin, Hen Queen and Kraken appear in that order at stages
+5-25. After that the boss is a seeded pick that never repeats the previous boss. All bosses use
+the same budget share and HP formula (section 3).
+- **Hen Queen:** her chicks are capped at 8 alive.
+- **Kraken:** blocks 85% of hits while submerged (7 s), then surfaces for 3.5 s.
+
+**Neutral board effects.**
+- Weather and events never deal more than 1 hit at a time.
+- Lightning and Kraken tentacles warn for 1.2-1.3 s first.
+- The UFO takes exactly one matching unit from each army.

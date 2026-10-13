@@ -43,6 +43,29 @@ following, all in the original hand-drawn side-view style:
   - A headless smoke test (`tools/smoke-test.js`).
   - The balance simulator.
 
+## Phase 2 summary
+
+The second loop added depth and surprises without changing the core flow (buy units, drop
+yolk, use powers) or the hand-drawn side view:
+- **Variety Director:** at most one surprise event per stage (from stage 4, 12-45% chance), at
+  most one never-seen thing per stage, and no back-to-back repeats.
+- **5 surprise events:** Earthquake, Tornado, Tsunami (with rubber ducks), Chicken Stampede and
+  UFO Abduction (it leaves a cow).
+- **4 new weathers:** fog, thunderstorm, hail and heat wave, joining the biome tables in
+  later stages.
+- **3 new eggs:** Frost, Smoke and Zapper.
+- **3 new vehicles:** Catapult Wagon, Monster Truck and Chick Balloon.
+- **Powers:** 3 new powers (Reinforcements, Rooster Rally, Big Chill) and a W/E loadout with
+  its own screen.
+- **2 new bosses:** Mother Hen Queen and Sink Kraken, plus a randomized boss rotation.
+- **Enemies:** the Mad Science army, and enemies now field the new vehicles.
+- **Achievements:** 8 more (28 in all) and the Ocean colour scheme.
+- **Fixes:** the Turtle army never appeared (now fixed); explosion screen shake is rarer;
+  parallax layers are solid.
+- **Final review:** a 60-stage stress run with a forced event every stage, random eggs, powers
+  and purchases had 0 errors. Frame cost is about 15 ms in software rendering (unchanged),
+  and fog drawing was optimized.
+
 ## Entries
 
 - Planning: added ROADMAP.md (prioritized feature checklist) and DESIGN.md (progression, difficulty and reward formulas).
@@ -127,3 +150,7 @@ following, all in the original hand-drawn side-view style:
   - Power Player: use powers 50 times.
 - Achievements: the gallery switched to 5 columns so all 28 fit.
 - Tips: the Phase 2 unlocks already show NEW tips. A new tip points to the Powers screen once you have more powers than slots.
+- Final review II:
+  - The 60-stage stress test (every event, random eggs, powers and purchases) had no errors.
+  - Profiling showed the software-renderer frame cost is still ~15 ms; the rare spikes were batched canvas flushes. Fog now draws a cached sprite instead of 14 gradients per frame.
+  - README, DESIGN.md (Phase 2 numbers) and the changelog summary are up to date.
