@@ -93,7 +93,7 @@ class CatapultWagon extends Unit {
 class MonsterTruck extends Unit {
   constructor(x, side, terrain) {
     super(x, side, terrain);
-    this.speed = settings.motorcycleSpeed * 0.75;
+    this.speed = settings.tankSpeed * settings.motorcycleSpeedMultiplier * 0.6;
     this.size = s(50);
     this.groundOffset = s(26);
     this.hp = 6;

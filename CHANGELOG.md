@@ -154,3 +154,4 @@ yolk, use powers) or the hand-drawn side view:
   - The 60-stage stress test (every event, random eggs, powers and purchases) had no errors.
   - Profiling showed the software-renderer frame cost is still ~15 ms; the rare spikes were batched canvas flushes. Fog now draws a cached sprite instead of 14 gradients per frame.
   - README, DESIGN.md (Phase 2 numbers) and the changelog summary are up to date.
+- Fix: Monster Trucks (both armies) were invisible. Their speed read a setting that doesn't exist (`motorcycleSpeed`), so their position became NaN on the first frame. The enemy roster still counted them, and they could never be destroyed, which could stall a battle until the timer ran out. Trucks now use 60% of top motorcycle speed.
