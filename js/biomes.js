@@ -23,7 +23,7 @@ const BIOMES = [
     grass: false,
     stipple: true,
     decor: "cacti",
-    weather: { clear: 6, windy: 3, heat: 2.5, storm: 0.4 },
+    weather: { clear: 6, windy: 3, heat: 2.5, storm: 0.4, sandstorm: 2.5 },
   },
   {
     id: "snow",
@@ -43,7 +43,7 @@ const BIOMES = [
     grass: false,
     cracks: true,
     decor: "rocks",
-    weather: { clear: 4, windy: 2, heat: 2, storm: 1, fog: 0.8 },
+    weather: { clear: 4, windy: 2, heat: 2, storm: 1, fog: 0.8, sandstorm: 0.6 },
   },
   {
     id: "kitchen",

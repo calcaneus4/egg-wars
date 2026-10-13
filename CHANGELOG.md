@@ -172,3 +172,5 @@ yolk, use powers) or the hand-drawn side view:
   - **Soggy Swamp**: murky green ground with puddles, reeds and cattails, droopy willows in the background, frequent fog and rain, and **mud pits** that slow ground units to 30%.
   - **Candy Mountains**: candy-striped pink hills with sprinkles, an icing edge and gumdrops, lollipops and candy canes in the background, and **syrup geysers** that glue troops in place for 2.5 s (no damage).
 - Events: events can favour biomes. Frogs are 4x as likely in the swamp, slimes in the swamp and candy lands, and goats and bees in the meadow.
+- Weather: **Sandstorm** (stage 8+, mostly in the desert, a little in the volcano): near-maximum wind pushes every egg hard, the air goes dusty brown with sand streaks, and aircraft get up to ±90 px of extra aim error when bombing or shooting.
+- Eggs: **Popcorn** (lv 11): after landing it pops three times, 0.45 s apart, each pop spraying 5 small kernels. Kernels leave no splats, to keep the field (and the frame rate) clean. Weatherman now asks for every kind of bad weather.

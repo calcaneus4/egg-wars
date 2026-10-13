@@ -27,6 +27,7 @@ const UNLOCKS = [
   { level: 9, kind: "feature", id: "frost", name: "Frost Egg", desc: "Yolk Drop option: freezes enemies solid for a moment" },
   { level: 10, kind: "unit", type: "castle", name: "Castle", desc: "Buy extra catapult towers" },
   { level: 10, kind: "feature", id: "sticky", name: "Sticky Egg", desc: "Yolk Drop option: glues enemies so they slow right down" },
+  { level: 11, kind: "feature", id: "popcorn", name: "Popcorn Egg", desc: "Yolk Drop option: pops three times, spraying hot kernels" },
   { level: 11, kind: "unit", type: "truck", name: "Monster Truck", desc: "Frying-pan bruiser that drives right over infantry" },
   { level: 11, kind: "unit", type: "mortar", name: "Mortar Hen", desc: "Slow hen that lobs bursting eggs across the field" },
   { level: 10, kind: "feature", id: "rooster", name: "Rooster Rally", desc: "Power: your army moves and fires 40% faster for 6 s" },

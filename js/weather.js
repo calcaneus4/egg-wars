@@ -32,6 +32,7 @@ const WEATHER_INFO = {
   fog: { label: "FOG", minStage: 6, tip: "Fog! Ground troops can only see enemies close by - aircraft see fine." },
   storm: { label: "THUNDERSTORM", minStage: 9, tip: "Thunderstorm! Lightning strikes where the ground flickers - both armies get zapped." },
   hail: { label: "HAIL", minStage: 12, tip: "Hail! Aircraft get dinged by hailstones now and then." },
+  sandstorm: { label: "SANDSTORM", minStage: 8, tip: "Sandstorm! Strong winds push every egg, and aircraft can barely aim through the dust." },
   heat: { label: "HEAT WAVE", minStage: 12, tip: "Heat wave! Eggs swell up in the heat, so they're easier to hit with." },
 };
 
@@ -57,12 +58,12 @@ const Weather = {
     }
     if (force) this.type = force;
     const dir = random() < 0.5 ? -1 : 1;
-    const strength = this.type === "windy" ? 0.7 + random() * 0.3 : this.type === "clear" ? random() * 0.15 : 0.15 + random() * 0.3;
+    const strength = this.type === "sandstorm" ? 0.85 + random() * 0.15 : this.type === "windy" ? 0.7 + random() * 0.3 : this.type === "clear" ? random() * 0.15 : 0.15 + random() * 0.3;
     this.baseWind = dir * strength;
     this.wind = this.baseWind;
     this.gust = 0;
     this.drops = [];
-    const count = { rain: 160, storm: 190, snow: 110, windy: 18, hail: 70 }[this.type] || 0;
+    const count = { rain: 160, storm: 190, snow: 110, windy: 18, hail: 70, sandstorm: 70 }[this.type] || 0;
     for (let i = 0; i < count; i++) this.drops.push(this.newDrop(true));
     this.fogBanks = [];
     if (this.type === "fog") {
@@ -85,6 +86,15 @@ const Weather = {
 
   eggScale() {
     return this.type === "heat" ? HEAT_EGG_SCALE : 1;
+  },
+
+  isWindy() {
+    return this.type === "windy" || this.type === "sandstorm";
+  },
+
+  // Extra random aim error (px) for aircraft dropping or shooting eggs through a sandstorm.
+  airSpread() {
+    return this.type === "sandstorm" ? s(90) : 0;
   },
 
   isRainy() {
@@ -191,8 +201,8 @@ const Weather = {
       if (d.y > ground || d.x < -60 || d.x > W + 60) {
         if (this.type === "hail") d.bounced = false, d.vy = undefined;
         if (this.isRainy() && d.y > ground && Math.random() < 0.15) Effects.spawn("drop", d.x, ground, rand(-20, 20), rand(-60, -20), 0.2, 1.2, WHITE);
-        Object.assign(d, this.newDrop(this.type !== "windy"));
-        if (this.type === "windy") {
+        Object.assign(d, this.newDrop(!this.isWindy()));
+        if (this.isWindy()) {
           d.x = this.wind > 0 ? -30 : W + 30;
           d.y = rand(H * 0.3, H * 0.85);
         }
@@ -227,6 +237,10 @@ const Weather = {
       const puff = this.fogSprite();
       for (const f of this.fogBanks) ctx.drawImage(puff, f.x - f.r, f.y - f.r, f.r * 2, f.r * 2);
       ctx.restore();
+    }
+    if (this.type === "sandstorm") {
+      ctx.fillStyle = "rgba(205,160,90,0.2)";
+      ctx.fillRect(0, 0, W, H);
     }
     if (this.type === "heat") {
       ctx.save();
@@ -319,7 +333,7 @@ const Weather = {
         ctx.stroke();
       }
     } else {
-      ctx.strokeStyle = rgbaFromHex(LINE, 0.45);
+      ctx.strokeStyle = this.type === "sandstorm" ? "rgba(150,105,50,0.55)" : rgbaFromHex(LINE, 0.45);
       ctx.lineWidth = 1.5;
       for (const d of this.drops) {
         ctx.beginPath();

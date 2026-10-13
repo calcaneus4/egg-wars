@@ -153,8 +153,8 @@ and rounds last about 40 s. Goals:
 
 - [x] **Biome: Swamp** - murky water and reeds, mud-pit hazard (very slow), fireflies at dusk.
 - [x] **Biome: Candy Mountains** - candy-striped hills, gumdrops, a syrup-geyser hazard.
-- [ ] **Weather: Sandstorm** - drifting dust lowers aircraft accuracy and wind pushes eggs hard.
-- [ ] **Egg: Popcorn** - pops into a shower of kernels on landing.
+- [x] **Weather: Sandstorm** - drifting dust lowers aircraft accuracy and wind pushes eggs hard.
+- [x] **Egg: Popcorn** - pops into a shower of kernels on landing.
 - [ ] **Vehicle: Rolling-Pin Roller** - a steamroller that flattens the ground in front of it and pushes infantry back.
 - [ ] **Power: Scarecrow Decoy** - a scarecrow draws all enemy fire for 6 s.
 - [ ] **Boss: Pancake Golem** - a stack of pancakes; every third of its HP a pancake slides off and fights on its own.

@@ -21,6 +21,8 @@
 //   zap         { range, hops } - on impact, lightning jumps to the nearest enemy within range,
 //               then on to `hops` more, 1 hit each
 //   smoke       { radius, life } - leaves a smoke cloud; units inside shoot wildly
+//   popcorn     { pops, kernels, every } - after landing it pops `pops` times, throwing kernels
+//   radiusScale size of the egg relative to a normal one
 
 const STICKY_SLOW = 0.35;
 const BOSS_FREEZE_SCALE = 1 / 3;
@@ -126,6 +128,29 @@ const EGG_TYPES = {
     yolkDrop: false,
     freeze: 1.5,
   },
+  popcorn: {
+    id: "popcorn",
+    name: "Popcorn",
+    desc: "Lands with a sizzle, then pops three times, spraying hot kernels all around.",
+    level: 11,
+    damage: 1,
+    burst: 0,
+    band: "popcorn",
+    yolkDrop: true,
+    yolkBurst: 0,
+    popcorn: { pops: 3, kernels: 5, every: 0.45 },
+  },
+  kernel: {
+    id: "kernel",
+    name: "Kernel",
+    level: 99,
+    damage: 1,
+    burst: 0,
+    band: "kernel",
+    yolkDrop: false,
+    radiusScale: 0.7,
+    noSplat: true,
+  },
   zapShard: {
     id: "zapShard",
     name: "Zap shard",
@@ -167,10 +192,12 @@ const EggTypes = {
   kit: null,
   clouds: [],
   zaps: [],
+  poppers: [],
 
   reset() {
     this.clouds = [];
     this.zaps = [];
+    this.poppers = [];
   },
 
   // Called whenever an egg hits a unit or the ground, for the on-impact extras.
@@ -190,6 +217,10 @@ const EggTypes = {
       egg.smoked = true;
       this.clouds.push({ x, y: Math.min(y, game.terrain.yAt(clamp(x, 0, W))), r: s(k.smoke.radius), life: k.smoke.life, age: 0, puffs: Array.from({ length: 9 }, () => ({ dx: rand(-1, 1), dy: rand(-0.6, 0.2), r: rand(0.35, 0.6), p: rand(0, 6) })) });
       audio.play("egg_splat");
+    }
+    if (k.popcorn && !egg.popped) {
+      egg.popped = true;
+      this.poppers.push({ x, y: Math.min(y, game.terrain.yAt(clamp(x, 0, W))), side: egg.side, source: egg.source, left: k.popcorn.pops, timer: k.popcorn.every, def: k.popcorn, game });
     }
     if (k.zap && !egg.zapped) {
       egg.zapped = true;
@@ -237,6 +268,19 @@ const EggTypes = {
   },
 
   update(dt) {
+    for (const pp of this.poppers) {
+      if ((pp.timer -= dt) > 0) continue;
+      pp.timer = pp.def.every;
+      pp.left--;
+      for (let i = 0; i < pp.def.kernels; i++) {
+        const kernel = new Egg(pp.x, pp.y - s(8), rand(-170, 170), -rand(220, 360), pp.side, 0, "kernel");
+        kernel.source = pp.source;
+        pp.game.eggs.push(kernel);
+      }
+      Effects.spawn("ring", pp.x, pp.y - s(6), 0, 0, 0.2, 6, WHITE);
+      audio.play("pop");
+    }
+    this.poppers = this.poppers.filter((pp) => pp.left > 0);
     for (const c of this.clouds) c.age += dt;
     this.clouds = this.clouds.filter((c) => c.age < c.life);
     for (const z of this.zaps) z.life -= dt;

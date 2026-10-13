@@ -247,6 +247,10 @@ class AudioFx {
         this.tone(300 * v, 0.3, { type: "sine", volume: 0.12, slideTo: 80 });
         this.noise(0.25, { volume: 0.15, filter: "lowpass", freq: 600 });
         return 0.3;
+      case "pop":
+        this.noise(0.05, { volume: 0.3, filter: "bandpass", freq: 2200 * v, q: 3 });
+        this.tone(900 * v, 0.04, { type: "square", volume: 0.04, slideTo: 500 });
+        return 0.06;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;

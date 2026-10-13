@@ -553,7 +553,7 @@ class Game {
       if (e.vy > 0 && e.y + e.radius >= this.terrain.yAt(e.x)) {
         EggTypes.onImpact(this, e, e.x, this.terrain.yAt(e.x));
         if (e.burst) this.burst(e, e.x, this.terrain.yAt(e.x), true);
-        else this.addTerrainSplat(e.x);
+        else if (!e.kind.noSplat) this.addTerrainSplat(e.x);
         this.removeEgg(e);
       }
       if (e.x < -80 || e.x > W + 80 || e.y > H + 80) this.removeEgg(e);
@@ -798,7 +798,8 @@ class Game {
     const targets = ground.length ? ground : enemies;
     const [sx, sy] = u.bombBay();
     const target = targets.reduce((a, b) => Math.abs(a.x - sx) + Math.abs(a.y - sy) < Math.abs(b.x - sx) + Math.abs(b.y - sy) ? a : b);
-    const dx = target.x + rand(-s(12), s(12)) - sx;
+    const spread = Weather.airSpread();
+    const dx = target.x + rand(-s(12) - spread, s(12) + spread) - sx;
     const dy = target.y - target.size * 0.25 - sy;
     const time = clamp(Math.sqrt(Math.abs(dy) / GRAVITY) * 1.45, 0.6, 1.8);
     const vx = clamp(dx / time, -u.bombSpeed, u.bombSpeed);
@@ -826,7 +827,8 @@ class Game {
       return;
     }
     candidates.sort((a, b) => a.score - b.score);
-    this.eggs.push(new Egg(sx, sy, vx, candidates[0].vy, u.side, u.bombBurst));
+    const spread = Weather.airSpread();
+    this.eggs.push(new Egg(sx, sy, vx + rand(-spread, spread), candidates[0].vy, u.side, u.bombBurst));
     if (u.side === RIGHT) Stats.add("eggsThrown");
     this.maybeSay(u, settings.speechFireComments, 0.95);
     audio.play("fire");
@@ -840,7 +842,8 @@ class Game {
     }
     const target = close[0];
     const [sx, sy] = u.muzzle();
-    const tx = target.x + rand(-settings.airplaneShotSpread, settings.airplaneShotSpread);
+    const spread = settings.airplaneShotSpread + Weather.airSpread();
+    const tx = target.x + rand(-spread, spread);
     const ty = target.y + rand(-settings.airplaneShotSpread * 0.6, settings.airplaneShotSpread * 0.6);
     const d = Math.max(1, Math.hypot(tx - sx, ty - sy));
     this.eggs.push(new Egg(sx, sy, (tx - sx) / d * settings.airplaneShotSpeed, (ty - sy) / d * settings.airplaneShotSpeed, u.side));

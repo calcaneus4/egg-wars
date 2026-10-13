@@ -12,7 +12,7 @@ class Egg {
     this.burst += this.kind.burst;
     this.age = 0;
     this.bouncesLeft = this.kind.bounces || 0;
-    this.radius = s(this.kind.split ? 10 : 8) * Weather.eggScale();
+    this.radius = s(this.kind.split ? 10 : 8) * Weather.eggScale() * (this.kind.radiusScale || 1);
     this.trail = [];
     this.spin = rand(-6, 6);
     this.angle = rand(0, Math.PI * 2);
@@ -88,6 +88,24 @@ class Egg {
       ctx.beginPath();
       ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.kind.band === "popcorn") {
+      ctx.fillStyle = "#c0392b";
+      ctx.fillRect(-this.radius * 0.8, -this.radius * 0.2, this.radius * 1.6, this.radius * 0.9);
+      ctx.fillStyle = WHITE;
+      for (const kx of [-0.45, 0, 0.45]) {
+        ctx.beginPath();
+        ctx.arc(kx * this.radius, -this.radius * 0.35, this.radius * 0.32, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+    } else if (this.kind.band === "kernel") {
+      ctx.fillStyle = "#fff6d6";
+      for (const [kx, ky] of [[-0.4, 0], [0.35, -0.2], [0, 0.4]]) {
+        ctx.beginPath();
+        ctx.arc(kx * this.radius, ky * this.radius, this.radius * 0.55, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
     } else if (this.kind.band === "frost") {
       ctx.fillStyle = "#8fd0f5";
       ctx.beginPath();

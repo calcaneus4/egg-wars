@@ -26,7 +26,7 @@ const ACHIEVEMENTS = [
   { id: "nightOwl", name: "Night Owl", desc: "Win 5 night battles.", test: (s) => s.nightWins >= 5, scheme: "midnight" },
   { id: "survivor", name: "Expect the Unexpected", desc: "Live through 10 surprise events.", test: (s) => s.eventsSurvived >= 10 },
   { id: "allEvents", name: "Seen It All", desc: "Witness all 5 kinds of surprise event.", test: (s, p, f) => seenCount(f, "event:") >= Object.keys(EVENT_TYPES).length },
-  { id: "weatherman", name: "Weatherman", desc: "Fight in all 7 kinds of bad weather.", test: (s, p, f) => seenCount(f, "weather:") >= Object.keys(WEATHER_INFO).length - 1 },
+  { id: "weatherman", name: "Weatherman", desc: "Fight in every kind of bad weather.", test: (s, p, f) => seenCount(f, "weather:") >= Object.keys(WEATHER_INFO).length - 1 },
   { id: "bossAll", name: "Monster Hunter", desc: "Defeat every kind of boss.", test: (s, p, f) => (f.bossKinds || []).length >= BOSS_ROTATION.length, scheme: "ocean" },
   { id: "coldSnap", name: "Cold Snap", desc: "Freeze 50 enemies.", test: (s) => s.enemiesFrozen >= 50 },
   { id: "monsterJam", name: "Monster Jam", desc: "Flatten 25 enemies with Monster Trucks.", test: (s) => s.truckKills >= 25 },
