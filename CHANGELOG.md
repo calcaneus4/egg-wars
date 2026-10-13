@@ -200,3 +200,7 @@ yolk, use powers) or the hand-drawn side view:
 - Vehicles: **Rolling-Pin Roller** (lv 8, $32). A giant rolling pin pushed by a chef: light enemy ground units can't stop it, so it shoves the front line back as it advances and bonks whoever is in front. Tanks, vehicles, castles and bosses still block it. It is heavy (tornado-proof), and Balanced and Turtle armies field it too.
 - Powers: **Scarecrow** (lv 14, 30 s cooldown). A scarecrow pops up just ahead of your front line, and for 6 s every ranged enemy (not melee, rams, medics or bosses) aims at it instead of your troops.
 - Bosses: **Pancake Golem** (first at stage 30, then in the random rotation). A walking stack of three pancakes with a butter pat, syrup drips and googly eyes. It lobs sticky syrup eggs and sprays a six-shot "SYRUP STORM!" fan when enraged. At each third of HP lost a pancake slides off the stack and rolls into battle as a melee minion ("Get them, flapjack!"). In winrate-sim it matches the Kraken: 4/10 idle, 10/10 active.
+- Final review III:
+  - The 60-stage stress test (forced events, all weather, random eggs, powers and purchases) had no errors.
+  - Software-rendered frame time is ~16-17 ms, the same as before Phase 3; critter events add ≤1 ms.
+  - Final winrate-sim (10 runs at each of 10 stages): idle 38%, active 97%, rounds average ~60 s (was ~40 s). No stage below 9/10 active.

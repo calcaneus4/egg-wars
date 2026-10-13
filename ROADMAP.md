@@ -161,4 +161,4 @@ and rounds last about 40 s. Goals:
 
 ## 18. Final
 
-- [ ] **Final review III** - winrate check, 60-stage stress test, frame-time check, docs and a CHANGELOG summary.
+- [x] **Final review III** - winrate check, 60-stage stress test, frame-time check, docs and a CHANGELOG summary.
