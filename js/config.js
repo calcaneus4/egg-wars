@@ -270,6 +270,7 @@ const settings = {
   scoreWinBase: 0,
   // Enemy scaling from D(n); see DESIGN.md section 3.
   enemyHpScaleFromDifficulty: 0.35,
+  enemyToughness: 0.15,
   enemyFireScaleFromDifficulty: 0.15,
   enemyBudgetScaleFromDifficulty: 0.25,
   enemyBaseBudget: 120,

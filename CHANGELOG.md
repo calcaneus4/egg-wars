@@ -158,3 +158,6 @@ yolk, use powers) or the hand-drawn side view:
 - Phase 3 plan: ROADMAP section 14-18 and DESIGN.md section 13 (win-rate targets).
 - Tools: `tools/winrate-sim.js` plays real headless battles with a player whose level and Armory follow the balance-sim progression, and reports idle and active win rates per stage. Phase 2 baseline: ~80% idle, ~98% active.
 - Balance: rounds are 50% longer (base 57 s instead of 38 s, +15 s per difficulty point instead of 10; bosses +18 s instead of 12). Lightning War now asks for a win under 25 s.
+- Challenge: **enemy reinforcements** (`js/reinforcements.js`). From stage 3 the red army calls in 1-3 waves per round (more in later stages) with a horn and a "RED REINFORCEMENTS! +N" banner. Each wave is about 20% of the enemy budget, smaller in early stages, on boss stages and during Rally.
+- Challenge: enemy HP gets a +15% toughness bonus that ramps in over stages 4-10. The Turtle army has less extra HP (+5%) but moves faster, so it fights instead of winning by timeout.
+- Measured with winrate-sim (10 runs per stage): idle wins dropped from ~80% to ~33%, while active play (Yolk Drops and powers) still wins ~98%. Passive play now loses, attentive play wins. The no-wall check is now "Armory alone within 10% of the enemy".

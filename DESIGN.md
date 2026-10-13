@@ -384,3 +384,17 @@ balance-sim progression, and it never buys units.
 - No stage may fall below about 25% active. Rally (section 9) then adds gold, a free tank and
   a smaller enemy budget after two losses, so every stage stays beatable.
 - Rounds last about 1.5× their Phase 2 length.
+
+**How the target is reached.**
+- *Toughness:* enemy HP gets an extra `enemyToughness = 0.15`, ramping in over stages 4-10.
+  `h(n) = (1 + 0.35 (D - 1)) (1 + 0.15 min(1, (n - 3) / 7))`.
+- *Reinforcements:* `js/reinforcements.js` sends waves of `0.2 B(n)` (half that at stage 1-3,
+  ramping to full by stage 7; half on boss stages; shrunk by Rally).
+  - 1 wave from stage 3, 2 from stage 8, 3 from stage 15.
+  - Waves arrive between 15% and 65% of the round, so they fight before the timeout.
+  - Caps count living units, so a wave tops the army up instead of flooding it.
+- *Turtle:* now +5% HP (was 15%) and speed x0.7 (was 0.55), so it no longer wins most
+  timeouts by standing still.
+- *No-wall guarantee (section 5):* relaxed to `P >= 0.9 E(n)`. Armory upgrades alone stay
+  within 10% of the enemy; the Yolk Drop, powers and buying units are expected to make up the
+  rest, and Rally helps after two losses.

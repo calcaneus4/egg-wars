@@ -8,8 +8,11 @@ const Progression = {
   },
 
   // DESIGN.md section 3: enemy multipliers derived from D(n).
+  // Enemy HP: the D(n) curve, times a toughness bonus that ramps in over stages 4-10
+  // (DESIGN.md section 13) so the opening stages stay gentle.
   enemyHpScale(stage) {
-    return 1 + settings.enemyHpScaleFromDifficulty * (this.difficulty(stage) - 1);
+    const ramp = clamp((stage - 3) / 7, 0, 1);
+    return (1 + settings.enemyHpScaleFromDifficulty * (this.difficulty(stage) - 1)) * (1 + settings.enemyToughness * ramp);
   },
 
   enemyFireScale(stage) {

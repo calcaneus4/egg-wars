@@ -134,8 +134,8 @@ and rounds last about 40 s. Goals:
 ## 14. Challenge
 
 - [x] **Longer rounds** - round time ×1.5 (timer, boss bonus and tiebreaks still work); winrate-sim tool committed.
-- [ ] **Enemy reinforcements** - the red army calls in small reinforcement waves during the round (banner, units march in from the right), paid from an extra budget that scales with D(n).
-- [ ] **Tougher enemies & tuning** - enemy HP and budget tuned with winrate-sim to the target; Rally and boss stages rechecked so no stage is a wall.
+- [x] **Enemy reinforcements** - the red army calls in small reinforcement waves during the round (banner, units march in from the right), paid from an extra budget that scales with D(n).
+- [x] **Tougher enemies & tuning** - enemy HP and budget tuned with winrate-sim to the target; Rally and boss stages rechecked so no stage is a wall.
 
 ## 15. Focus (less on screen)
 

@@ -132,6 +132,7 @@ class Game {
     this.spawn();
     this.applyRally();
     if (this.bossStage) this.roundLimit += BOSS_EXTRA_SECONDS;
+    Reinforcements.plan(this);
     Objectives.start(this);
     const flags = SaveManager.data.flags;
     flags.biomes = Array.isArray(flags.biomes) ? flags.biomes : [];
@@ -467,6 +468,7 @@ class Game {
     Hazards.update(this, dt);
     Events.update(this, dt);
     Weather.updateBattle(this, dt);
+    Reinforcements.update(this, dt);
     EggTypes.update(dt);
 
     const blue = this.living(RIGHT);
@@ -1008,6 +1010,7 @@ class Game {
     Objectives.draw(this);
     this.drawPersonalityBanner();
     Events.drawBanner(this);
+    Reinforcements.drawBanner(this);
     Bosses.drawBar(this);
     Achievements.drawToast();
     Tutorial.draw(this);

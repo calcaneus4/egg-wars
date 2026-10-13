@@ -227,6 +227,10 @@ class AudioFx {
         this.noise(n(0.25), { volume: 0.3, filter: "highpass", freq: 3000 * v });
         this.tone(1800 * v, 0.2, { type: "sawtooth", volume: 0.05, slideTo: 300 });
         return 0.25;
+      case "horn":
+        this.tone(196, 0.25, { type: "sawtooth", volume: 0.06 });
+        this.tone(262, 0.45, { type: "sawtooth", volume: 0.06, delay: 0.22 });
+        return 0.7;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;

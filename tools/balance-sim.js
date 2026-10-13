@@ -14,6 +14,8 @@ for (const file of ["config.js", "util.js", "progression.js"]) {
 }
 const { Progression, settings } = vm.runInContext("({ Progression, settings })", context);
 
+const MIN_ARMORY_RATIO = 0.9;
+
 // A player who wins every stage and spends half of their Golden Eggs on the three combat tracks.
 const AVG_KILLS = 8;
 let xp = 0;
@@ -56,11 +58,13 @@ for (const n of [1, 2, 3, 5, 10, 20, 30, 50, 100, 200]) {
   const T = settings.roundBaseSeconds + settings.roundSecondsPerDifficulty * (D - 1);
   const r = reached[n] || { level: 1, goldenEggs: 0 };
   const { k, P } = combatPower(r.goldenEggs / 2);
-  if (n >= 3 && P < E) ok = false;
+  // Phase 3: the Armory alone keeps within 10% of the enemy; Yolk Drops, powers and buying
+  // units close the gap (DESIGN.md section 13).
+  if (n >= 3 && P < E * MIN_ARMORY_RATIO) ok = false;
   console.log([n, D, h, f, b, E].map((v, i) => (i ? v.toFixed(2) : String(v)).padStart(i ? 5 : 5)).join(" ") +
     "  " + Progression.enemyBudget(n).toFixed(0).padStart(5) + "  " + T.toFixed(0).padStart(4) +
     "  " + String(r.level).padStart(5) + " " + String(r.goldenEggs).padStart(4) + "  " + k.join("/").padEnd(8) +
     " " + P.toFixed(2) + "  " + (P / E).toFixed(2));
 }
-console.log(ok ? "OK: P >= E(n) from stage 3 on" : "WARNING: P < E(n) somewhere from stage 3 on");
+console.log(ok ? `OK: P >= ${MIN_ARMORY_RATIO} E(n) from stage 3 on` : `WARNING: P < ${MIN_ARMORY_RATIO} E(n) somewhere from stage 3 on`);
 process.exit(ok ? 0 : 1);

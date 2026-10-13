@@ -30,8 +30,8 @@ const PERSONALITIES = {
     tell: "Tough troops dig in and advance slowly - bring heavy eggs.",
     weights: { tank: 3.5, soldier: 2, medic: 2, mortar: 1, motorcycle: 0.5, catapult: 0.8 },
     budgetScale: 0.88,
-    speedScale: 0.55,
-    hpScale: 1.15,
+    speedScale: 0.7,
+    hpScale: 1.05,
   },
   air: {
     id: "air",
