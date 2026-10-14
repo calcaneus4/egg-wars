@@ -6,6 +6,8 @@
 const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle", "medic", "mortar", "rider", "catapult", "truck", "balloon", "roller", "hover"];
 const SHOP_KEYS = ["1", "2", "3", "4", "5", "6"];
 const SHOP_ROW = 8;
+// The enemy roster shows at most this many unit types (two rows of four).
+const ROSTER_MAX = 8;
 const SHOP_CARD = { x: 12, y: 8, w: 58, h: 60, gap: 6 };
 
 // Icons are drawn once per (type, colour, size) into a small offscreen canvas and reused,
@@ -288,7 +290,7 @@ const Hud = {
     }
     // Types the enemy has on the field come first (up to 12), padded with the basic types.
     const present = SHOP_ORDER.filter((t) => this.count(game, LEFT, t) > 0);
-    const types = present.concat(SHOP_ORDER.slice(0, SHOP_ROW).filter((t) => !present.includes(t))).slice(0, Math.max(SHOP_ROW, Math.min(12, present.length)));
+    const types = present.concat(SHOP_ORDER.slice(0, SHOP_ROW).filter((t) => !present.includes(t))).slice(0, ROSTER_MAX);
     const cell = 40;
     const x0 = W - 12 - 4 * cell * 2;
     ctx.save();

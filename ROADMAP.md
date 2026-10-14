@@ -190,7 +190,7 @@ rotation, so a single stage never shows much at once.
 - [x] **Vehicle: Hover Coop** - fast hovercraft that ignores hazards, mud and goo, firing quick eggs.
 - [x] **Power: Golden Goose** - a goose waddles out and lays gold coins (+gold over 8 s).
 - [x] **Boss: Toaster Titan** - a giant toaster that pops flaming toast; enraged, it fires toast volleys.
-- [ ] **Calm HUD pass** - enemy roster capped at 8 icons, shorter tips, and stacked banners never overlap.
+- [x] **Calm HUD pass** - enemy roster capped at 8 icons, shorter tips, and stacked banners never overlap.
 
 ## 21. Final
 

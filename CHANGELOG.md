@@ -220,3 +220,7 @@ yolk, use powers) or the hand-drawn side view:
 - Vehicles: **Hover Coop** (lv 12, $24). A chicken coop on an air cushion: fast and fragile (3 HP), pecking out quick short-range eggs. It floats straight over hazards, mud pits, tide pools, syrup and sticky goo without slowing down. Rushers love them.
 - Powers: **Golden Goose** (lv 9, 35 s cooldown). A goose waddles out of your castle and lays a gold coin every second for 8 s ($5 + $1 per 5 stages each, with floating "+$" numbers): the first power that helps your economy instead of fighting. The Powers screen rows are a little shorter so all 7 powers fit.
 - Bosses: **Toaster Titan** (first at stage 35, then in the rotation). A chrome toaster on stubby legs with a power-cord tail, an angry face and a lever that slams down. It pops smoking slices of burnt toast (bursting on impact) at the 3 nearest troops every 2 s, and when enraged fires a seven-slice "DING! TOAST'S UP!" volley. winrate-sim: 0/10 idle, 10/10 active.
+- HUD: calm-screen pass.
+  - The enemy roster shows at most 8 unit types (two rows of four), listing the types on the field first.
+  - The reinforcement banner moved to the centre, below the boss bar, so it can't collide with achievement toasts on the right.
+  - Only one centre banner shows at a time: the reinforcement banner waits, with its timer paused, while the opening, Rally or event banner is up.

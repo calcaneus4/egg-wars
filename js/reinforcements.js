@@ -27,7 +27,8 @@ const Reinforcements = {
   },
 
   update(game, dt) {
-    game.waveBanner = Math.max(0, (game.waveBanner || 0) - dt);
+    const blocked = game.personalityTimer > 0 || game.rallyTimer > 0 || (Events.current && Events.current.banner > 0);
+    if (!blocked) game.waveBanner = Math.max(0, (game.waveBanner || 0) - dt);
     for (const w of game.waves || []) {
       if (w.done || game.roundTime < w.at) continue;
       w.done = true;
@@ -72,13 +73,15 @@ const Reinforcements = {
 
   drawBanner(game) {
     if (!(game.waveBanner > 0) || game.winner || game.scene !== "battle") return;
+    // Only one centre banner at a time: wait while the opening, Rally or event banner shows.
+    if (game.personalityTimer > 0 || game.rallyTimer > 0 || (Events.current && Events.current.banner > 0)) return;
     const text = `RED REINFORCEMENTS! +${game.waveSize}`;
     ctx.save();
     ctx.globalAlpha = Math.min(1, game.waveBanner / 0.4);
     ctx.font = "bold 20px Courier New";
     const w = ctx.measureText(text).width + 28;
-    const x = W - w - 14;
-    const y = 124;
+    const x = (W - w) / 2;
+    const y = 156;
     ctx.fillStyle = PAPER;
     ctx.strokeStyle = RED;
     ctx.lineWidth = 3;
