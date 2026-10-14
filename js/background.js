@@ -177,6 +177,32 @@ class Background {
       g.closePath();
       g.fill();
       g.stroke();
+    } else if (kind === "deadtrees") {
+      // Bare, crooked trees.
+      g.moveTo(x, y + 2);
+      g.lineTo(x + h * 0.05, y - h);
+      g.moveTo(x + h * 0.03, y - h * 0.6);
+      g.lineTo(x - h * 0.3, y - h * 0.9);
+      g.moveTo(x + h * 0.04, y - h * 0.75);
+      g.lineTo(x + h * 0.35, y - h * 1.05);
+      g.moveTo(x + h * 0.05, y - h);
+      g.lineTo(x - h * 0.1, y - h * 1.2);
+      g.lineWidth = 2;
+      g.stroke();
+      g.lineWidth = 1.5;
+    } else if (kind === "palms") {
+      // Palm trees with drooping fronds.
+      g.moveTo(x, y + 2);
+      g.quadraticCurveTo(x + h * 0.15, y - h * 0.5, x + h * 0.1, y - h);
+      g.lineWidth = 2.5;
+      g.stroke();
+      g.lineWidth = 1.5;
+      for (let k = -2; k <= 2; k++) {
+        g.beginPath();
+        g.moveTo(x + h * 0.1, y - h);
+        g.quadraticCurveTo(x + h * 0.1 + k * h * 0.2, y - h * 1.2, x + h * 0.1 + k * h * 0.35, y - h * 0.8);
+        g.stroke();
+      }
     } else if (kind === "willows") {
       // Droopy swamp willows.
       g.moveTo(x, y + 2);

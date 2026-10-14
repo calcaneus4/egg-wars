@@ -13,6 +13,8 @@ const HAZARD_TYPES = {
   sand: { biome: "desert", width: 120, speed: 0.4, name: "Quicksand", tip: "Quicksand slows ground units to a crawl - a great place to drop eggs." },
   mud: { biome: "swamp", width: 130, speed: 0.3, name: "Mud pits", tip: "Mud pits bog ground units right down - perfect for a Yolk Drop." },
   syrup: { biome: "candy", width: 80, period: [6, 9], warn: 1.2, sticky: 2.5, name: "Syrup geysers", tip: "Syrup geysers glue troops in place for a moment - both armies." },
+  grave: { biome: "graveyard", width: 70, period: [6, 9], warn: 1.2, hold: 1.6, name: "Restless graves", tip: "Restless graves! Skeleton hands grab anyone standing on them for a moment." },
+  tide: { biome: "beach", width: 140, speed: 0.55, name: "Tide pools", tip: "Tide pools slow ground units down - wade carefully." },
   geyser: { biome: "kitchen", width: 80, period: [6, 9], warn: 1.2, name: "Hot pans", tip: "Hot pans blast steam every few seconds - keep your troops clear." },
 };
 
@@ -69,6 +71,16 @@ const Hazards = {
   },
 
   erupt(game, z, ground) {
+    if (z.def.hold) {
+      // Skeleton hands pop up and hold whoever stands on the grave (no damage).
+      z.hands = 1;
+      Effects.debris(z.x, ground, 5, LINE);
+      audio.play("boo");
+      for (const u of game.living()) {
+        if (this.isGround(u) && Math.abs(u.x - z.x) <= z.half + u.blockingRadius() * 0.5) u.posing = Math.max(u.posing || 0, z.def.hold);
+      }
+      return;
+    }
     if (z.def.sticky) {
       // Syrup: a sticky fountain that glues troops instead of hurting them.
       for (let i = 0; i < 16; i++) Effects.spawn("drop", z.x + rand(-z.half * 0.4, z.half * 0.4), ground - 6, rand(-50, 50), rand(-340, -180), rand(0.6, 1), rand(2.5, 4), "#d98a2b");
@@ -109,6 +121,35 @@ const Hazards = {
           ctx.lineTo(x + 10, y - 1);
           ctx.stroke();
         }
+      } else if (z.type === "grave") {
+        // A mound of fresh dirt; bony hands poke out when it erupts.
+        ctx.fillStyle = "rgba(90,70,60,0.6)";
+        ctx.strokeStyle = LINE;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(z.x, ground, z.half * 0.75, 7, 0, Math.PI, 0);
+        ctx.fill();
+        ctx.stroke();
+        const warn = z.timer < z.def.warn;
+        const up = Math.max(z.flash / 0.6, warn ? 0.25 : 0);
+        if (up > 0) {
+          for (const hx of [-0.35, 0.3]) {
+            const bx = z.x + hx * z.half;
+            line(bx, ground, bx, ground - 16 * up, "#eeeae0", 3);
+            for (let f = -1; f <= 1; f++) line(bx, ground - 16 * up, bx + f * 3, ground - 21 * up, "#eeeae0", 2);
+          }
+        }
+      } else if (z.type === "tide") {
+        ctx.fillStyle = "rgba(110,180,230,0.55)";
+        ctx.strokeStyle = rgbaFromHex(LINE, 0.5);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(left, game.terrain.yAt(left));
+        for (let x = left; x <= right; x += 6) ctx.lineTo(x, game.terrain.yAt(x) - 1 + Math.sin(x * 0.15 + performance.now() * 0.003) * 1.5);
+        for (let x = right; x >= left; x -= 6) ctx.lineTo(x, game.terrain.yAt(x) + 9);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
       } else if (z.type === "mud") {
         ctx.fillStyle = "rgba(95,70,40,0.6)";
         ctx.strokeStyle = rgbaFromHex(LINE, 0.55);

@@ -1,7 +1,7 @@
 "use strict";
 
 // Biomes: each run of five stages takes place in a different land with its own terrain shape,
-// ground colour, background decorations and weather. After Candy Mountains the cycle repeats.
+// ground colour, background decorations and weather. After Sunny Beach the cycle repeats.
 
 const BIOME_STAGES = 5;
 
@@ -74,6 +74,26 @@ const BIOMES = [
     candy: true,
     decor: "candy",
     weather: { clear: 4, windy: 1.5, heat: 1, hail: 0.5 },
+  },
+  {
+    id: "graveyard",
+    name: "Spooky Graveyard",
+    terrain: { minY: 0.66, maxY: 0.85, rough: 80, smooth: 6 },
+    ground: [70, 60, 85, 0.3],
+    grass: true,
+    graves: true,
+    decor: "deadtrees",
+    weather: { fog: 3, clear: 2, rain: 1, storm: 1 },
+  },
+  {
+    id: "beach",
+    name: "Sunny Beach",
+    terrain: { minY: 0.7, maxY: 0.84, rough: 55, smooth: 8 },
+    ground: [245, 215, 150, 0.35],
+    grass: false,
+    beach: true,
+    decor: "palms",
+    weather: { clear: 5, windy: 2, heat: 1.5, storm: 0.5 },
   },
 ];
 

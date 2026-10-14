@@ -213,3 +213,6 @@ yolk, use powers) or the hand-drawn side view:
 - Director: events can be likelier at dusk and night (`nightWeight`).
 - Weather: **Meteor Shower** (stage 10+, night stages only, any biome). Every 4-7 s a glowing ring marks a spot, a fiery meteor streaks in over 1.4 s, and it hits ground units in the ring once (aircraft and bosses are spared).
 - Weather: **Blizzard** (stage 11+, Snowfield): sideways snow, white-out creeping in from both edges, and every ground unit moves and fires 15% slower.
+- Biomes: two more lands after Candy Mountains (9 biomes, 45 stages per lap).
+  - **Spooky Graveyard**: purple-grey ground, leaning tombstones and crosses, crooked dead trees, and lots of fog. **Restless graves** erupt every 6-9 s, and skeleton hands hold anyone on them for 1.6 s (no damage). Ghosts are 4x likelier here.
+  - **Sunny Beach**: golden sand with shells and starfish, a foamy wet-sand line and palm trees. **Tide pools** slow ground units to 55%. Tourists are 3x likelier here.

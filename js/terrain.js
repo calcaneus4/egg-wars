@@ -232,6 +232,25 @@ class Terrain {
         g.restore();
       }
     }
+    if (biome.beach) {
+      // Seashells and starfish in the sand.
+      for (let i = 0; i < 26; i++) {
+        const x = random() * W;
+        const y = this.yAt(x) + 8 + random() * 70;
+        g.strokeStyle = rgbaFromHex(LINE, 0.45);
+        g.fillStyle = i % 3 ? "#fbe3c9" : "#f29e7a";
+        g.beginPath();
+        if (i % 3) g.arc(x, y, 3 + random() * 2, Math.PI, 0);
+        else for (let k = 0; k < 10; k++) {
+          const a = (k / 10) * Math.PI * 2;
+          const rr = k % 2 ? 2 : 5;
+          g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+        }
+        g.closePath();
+        g.fill();
+        g.stroke();
+      }
+    }
     if (biome.reeds) {
       // Murky puddles just under the surface.
       g.fillStyle = "rgba(60,90,70,0.35)";
@@ -259,6 +278,60 @@ class Terrain {
 
   // Biome detail on top of the surface line.
   renderBiomeSurface(g, random, biome) {
+    if (biome.graves) {
+      // Leaning tombstones and the odd cross.
+      for (let i = 0; i < 12; i++) {
+        const x = 60 + random() * (W - 120);
+        const y = this.yAt(x);
+        const h = 26 + random() * 14;
+        const lean = (random() - 0.5) * 0.3;
+        g.save();
+        g.translate(x, y + 3);
+        g.rotate(lean);
+        g.fillStyle = "#b9b4c2";
+        g.strokeStyle = LINE;
+        g.lineWidth = 1.5;
+        g.beginPath();
+        if (i % 3 === 0) {
+          g.rect(-3, -h * 1.2, 6, h * 1.2);
+          g.rect(-10, -h * 0.9, 20, 6);
+        } else {
+          g.moveTo(-11, 0);
+          g.lineTo(-11, -h + 11);
+          g.arc(0, -h + 11, 11, Math.PI, 0);
+          g.lineTo(11, 0);
+          g.closePath();
+        }
+        g.fill();
+        g.stroke();
+        if (i % 3) {
+          g.strokeStyle = rgbaFromHex(LINE, 0.6);
+          g.beginPath();
+          g.moveTo(-5, -h + 10);
+          g.lineTo(5, -h + 10);
+          g.moveTo(-5, -h + 16);
+          g.lineTo(4, -h + 16);
+          g.stroke();
+        }
+        g.restore();
+      }
+    }
+    if (biome.beach) {
+      // Foamy wet sand line along the surface.
+      g.strokeStyle = "rgba(120,190,230,0.7)";
+      g.lineWidth = 3;
+      g.beginPath();
+      this.points.forEach(([x, y], i) => (i ? g.lineTo(x, y + 4) : g.moveTo(x, y + 4)));
+      g.stroke();
+      g.strokeStyle = "rgba(255,255,255,0.9)";
+      g.lineWidth = 1.5;
+      for (let x = 10; x < W; x += 24 + random() * 30) {
+        const y = this.yAt(x) + 6;
+        g.beginPath();
+        g.arc(x, y, 4, 0, Math.PI);
+        g.stroke();
+      }
+    }
     if (biome.reeds) {
       // Reeds and cattails poking out of the bog.
       g.lineWidth = 1.5;
