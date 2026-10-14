@@ -33,7 +33,7 @@ const BIOMES = [
     grass: false,
     snowCap: true,
     decor: "pines",
-    weather: { snow: 5, clear: 2, windy: 2, fog: 1.5, hail: 1.5 },
+    weather: { snow: 5, clear: 2, windy: 2, fog: 1.5, hail: 1.5, blizzard: 2 },
   },
   {
     id: "volcano",

@@ -23,6 +23,10 @@ const LIGHTNING_WARN = 1.3;
 const LIGHTNING_RADIUS = 46;
 const HAIL_HIT_PERIOD = [5, 9];
 const HEAT_EGG_SCALE = 1.35;
+const METEOR_PERIOD = [4, 7];
+const METEOR_WARN = 1.4;
+const METEOR_RADIUS = 38;
+const BLIZZARD_SLOW = 0.85;
 
 const WEATHER_INFO = {
   clear: { label: "" },
@@ -32,6 +36,8 @@ const WEATHER_INFO = {
   fog: { label: "FOG", minStage: 6, tip: "Fog! Ground troops can only see enemies close by - aircraft see fine." },
   storm: { label: "THUNDERSTORM", minStage: 9, tip: "Thunderstorm! Lightning strikes where the ground flickers - both armies get zapped." },
   hail: { label: "HAIL", minStage: 12, tip: "Hail! Aircraft get dinged by hailstones now and then." },
+  meteor: { label: "METEOR SHOWER", minStage: 10, nightOnly: true, tip: "Meteor shower! Glowing rings mark where shooting stars will land - both armies get singed." },
+  blizzard: { label: "BLIZZARD", minStage: 11, tip: "Blizzard! Heavy snow slows every ground unit a little." },
   sandstorm: { label: "SANDSTORM", minStage: 8, tip: "Sandstorm! Strong winds push every egg, and aircraft can barely aim through the dust." },
   heat: { label: "HEAT WAVE", minStage: 12, tip: "Heat wave! Eggs swell up in the heat, so they're easier to hit with." },
 };
@@ -49,6 +55,8 @@ const Weather = {
     const table = (biome && biome.weather
       ? Object.entries(biome.weather).map(([id, weight]) => ({ id, weight }))
       : WEATHER_TYPES).filter((w) => stage >= ((WEATHER_INFO[w.id] || {}).minStage || 0));
+    // Meteor showers can happen on any night stage, whatever the biome.
+    if (stage >= WEATHER_INFO.meteor.minStage && Sky.phaseForStage(stage) === "night") table.push({ id: "meteor", weight: 1.2 });
     if (stage <= 2) {
       this.type = "clear";
     } else {
@@ -63,7 +71,7 @@ const Weather = {
     this.wind = this.baseWind;
     this.gust = 0;
     this.drops = [];
-    const count = { rain: 160, storm: 190, snow: 110, windy: 18, hail: 70, sandstorm: 70 }[this.type] || 0;
+    const count = { rain: 160, storm: 190, snow: 110, blizzard: 240, windy: 18, hail: 70, sandstorm: 70 }[this.type] || 0;
     for (let i = 0; i < count; i++) this.drops.push(this.newDrop(true));
     this.fogBanks = [];
     if (this.type === "fog") {
@@ -71,6 +79,7 @@ const Weather = {
     }
     this.strike = null;
     this.lightningTimer = rand(LIGHTNING_PERIOD[0], LIGHTNING_PERIOD[1]);
+    this.meteorTimer = rand(METEOR_PERIOD[0] * 0.5, METEOR_PERIOD[1] * 0.5);
     this.flash = 0;
     this.time = 0;
   },
@@ -97,6 +106,15 @@ const Weather = {
     return this.type === "sandstorm" ? s(90) : 0;
   },
 
+  // Movement multiplier for a ground unit (a blizzard slows everyone on foot or wheels).
+  unitSpeed(u) {
+    return this.type === "blizzard" && Hazards.isGround(u) ? BLIZZARD_SLOW : 1;
+  },
+
+  isSnowy() {
+    return this.type === "snow" || this.type === "blizzard";
+  },
+
   isRainy() {
     return this.type === "rain" || this.type === "storm";
   },
@@ -113,6 +131,16 @@ const Weather = {
         this.strike = { x: rand(W * 0.15, W * 0.85), timer: LIGHTNING_WARN, hit: false };
       }
     }
+    if (this.type === "meteor") {
+      if (this.strike) {
+        this.strike.timer -= dt;
+        if (this.strike.timer <= 0 && !this.strike.hit) this.meteorHit(game, this.strike);
+        if (this.strike.timer <= -0.5) this.strike = null;
+      } else if ((this.meteorTimer -= dt) <= 0) {
+        this.meteorTimer = rand(METEOR_PERIOD[0], METEOR_PERIOD[1]);
+        this.strike = { x: rand(W * 0.12, W * 0.88), timer: METEOR_WARN, hit: false, dir: Math.random() < 0.5 ? -1 : 1 };
+      }
+    }
     if (this.type === "hail") {
       for (const u of game.living()) {
         if (!(u instanceof Airplane) || u.isBoss) continue;
@@ -124,6 +152,21 @@ const Weather = {
         game.damageUnit(u, 1);
       }
     }
+  },
+
+  meteorHit(game, strike) {
+    strike.hit = true;
+    const ground = game.terrain.yAt(strike.x);
+    const r = s(METEOR_RADIUS);
+    for (const u of game.living()) {
+      if (u.isBoss || u instanceof Airplane) continue;
+      if (Math.abs(u.x - strike.x) <= r + u.radius() * 0.5) game.damageUnit(u, 1);
+    }
+    Effects.explosion(strike.x, ground, 1.1, LINE);
+    Effects.sparks(strike.x, ground - 6, 8, "#ff9a3c");
+    Effects.shake(5);
+    this.flash = 0.15;
+    audio.play("tank_destroyed");
   },
 
   lightning(game, strike) {
@@ -151,7 +194,7 @@ const Weather = {
     return {
       x: rand(-40, W + 40),
       y: anywhere ? rand(0, H) : rand(-40, -5),
-      v: this.isRainy() ? rand(520, 700) : this.type === "snow" ? rand(30, 60) : this.type === "hail" ? rand(380, 520) : rand(0, 10),
+      v: this.isRainy() ? rand(520, 700) : this.type === "blizzard" ? rand(70, 120) : this.type === "snow" ? rand(30, 60) : this.type === "hail" ? rand(380, 520) : rand(0, 10),
       sway: rand(0, Math.PI * 2),
       size: rand(0.7, 1.4),
     };
@@ -188,9 +231,9 @@ const Weather = {
           d.x += rand(-4, 4);
           continue;
         }
-      } else if (this.type === "snow") {
+      } else if (this.isSnowy()) {
         d.sway += dt * 1.5;
-        d.x += (windPx * 0.8 + Math.sin(d.sway) * 18) * dt;
+        d.x += (windPx * (this.type === "blizzard" ? 2.5 : 0.8) + Math.sin(d.sway) * 18) * dt;
         d.y += d.v * dt;
       } else {
         // Windy: little leaves and dust streaks blowing across.
@@ -241,6 +284,51 @@ const Weather = {
     if (this.type === "sandstorm") {
       ctx.fillStyle = "rgba(205,160,90,0.2)";
       ctx.fillRect(0, 0, W, H);
+    }
+    if (this.type === "blizzard") {
+      // White-out creeping in from both edges.
+      const edge = W * 0.16;
+      for (const [x0, x1] of [[0, edge], [W, W - edge]]) {
+        const g = ctx.createLinearGradient(x0, 0, x1, 0);
+        g.addColorStop(0, "rgba(255,255,255,0.75)");
+        g.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(Math.min(x0, x1), 0, edge, H);
+      }
+      ctx.fillStyle = "rgba(230,240,255,0.12)";
+      ctx.fillRect(0, 0, W, H);
+    }
+    if (this.type === "meteor") {
+      const st = this.strike;
+      if (st && !st.hit) {
+        // A glowing ring marks the impact point while the meteor streaks in.
+        const ground = game.terrain.yAt(st.x);
+        const k = 1 - st.timer / METEOR_WARN;
+        ctx.save();
+        ctx.globalAlpha = 0.5 + 0.4 * Math.sin(this.time * 20);
+        ctx.strokeStyle = "#ff9a3c";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(st.x, ground, s(METEOR_RADIUS), s(9), 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        const mx = st.x - st.dir * (1 - k) * W * 0.5;
+        const my = ground - (1 - k) * ground;
+        ctx.strokeStyle = "rgba(255,200,90,0.8)";
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.moveTo(mx, my);
+        ctx.lineTo(mx - st.dir * s(150), my - s(150) * (ground / (W * 0.5)));
+        ctx.stroke();
+        ctx.fillStyle = "#ffdf80";
+        ctx.strokeStyle = LINE;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(mx, my, s(15), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
     }
     if (this.type === "heat") {
       ctx.save();
@@ -322,7 +410,7 @@ const Weather = {
         ctx.lineTo(d.x - slant, d.y - 14 * d.size);
       }
       ctx.stroke();
-    } else if (this.type === "snow") {
+    } else if (this.isSnowy()) {
       ctx.fillStyle = "#ffffff";
       ctx.strokeStyle = rgbaFromHex(LINE, 0.35);
       ctx.lineWidth = 0.8;

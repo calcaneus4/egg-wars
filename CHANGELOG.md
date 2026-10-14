@@ -211,3 +211,5 @@ yolk, use powers) or the hand-drawn side view:
   - **Giant Snake** (stage 10+): a long green snake slithers across with a flicking tongue, bumping light troops into the air (1 hit on landing). Heavies only wobble.
   - **Rock Monster** (stage 12+, mostly volcano): a boulder golem rises and stomps the nearest troops (1 hit each, at most once). Eggs from either army crumble it.
 - Director: events can be likelier at dusk and night (`nightWeight`).
+- Weather: **Meteor Shower** (stage 10+, night stages only, any biome). Every 4-7 s a glowing ring marks a spot, a fiery meteor streaks in over 1.4 s, and it hits ground units in the ring once (aircraft and bosses are spared).
+- Weather: **Blizzard** (stage 11+, Snowfield): sideways snow, white-out creeping in from both edges, and every ground unit moves and fires 15% slower.

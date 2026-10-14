@@ -494,7 +494,7 @@ class Game {
         u.frozen = Math.max(0, u.frozen - dt);
         continue;
       }
-      const udt = (u.stuck > 0 ? dt * STICKY_SLOW : dt) * Events.speedFactor(u) * Abilities.timeScale(u);
+      const udt = (u.stuck > 0 ? dt * STICKY_SLOW : dt) * Events.speedFactor(u) * Abilities.timeScale(u) * Weather.unitSpeed(u);
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
       if (Events.tickUnit(this, u, dt)) continue;
       u.move(udt * Hazards.speedFactor(u), enemies);

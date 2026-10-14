@@ -182,8 +182,8 @@ rotation, so a single stage never shows much at once.
 
 ## 20. New content (each arrives through the kit, Director or rotation)
 
-- [ ] **Weather: Meteor Shower** - night only: small meteors streak down with a warning glow.
-- [ ] **Weather: Blizzard** - snowfield: heavy snow, whiteout edges, ground units 15% slower.
+- [x] **Weather: Meteor Shower** - night only: small meteors streak down with a warning glow.
+- [x] **Weather: Blizzard** - snowfield: heavy snow, whiteout edges, ground units 15% slower.
 - [ ] **Biome: Spooky Graveyard** - tombstones, dead trees, fog; a "restless grave" hazard that pops out skeleton hands to grab passers-by (brief hold).
 - [ ] **Biome: Sunny Beach** - sand and surf, palm trees, sandcastles; tide pools slow units; tourists favour it.
 - [ ] **Egg: Magnet** - pulls nearby enemies together toward the impact point (sets up other eggs).
