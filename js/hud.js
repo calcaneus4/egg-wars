@@ -3,7 +3,7 @@
 // Battle HUD: unit shop bar (top left), stage/time/gold panel (top centre), enemy roster
 // (top right), XP bar and next-unlock teaser, and the Yolk Drop ability ring (bottom left).
 
-const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle", "medic", "mortar", "rider", "catapult", "truck", "balloon", "roller"];
+const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle", "medic", "mortar", "rider", "catapult", "truck", "balloon", "roller", "hover"];
 const SHOP_KEYS = ["1", "2", "3", "4", "5", "6"];
 const SHOP_ROW = 8;
 const SHOP_CARD = { x: 12, y: 8, w: 58, h: 60, gap: 6 };
@@ -122,6 +122,10 @@ function drawUnitIconDirect(type, x, y, size, color) {
     ctx.beginPath(); ctx.ellipse(0, 0, 17, 6, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     path([[-17, 0], [-24, -4]], false); ctx.lineWidth *= 1.6; ctx.stroke();
     ctx.beginPath(); ctx.rect(-4, -12, 10, 7); ctx.stroke();
+  } else if (type === "hover") {
+    ctx.beginPath(); ctx.ellipse(0, 12, 16, 4, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.rect(-11, -2, 22, 12); ctx.fill(); ctx.stroke();
+    path([[-14, -2], [0, -14], [14, -2]]); ctx.stroke();
   } else if (type === "roller") {
     ring(8, 6, 9);
     path([[8, 6], [8, -8]], false); ctx.stroke();

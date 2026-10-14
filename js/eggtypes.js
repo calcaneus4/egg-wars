@@ -23,6 +23,7 @@
 //   smoke       { radius, life } - leaves a smoke cloud; units inside shoot wildly
 //   popcorn     { pops, kernels, every } - after landing it pops `pops` times, throwing kernels
 //   radiusScale size of the egg relative to a normal one
+//   magnet      { radius, pull, life } - after impact, drags light enemy ground units toward it
 
 const STICKY_SLOW = 0.35;
 const BOSS_FREEZE_SCALE = 1 / 3;
@@ -128,6 +129,18 @@ const EGG_TYPES = {
     yolkDrop: false,
     freeze: 1.5,
   },
+  magnet: {
+    id: "magnet",
+    name: "Magnet",
+    desc: "Pulls nearby enemy troops into a clump for 2.5 s - follow up with a big egg!",
+    level: 16,
+    damage: 1,
+    burst: 0,
+    band: "magnet",
+    yolkDrop: true,
+    yolkBurst: 0,
+    magnet: { radius: 360, pull: 170, life: 2.5 },
+  },
   popcorn: {
     id: "popcorn",
     name: "Popcorn",
@@ -193,8 +206,10 @@ const EggTypes = {
   clouds: [],
   zaps: [],
   poppers: [],
+  magnets: [],
 
   reset() {
+    this.magnets = [];
     this.clouds = [];
     this.zaps = [];
     this.poppers = [];
@@ -217,6 +232,12 @@ const EggTypes = {
       egg.smoked = true;
       this.clouds.push({ x, y: Math.min(y, game.terrain.yAt(clamp(x, 0, W))), r: s(k.smoke.radius), life: k.smoke.life, age: 0, puffs: Array.from({ length: 9 }, () => ({ dx: rand(-1, 1), dy: rand(-0.6, 0.2), r: rand(0.35, 0.6), p: rand(0, 6) })) });
       audio.play("egg_splat");
+    }
+    if (k.magnet && !egg.magnetized) {
+      egg.magnetized = true;
+      // The magnet always plants itself in the ground below the impact.
+      this.magnets.push({ x, y: game.terrain.yAt(clamp(x, 0, W)), side: egg.side, life: k.magnet.life, def: k.magnet, game });
+      audio.play("zap");
     }
     if (k.popcorn && !egg.popped) {
       egg.popped = true;
@@ -268,6 +289,17 @@ const EggTypes = {
   },
 
   update(dt) {
+    for (const m of this.magnets) {
+      m.life -= dt;
+      const r = s(m.def.radius);
+      for (const u of m.game.living(-m.side)) {
+        if (!Hazards.isGround(u) || u.heavy || u.isBoss || u instanceof Tank || u.airborne) continue;
+        const dx = m.x - u.x;
+        if (Math.abs(dx) > r || Math.abs(dx) < s(8)) continue;
+        u.x += Math.sign(dx) * Math.min(Math.abs(dx), s(m.def.pull) * dt);
+      }
+    }
+    this.magnets = this.magnets.filter((m) => m.life > 0);
     for (const pp of this.poppers) {
       if ((pp.timer -= dt) > 0) continue;
       pp.timer = pp.def.every;
@@ -289,6 +321,32 @@ const EggTypes = {
 
   draw() {
     ctx.save();
+    for (const m of this.magnets) {
+      // A horseshoe magnet stuck in the ground with pulsing pull rings.
+      const t = m.life * 6;
+      ctx.globalAlpha = Math.min(1, m.life * 2);
+      ctx.strokeStyle = "rgba(200,60,60,0.6)";
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 2; i++) {
+        const rr = s(m.def.radius) * (((t * 0.15 + i * 0.5) % 1));
+        ctx.beginPath();
+        ctx.ellipse(m.x, m.y, rr, rr * 0.18, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.lineWidth = 7;
+      ctx.strokeStyle = "#d33";
+      ctx.beginPath();
+      ctx.arc(m.x, m.y - s(18), s(10), Math.PI, 0);
+      ctx.stroke();
+      ctx.strokeStyle = "#ccc";
+      ctx.beginPath();
+      ctx.moveTo(m.x - s(10), m.y - s(18));
+      ctx.lineTo(m.x - s(10), m.y - s(8));
+      ctx.moveTo(m.x + s(10), m.y - s(18));
+      ctx.lineTo(m.x + s(10), m.y - s(8));
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
     for (const c of this.clouds) {
       const fade = Math.min(1, c.age * 3, (c.life - c.age) / 1.2);
       for (const p of c.puffs) {

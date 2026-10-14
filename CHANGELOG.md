@@ -216,3 +216,5 @@ yolk, use powers) or the hand-drawn side view:
 - Biomes: two more lands after Candy Mountains (9 biomes, 45 stages per lap).
   - **Spooky Graveyard**: purple-grey ground, leaning tombstones and crosses, crooked dead trees, and lots of fog. **Restless graves** erupt every 6-9 s, and skeleton hands hold anyone on them for 1.6 s (no damage). Ghosts are 4x likelier here.
   - **Sunny Beach**: golden sand with shells and starfish, a foamy wet-sand line and palm trees. **Tide pools** slow ground units to 55%. Tourists are 3x likelier here.
+- Eggs: **Magnet** (lv 16). A horseshoe magnet plants itself in the ground where the egg lands, even after hitting a plane, and for 2.5 s drags light enemy ground troops within reach into one clump. That sets up a Boomer, Cluster or Zapper. Tanks, heavies and bosses resist it.
+- Vehicles: **Hover Coop** (lv 12, $24). A chicken coop on an air cushion: fast and fragile (3 HP), pecking out quick short-range eggs. It floats straight over hazards, mud pits, tide pools, syrup and sticky goo without slowing down. Rushers love them.

@@ -88,6 +88,19 @@ class Egg {
       ctx.beginPath();
       ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.kind.band === "magnet") {
+      ctx.strokeStyle = "#d33";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, -this.radius * 0.1, this.radius * 0.5, Math.PI, 0);
+      ctx.stroke();
+      ctx.strokeStyle = "#999";
+      ctx.beginPath();
+      ctx.moveTo(-this.radius * 0.5, -this.radius * 0.1);
+      ctx.lineTo(-this.radius * 0.5, this.radius * 0.35);
+      ctx.moveTo(this.radius * 0.5, -this.radius * 0.1);
+      ctx.lineTo(this.radius * 0.5, this.radius * 0.35);
+      ctx.stroke();
     } else if (this.kind.band === "popcorn") {
       ctx.fillStyle = "#c0392b";
       ctx.fillRect(-this.radius * 0.8, -this.radius * 0.2, this.radius * 1.6, this.radius * 0.9);

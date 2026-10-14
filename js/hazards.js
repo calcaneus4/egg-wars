@@ -47,7 +47,7 @@ const Hazards = {
 
   // Multiplier applied to a unit's movement this frame.
   speedFactor(u) {
-    if (!this.zones.length || !this.isGround(u)) return 1;
+    if (!this.zones.length || !this.isGround(u) || u.hover) return 1;
     const z = this.zoneAt(u.x);
     return z && z.def.speed ? z.def.speed : 1;
   },

@@ -19,7 +19,7 @@ const PERSONALITIES = {
     id: "rusher",
     name: "RUSHERS",
     tell: "Fast raiders charge straight at you - hold the line!",
-    weights: { soldier: 3, motorcycle: 3.5, drone: 3, rider: 2.5, tank: 0.6, airplane: 0.4, truck: 1.5 },
+    weights: { soldier: 3, motorcycle: 3.5, drone: 3, rider: 2.5, tank: 0.6, airplane: 0.4, truck: 1.5, hover: 1.5 },
     budgetScale: 0.95,
     speedScale: 1.3,
     hpScale: 1,

@@ -221,6 +221,7 @@ class Game {
       truck: settings.maxRightTrucks,
       balloon: settings.maxRightBalloons,
       roller: settings.maxRightRollers,
+      hover: settings.maxRightHovers,
     };
   }
 
@@ -258,6 +259,7 @@ class Game {
       truck: settings.maxLeftTrucks,
       balloon: settings.maxLeftBalloons,
       roller: settings.maxLeftRollers,
+      hover: settings.maxLeftHovers,
     };
   }
 
@@ -411,6 +413,7 @@ class Game {
       if (type === "truck") this.units.push(new MonsterTruck(s(200) - n * s(56), side, this.terrain));
       if (type === "balloon") this.units.push(new ChickBalloon(-s(60) - n * s(100), side, this.terrain, n));
       if (type === "roller") this.units.push(new RollingPinRoller(s(215) - n * s(60), side, this.terrain));
+      if (type === "hover") this.units.push(new HoverCoop(s(180) - n * s(44), side, this.terrain));
     } else {
       if (type === "tank") this.units.push(new Tank(W - s(255) + n * s(64), side, this.terrain));
       if (type === "motorcycle") this.units.push(new Motorcycle(W - s(197) + n * s(46), side, this.terrain));
@@ -427,6 +430,7 @@ class Game {
       if (type === "truck") this.units.push(new MonsterTruck(W - s(200) + n * s(56), side, this.terrain));
       if (type === "balloon") this.units.push(new ChickBalloon(W + s(60) + n * s(100), side, this.terrain, n));
       if (type === "roller") this.units.push(new RollingPinRoller(W - s(215) + n * s(60), side, this.terrain));
+      if (type === "hover") this.units.push(new HoverCoop(W - s(180) + n * s(44), side, this.terrain));
     }
   }
 
@@ -494,7 +498,7 @@ class Game {
         u.frozen = Math.max(0, u.frozen - dt);
         continue;
       }
-      const udt = (u.stuck > 0 ? dt * STICKY_SLOW : dt) * Events.speedFactor(u) * Abilities.timeScale(u) * Weather.unitSpeed(u);
+      const udt = (u.stuck > 0 && !u.hover ? dt * STICKY_SLOW : dt) * Events.speedFactor(u) * Abilities.timeScale(u) * Weather.unitSpeed(u);
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
       if (Events.tickUnit(this, u, dt)) continue;
       u.move(udt * Hazards.speedFactor(u), enemies);
@@ -798,7 +802,7 @@ class Game {
 
   projectileRangeMultiplierFor(u) {
     if (u instanceof MortarHen) return 1;
-    if (u instanceof Motorcycle) return settings.motorcycleProjectileRangeMultiplier;
+    if (u instanceof Motorcycle || u instanceof HoverCoop) return settings.motorcycleProjectileRangeMultiplier;
     if (u instanceof Soldier) return settings.soldierProjectileRangeMultiplier;
     return 1;
   }

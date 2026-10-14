@@ -32,6 +32,7 @@ const UNLOCKS = [
   { level: 11, kind: "unit", type: "truck", name: "Monster Truck", desc: "Frying-pan bruiser that drives right over infantry" },
   { level: 11, kind: "unit", type: "mortar", name: "Mortar Hen", desc: "Slow hen that lobs bursting eggs across the field" },
   { level: 10, kind: "feature", id: "rooster", name: "Rooster Rally", desc: "Power: your army moves and fires 40% faster for 6 s" },
+  { level: 12, kind: "unit", type: "hover", name: "Hover Coop", desc: "Fast hovercraft that floats over hazards, mud and goo" },
   { level: 12, kind: "feature", id: "shield", name: "Shell Shield", desc: "Power: every unit gains a one-hit shield (pick powers on the Powers screen)" },
   { level: 17, kind: "feature", id: "chill", name: "Big Chill", desc: "Power: freezes every enemy solid for 2.5 s" },
   { level: 13, kind: "unit", type: "balloon", name: "Chick Balloon", desc: "Floats over the enemy and drops chick paratroopers" },
@@ -39,6 +40,7 @@ const UNLOCKS = [
   { level: 14, kind: "feature", id: "scarecrow", name: "Scarecrow", desc: "Power: a scarecrow draws the enemy's fire for 6 s" },
   { level: 14, kind: "feature", id: "explosive", name: "Boomer Egg", desc: "Yolk Drop option: big blast that digs craters" },
   { level: 15, kind: "feature", id: "zapper", name: "Zapper Egg", desc: "Yolk Drop option: chain lightning through up to 4 enemies" },
+  { level: 16, kind: "feature", id: "magnet", name: "Magnet Egg", desc: "Yolk Drop option: pulls enemy troops into a clump" },
   { level: 16, kind: "unit", type: "rider", name: "Rooster Rider", desc: "Fast cavalry that charges in and pecks up close" },
   { level: 18, kind: "feature", id: "homing", name: "Seeker Egg", desc: "Yolk Drop option: four eggs that hunt enemies, aircraft first" },
 ];

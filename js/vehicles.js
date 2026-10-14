@@ -303,3 +303,67 @@ class RollingPinRoller extends Unit {
     ctx.restore();
   }
 }
+
+// Hover Coop: a chicken coop on an air cushion. Fast and light, it floats over hazards, mud,
+// syrup and goo without slowing down, and pecks out quick little eggs at short range.
+class HoverCoop extends Unit {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed = settings.tankSpeed * settings.motorcycleSpeedMultiplier * 0.8;
+    this.size = s(38);
+    this.groundOffset = s(24);
+    this.hp = 3;
+    this.fireRate = 0.24;
+    this.hover = true;
+  }
+
+  get y() {
+    return this.terrain.yAt(this.x) - this.groundOffset - (this.lift || 0) + Math.sin(performance.now() * 0.006 + this.wobble) * s(2);
+  }
+
+  muzzle() {
+    return [this.x + this.side * s(14), this.y - s(14)];
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    ctx.save();
+    ctx.strokeStyle = c;
+    ctx.lineWidth = sw(2);
+    // Air cushion skirt with little puffs underneath.
+    ctx.beginPath();
+    ctx.ellipse(x, y + s(12), s(22), s(6), 0, 0, Math.PI * 2);
+    ctx.fillStyle = rgbaFromHex(LINE, 0.55);
+    ctx.fill();
+    ctx.stroke();
+    if (Math.random() < 0.3) Effects.spawn("smoke", x + rand(-s(16), s(16)), y + s(18), rand(-20, 20), rand(5, 20), 0.35, 3, LINE);
+    // Coop body and roof.
+    ctx.beginPath();
+    ctx.rect(x - s(16), y - s(8), s(32), s(18));
+    teamFill(c, 0.35);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x - s(20), y - s(8));
+    ctx.lineTo(x, y - s(22));
+    ctx.lineTo(x + s(20), y - s(8));
+    ctx.closePath();
+    ctx.fillStyle = RED;
+    ctx.fill();
+    ctx.stroke();
+    // A hen peeking out of the window.
+    ctx.fillStyle = WHITE;
+    ctx.beginPath();
+    ctx.arc(x + this.side * s(6), y - s(1), s(5), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = YOLK;
+    ctx.beginPath();
+    ctx.moveTo(x + this.side * s(10), y - s(2));
+    ctx.lineTo(x + this.side * s(15), y);
+    ctx.lineTo(x + this.side * s(10), y + s(1));
+    ctx.fill();
+    ctx.restore();
+  }
+}
