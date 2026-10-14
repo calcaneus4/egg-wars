@@ -240,3 +240,8 @@ yolk, use powers) or the hand-drawn side view:
   - The enemy roster shows at most 8 unit types (two rows of four), listing the types on the field first.
   - The reinforcement banner moved to the centre, below the boss bar, so it can't collide with achievement toasts on the right.
   - Only one centre banner shows at a time: the reinforcement banner waits, with its timer paused, while the opening, Rally or event banner is up.
+- Final review IV:
+  - The 60-stage stress test (forced events of all 14 kinds, all weather, random eggs, powers and purchases) had no errors.
+  - Frame time is flat (~17 ms software-rendered). Every monster event is within 1.5 ms of a quiet frame.
+  - Blizzard was 3.5 ms heavier, so it now draws its flakes in one path, uses 160 flakes instead of 240, and draws only the cached white-out edge strips instead of a full-screen wash; it is now ~1.5 ms heavier.
+  - winrate-sim (10 runs at each of 7 stages): idle 37%, active 96%, Toaster Titan included.

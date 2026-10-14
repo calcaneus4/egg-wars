@@ -194,4 +194,4 @@ rotation, so a single stage never shows much at once.
 
 ## 21. Final
 
-- [ ] **Final review IV** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
+- [x] **Final review IV** - winrate check, stress test, frame time, docs and a CHANGELOG summary.

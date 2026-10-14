@@ -71,7 +71,7 @@ const Weather = {
     this.wind = this.baseWind;
     this.gust = 0;
     this.drops = [];
-    const count = { rain: 160, storm: 190, snow: 110, blizzard: 240, windy: 18, hail: 70, sandstorm: 70 }[this.type] || 0;
+    const count = { rain: 160, storm: 190, snow: 110, blizzard: 160, windy: 18, hail: 70, sandstorm: 70 }[this.type] || 0;
     for (let i = 0; i < count; i++) this.drops.push(this.newDrop(true));
     this.fogBanks = [];
     if (this.type === "fog") {
@@ -253,6 +253,26 @@ const Weather = {
     }
   },
 
+  // Blizzard white-out (edges plus a light wash), rendered once at quarter size and stretched.
+  whiteout() {
+    if (this.whiteoutImg) return this.whiteoutImg;
+    const c = document.createElement("canvas");
+    c.width = Math.round(W / 4);
+    c.height = Math.round(H / 4);
+    const g = c.getContext("2d");
+    const w = c.width;
+    const edge = w * 0.16;
+    for (const [x0, x1] of [[0, edge], [w, w - edge]]) {
+      const grad = g.createLinearGradient(x0, 0, x1, 0);
+      grad.addColorStop(0, "rgba(255,255,255,0.75)");
+      grad.addColorStop(1, "rgba(255,255,255,0)");
+      g.fillStyle = grad;
+      g.fillRect(Math.min(x0, x1), 0, edge, c.height);
+    }
+    this.whiteoutImg = c;
+    return c;
+  },
+
   // One soft fog puff, rendered once per colour scheme and scaled for every fog bank.
   fogSprite() {
     if (this.fogPuff && this.fogPuffKey === PAPER) return this.fogPuff;
@@ -286,17 +306,11 @@ const Weather = {
       ctx.fillRect(0, 0, W, H);
     }
     if (this.type === "blizzard") {
-      // White-out creeping in from both edges.
+      // Only the two edge strips are drawn, keeping full-screen fills (slow in software) out.
+      const img = this.whiteout();
       const edge = W * 0.16;
-      for (const [x0, x1] of [[0, edge], [W, W - edge]]) {
-        const g = ctx.createLinearGradient(x0, 0, x1, 0);
-        g.addColorStop(0, "rgba(255,255,255,0.75)");
-        g.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(Math.min(x0, x1), 0, edge, H);
-      }
-      ctx.fillStyle = "rgba(230,240,255,0.12)";
-      ctx.fillRect(0, 0, W, H);
+      ctx.drawImage(img, 0, 0, img.width * 0.16, img.height, 0, 0, edge, H);
+      ctx.drawImage(img, img.width * 0.84, 0, img.width * 0.16, img.height, W - edge, 0, edge, H);
     }
     if (this.type === "meteor") {
       const st = this.strike;
@@ -414,12 +428,15 @@ const Weather = {
       ctx.fillStyle = "#ffffff";
       ctx.strokeStyle = rgbaFromHex(LINE, 0.35);
       ctx.lineWidth = 0.8;
+      // One path for every flake: far cheaper than a fill and stroke per flake.
+      ctx.beginPath();
       for (const d of this.drops) {
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, 2.2 * d.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        const r = (this.type === "blizzard" ? 2.8 : 2.2) * d.size;
+        ctx.moveTo(d.x + r, d.y);
+        ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
       }
+      ctx.fill();
+      ctx.stroke();
     } else {
       ctx.strokeStyle = this.type === "sandstorm" ? "rgba(150,105,50,0.55)" : rgbaFromHex(LINE, 0.45);
       ctx.lineWidth = 1.5;
