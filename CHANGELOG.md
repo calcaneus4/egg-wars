@@ -43,6 +43,22 @@ following, all in the original hand-drawn side-view style:
   - A headless smoke test (`tools/smoke-test.js`).
   - The balance simulator.
 
+## Phase 4 summary
+
+The fourth loop added more surprises and content while keeping the screen calm and the frame
+rate flat:
+- **5 monster events:** Sasquatch, Panicky Tourists, Ghosts (night- and graveyard-leaning),
+  Giant Snake and Rock Monster. That makes 14 events, still at most one per stage, weighted
+  toward the biomes where they fit.
+- **Weather:** Meteor Shower (night only) and Blizzard (snowfield).
+- **2 biomes:** Spooky Graveyard (restless graves) and Sunny Beach (tide pools). There are now
+  9 biomes, 45 stages per lap.
+- **Magnet egg, Hover Coop vehicle and Golden Goose power.** Each arrives through the 6-card /
+  3-egg / 2-power kit, so nothing new crowds the screen.
+- **Toaster Titan boss**, tuned with winrate-sim (0/10 idle, 10/10 active).
+- **Calm HUD:** the enemy roster is capped at 8 icons, and only one centre banner shows at a
+  time.
+
 ## Phase 3 summary
 
 The third loop made the game harder, calmer on screen, and sillier:

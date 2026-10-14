@@ -10,7 +10,7 @@ Lead the blue team through as many stages as possible. Each round ends when one 
 
 Every round, won or lost, earns gold, XP and often Golden Eggs. Gold buys reinforcements during battle. Golden Eggs buy permanent upgrades in the Armory. The red team is the enemy and spawns automatically. Its army changes personality from stage to stage, and every 5th stage brings a boss.
 
-From stage 3 the red army calls in **reinforcement waves** during the round, so a lead is never safe. From stage 4 on, battles can be interrupted by an occasional **surprise event**: an earthquake, a tornado, a tsunami full of rubber ducks, a chicken stampede, a UFO abduction, butting goats, a bee swarm, a frog plague or slime monsters. Events are rare (at most one per stage), always announced a moment before they hit, and treat both armies the same.
+From stage 3 the red army calls in **reinforcement waves** during the round, so a lead is never safe. From stage 4 on, battles can be interrupted by an occasional **surprise event**: an earthquake, a tornado, a tsunami full of rubber ducks, a chicken stampede, a UFO abduction, butting goats, a bee swarm, a frog plague, slime monsters, Sasquatch, panicky tourists, ghosts, a giant snake or a rock monster. Events are rare (at most one per stage), always announced a moment before they hit, and treat both armies the same.
 
 ## Basic Controls
 
@@ -21,7 +21,7 @@ From stage 3 the red army calls in **reinforcement waves** during the round, so 
 - Press `R` to restart the current stage.
 - Press `Esc` or `P` to pause (resume, restart, settings, title screen).
 - Press `M` to mute or unmute.
-- Press `W` and `E` (or tap their buttons at the bottom of the screen) to use your two equipped **powers**. Pick which powers sit in those slots on the Powers screen (title or pause menu): Reinforcements, Airstrike, Rooster Rally, Shell Shield, Scarecrow and Big Chill.
+- Press `W` and `E` (or tap their buttons at the bottom of the screen) to use your two equipped **powers**. Pick which powers sit in those slots on the Powers screen (title or pause menu): Reinforcements, Airstrike, Golden Goose, Rooster Rally, Shell Shield, Scarecrow and Big Chill.
 - Press `Q` (or tap the chips above the Yolk Drop button) to choose which egg the Yolk Drop uses, once you unlock more than one.
 - Settings (title screen or pause menu): master, effects and music volume, mute, color scheme, speech bubbles, screen shake, and New Game (erases saved progress).
 - Progress (level, XP, gold, Golden Eggs, Armory, unlocks, achievements and stats) is saved automatically in the browser.
@@ -52,16 +52,17 @@ an Air Force there is always an anti-air unit in the kit once you have one.
 - **Monster Trucks** (level 11) are frying pans on monster wheels: infantry can't stop them, and they drive right over it.
 - **Chick Balloons** (level 13) float over the enemy and drop chick paratroopers.
 - **Rolling-Pin Rollers** (level 8) shove the enemy's light troops back as they advance.
+- **Hover Coops** (level 12) skim over hazards, mud and goo.
 - **Drones** launch from ground level, climb into the air, hover over targets, then dive kamikaze-style into enemies.
 
 ## Progression
 
-- **Levels and XP:** you earn XP every round, more for wins and kills, and level up. Something new unlocks every few levels: aircraft, special units (Mega Knight, Fire Wizard, Yolk Bomber), new egg types (Cluster, Bouncer, Frost, Sticky, Popcorn, Smoke, Boomer, Zapper, Seeker), powers (Reinforcements, Airstrike, Rooster Rally, Shell Shield, Scarecrow, Big Chill) and new units (Egg Medic, Catapult Wagon, Rolling-Pin Roller, Monster Truck, Mortar Hen, Chick Balloon, Rooster Rider). The HUD always shows what comes next.
+- **Levels and XP:** you earn XP every round, more for wins and kills, and level up. Something new unlocks every few levels: aircraft, special units (Mega Knight, Fire Wizard, Yolk Bomber), new egg types (Cluster, Bouncer, Frost, Sticky, Popcorn, Smoke, Boomer, Zapper, Magnet, Seeker), powers (Reinforcements, Airstrike, Golden Goose, Rooster Rally, Shell Shield, Scarecrow, Big Chill) and new units (Egg Medic, Catapult Wagon, Rolling-Pin Roller, Monster Truck, Hover Coop, Mortar Hen, Chick Balloon, Rooster Rider). The HUD always shows what comes next.
 - **Armory:** six permanent upgrade tracks, bought with Golden Eggs.
 - **Difficulty:** it rises slowly on a logarithmic curve. Your upgrades are designed to keep you ahead of it (see `DESIGN.md`). After two losses in a row a **Rally** boost helps you out.
 - **Biomes:** they change every 5 stages: Meadow, Desert Dunes, Snowfield, Volcano, Kitchen Counter, Soggy Swamp, Candy Mountains, Spooky Graveyard and Sunny Beach. Each has its own terrain, weather and hazards.
-- **Weather:** clear, rain, snow and wind, plus fog (short sight lines), thunderstorms (telegraphed lightning), sandstorms (aircraft can't aim), hail (dings aircraft) and heat waves (swollen eggs) in later stages.
-- **Enemies:** six army personalities (Balanced, Rushers, Turtle Shell, Artillery, Air Force and the occasional Mad Science army with freezing and shocking eggs) and six bosses (Giant Rooster Mech, Omelet Fortress, Scrambler Zeppelin, Mother Hen Queen, Sink Kraken and Pancake Golem).
+- **Weather:** clear, rain, snow and wind, plus fog (short sight lines), thunderstorms (telegraphed lightning), sandstorms (aircraft can't aim), blizzards (slower troops), night meteor showers, hail (dings aircraft) and heat waves (swollen eggs) in later stages.
+- **Enemies:** six army personalities (Balanced, Rushers, Turtle Shell, Artillery, Air Force and the occasional Mad Science army with freezing and shocking eggs) and seven bosses (Giant Rooster Mech, Omelet Fortress, Scrambler Zeppelin, Mother Hen Queen, Sink Kraken, Pancake Golem and Toaster Titan).
 - **Extras:** bonus goals, 28 achievements (some unlock colour schemes), boss battles and a lifetime stats page.
 
 ## Style and Features
@@ -101,10 +102,10 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/effects.js` - pooled particles, screen shake and hit flashes
 - `js/draw.js` - shared drawing helpers
 - `js/units.js` - unit classes
-- `js/vehicles.js` - Catapult Wagon, Monster Truck, Chick Balloon and Rolling-Pin Roller
+- `js/vehicles.js` - Catapult Wagon, Monster Truck, Chick Balloon, Rolling-Pin Roller and Hover Coop
 - `js/eggtypes.js` - data-driven egg types (Classic, Cluster, Frost, Smoke, Zapper, ...) plus smoke clouds, ice and chain lightning
 - `js/projectiles.js` - eggs and splats
-- `js/bosses.js` - boss battles every 5th stage (six bosses)
+- `js/bosses.js` - boss battles every 5th stage (seven bosses)
 - `js/menus.js` - title, pause and settings screens
 - `js/worldmap.js` - world map, stage select and practice replays
 - `js/hud.js` - battle HUD: unit shop bar, stage/time panel, enemy roster, Yolk Drop ring
@@ -116,6 +117,7 @@ Then visit `http://127.0.0.1:8001/`.
 - `js/director.js` - Variety Director: decides each stage's surprise event and limits debuts
 - `js/events.js` - surprise events (earthquake, tornado, tsunami, stampede, UFO)
 - `js/critters.js` - critter events (goats, bee swarm, frog plague, slime monsters)
+- `js/monsters.js` - monster events (Sasquatch, tourists, ghosts, giant snake, rock monster)
 - `js/reinforcements.js` - enemy reinforcement waves during a round
 - `js/kit.js` - the per-stage kit: which 6 units and 3 eggs are on offer
 - `js/objectives.js` - per-stage bonus goals
