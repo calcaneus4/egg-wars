@@ -153,6 +153,16 @@ const EGG_TYPES = {
     yolkBurst: 0,
     popcorn: { pops: 3, kernels: 5, every: 0.45 },
   },
+  toast: {
+    id: "toast",
+    name: "Toast",
+    level: 99,
+    damage: 1,
+    burst: 3,
+    band: "toast",
+    yolkDrop: false,
+    radiusScale: 1.3,
+  },
   kernel: {
     id: "kernel",
     name: "Kernel",

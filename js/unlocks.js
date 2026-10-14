@@ -25,6 +25,7 @@ const UNLOCKS = [
   { level: 8, kind: "unit", type: "roller", name: "Rolling-Pin Roller", desc: "Slow roller that shoves the enemy front line back" },
   { level: 8, kind: "unit", type: "bomber", name: "Bomber", desc: "Heavy aircraft with egg bursts" },
   { level: 8, kind: "special", name: "Yolk Bomber", desc: "A super bomber joins every battle" },
+  { level: 9, kind: "feature", id: "goose", name: "Golden Goose", desc: "Power: a goose lays gold coins for 8 s" },
   { level: 9, kind: "feature", id: "frost", name: "Frost Egg", desc: "Yolk Drop option: freezes enemies solid for a moment" },
   { level: 10, kind: "unit", type: "castle", name: "Castle", desc: "Buy extra catapult towers" },
   { level: 10, kind: "feature", id: "sticky", name: "Sticky Egg", desc: "Yolk Drop option: glues enemies so they slow right down" },

@@ -1016,6 +1016,7 @@ class Game {
     this.drawHealthBars();
     Abilities.drawAirstrikes(this);
     Abilities.drawDecoy(this);
+    Abilities.drawGoose(this);
     EggTypes.draw();
     Effects.draw();
     Weather.draw();

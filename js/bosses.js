@@ -860,7 +860,123 @@ class PancakeGolem extends Boss {
   }
 }
 
-const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake"];
+// Toaster Titan: a giant chrome toaster on stubby legs. It pops two slices of burnt toast at the
+// nearest troops; enraged, the lever slams down and a whole volley of toast flies out.
+class ToasterTitan extends Boss {
+  constructor(x, side, terrain, maxHp) {
+    super(x, side, terrain, maxHp);
+    this.name = "TOASTER TITAN";
+    this.speed = 6;
+    this.size = s(140);
+    this.groundOffset = s(66);
+    this.slowAttack = 2.0;
+    this.fastAttack = 1.4;
+    this.specialEvery = 6;
+    this.pop = 0;
+  }
+
+  radius() {
+    return this.size * 0.5;
+  }
+
+  blockingRadius() {
+    return this.size * 0.38;
+  }
+
+  attack(game, enemies) {
+    const ground = enemies.filter((e) => !(e instanceof Airplane));
+    const pool = ground.length ? ground : enemies;
+    const targets = pool.slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, 3);
+    const top = this.terrain.yAt(this.x) - s(130);
+    targets.forEach((t, i) => game.lobEgg(this.x + (i ? 1 : -1) * s(18), top, t.x + rand(-25, 25), t.y, this.side, 0, 1.6 + i * 0.2, "toast"));
+    this.pop = 1;
+    audio.play("pop");
+  }
+
+  special(game) {
+    const top = this.terrain.yAt(this.x) - s(130);
+    for (let i = 0; i < 7; i++) {
+      const tx = this.x + this.side * s(100 + i * 85);
+      game.lobEgg(this.x, top, tx, this.terrain.yAt(clamp(tx, 0, W)), this.side, 0, 1.4 + i * 0.1, "toast");
+    }
+    this.pop = 1.5;
+    audio.play("unlock");
+    if (game.canSpeak(this)) this.say("DING! TOAST'S UP!", 1.4);
+  }
+
+  updateBoss(game, dt, enemies) {
+    this.pop = Math.max(0, this.pop - dt * 2);
+    super.updateBoss(game, dt, enemies);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const ground = this.terrain.yAt(x);
+    const t = performance.now() * 0.004 + this.wobble;
+    const step = Math.sin(t);
+    const w = s(130);
+    const h = s(100);
+    const top = ground - s(22) - h;
+    ctx.save();
+    // Stubby legs and a power cord tail.
+    line(x - s(35), ground - s(24), x - s(40) + step * s(6), ground, c, sw(6));
+    line(x + s(35), ground - s(24), x + s(40) - step * s(6), ground, c, sw(6));
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(2);
+    ctx.beginPath();
+    ctx.moveTo(x - this.side * w * 0.5, ground - s(40));
+    ctx.quadraticCurveTo(x - this.side * (w * 0.5 + s(40)), ground - s(10), x - this.side * (w * 0.5 + s(60)), ground - s(4));
+    ctx.stroke();
+    // Chrome body.
+    const grad = ctx.createLinearGradient(x - w / 2, 0, x + w / 2, 0);
+    grad.addColorStop(0, "#9aa3ad");
+    grad.addColorStop(0.45, "#eef2f6");
+    grad.addColorStop(1, "#8a939d");
+    ctx.fillStyle = grad;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(3);
+    ctx.beginPath();
+    ctx.moveTo(x - w / 2 + s(16), top);
+    ctx.lineTo(x + w / 2 - s(16), top);
+    ctx.quadraticCurveTo(x + w / 2, top, x + w / 2, top + s(16));
+    ctx.lineTo(x + w / 2, top + h);
+    ctx.lineTo(x - w / 2, top + h);
+    ctx.lineTo(x - w / 2, top + s(16));
+    ctx.quadraticCurveTo(x - w / 2, top, x - w / 2 + s(16), top);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    // Bread slots with toast poking out.
+    for (const sx of [-1, 1]) {
+      ctx.fillStyle = "#c98a3a";
+      ctx.fillRect(x + sx * s(22) - s(14), top - s(16) * (0.3 + this.pop), s(28), s(18));
+      ctx.strokeRect(x + sx * s(22) - s(14), top - s(16) * (0.3 + this.pop), s(28), s(18));
+      ctx.fillStyle = LINE;
+      ctx.fillRect(x + sx * s(22) - s(16), top - s(2), s(32), s(5));
+    }
+    // Lever on the side and a dial.
+    ctx.fillStyle = RED;
+    ctx.fillRect(x + this.side * (w / 2) - s(4), top + s(20) + this.pop * s(30), s(10), s(8));
+    ctx.beginPath();
+    ctx.arc(x - this.side * s(36), top + h - s(22), s(7), 0, Math.PI * 2);
+    ctx.fillStyle = WHITE;
+    ctx.fill();
+    ctx.stroke();
+    // Angry face.
+    const fy = top + h * 0.45;
+    ctx.fillStyle = LINE;
+    for (const ex of [-1, 1]) {
+      ctx.beginPath();
+      ctx.arc(x + ex * s(20), fy, s(6), 0, Math.PI * 2);
+      ctx.fill();
+      line(x + ex * s(10), fy - s(14), x + ex * s(30), fy - s(9), this.enraged ? RED : LINE, sw(3));
+    }
+    ctx.restore();
+  }
+}
+
+const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake", "toaster"];
 const BOSS_NAMES = {
   mech: "Giant Rooster Mech",
   fortress: "Omelet Fortress",
@@ -868,6 +984,7 @@ const BOSS_NAMES = {
   hen: "Mother Hen Queen",
   kraken: "Sink Kraken",
   pancake: "Pancake Golem",
+  toaster: "Toaster Titan",
 };
 
 const Bosses = {
@@ -895,6 +1012,7 @@ const Bosses = {
         : kind === "hen" ? new HenQueen(W - s(330), LEFT, game.terrain, hp)
           : kind === "kraken" ? new SinkKraken(W * 0.74, LEFT, game.terrain, hp)
             : kind === "pancake" ? new PancakeGolem(W - s(340), LEFT, game.terrain, hp)
+              : kind === "toaster" ? new ToasterTitan(W - s(330), LEFT, game.terrain, hp)
             : new ScramblerZeppelin(W * 0.7, LEFT, game.terrain, hp);
     boss.statScaled = true;
     game.units.push(boss);

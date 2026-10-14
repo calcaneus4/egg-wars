@@ -188,8 +188,8 @@ rotation, so a single stage never shows much at once.
 - [x] **Biome: Sunny Beach** - sand and surf, palm trees, sandcastles; tide pools slow units; tourists favour it.
 - [x] **Egg: Magnet** - pulls nearby enemies together toward the impact point (sets up other eggs).
 - [x] **Vehicle: Hover Coop** - fast hovercraft that ignores hazards, mud and goo, firing quick eggs.
-- [ ] **Power: Golden Goose** - a goose waddles out and lays gold coins (+gold over 8 s).
-- [ ] **Boss: Toaster Titan** - a giant toaster that pops flaming toast; enraged, it fires toast volleys.
+- [x] **Power: Golden Goose** - a goose waddles out and lays gold coins (+gold over 8 s).
+- [x] **Boss: Toaster Titan** - a giant toaster that pops flaming toast; enraged, it fires toast volleys.
 - [ ] **Calm HUD pass** - enemy roster capped at 8 icons, shorter tips, and stacked banners never overlap.
 
 ## 21. Final

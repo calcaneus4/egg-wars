@@ -88,6 +88,16 @@ class Egg {
       ctx.beginPath();
       ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.kind.band === "toast") {
+      // A slice of burnt toast instead of an egg.
+      ctx.fillStyle = "#c98a3a";
+      ctx.beginPath();
+      ctx.rect(-this.radius, -this.radius, this.radius * 2, this.radius * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#7a4a1a";
+      ctx.fillRect(-this.radius * 0.6, -this.radius * 0.6, this.radius * 1.2, this.radius * 1.2);
+      if (Math.random() < 0.3) Effects.spawn("smoke", this.x, this.y, 0, -20, 0.4, 3, LINE);
     } else if (this.kind.band === "magnet") {
       ctx.strokeStyle = "#d33";
       ctx.lineWidth = 3;

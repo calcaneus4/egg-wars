@@ -22,6 +22,13 @@ const ABILITIES = [
     desc: "A bomber sweeps over the enemy half dropping a line of eggs.",
   },
   {
+    id: "goose",
+    name: "Golden Goose",
+    level: 9,
+    cooldown: 35,
+    desc: "A goose waddles out and lays gold coins for 8 s.",
+  },
+  {
     id: "rooster",
     name: "Rooster Rally",
     level: 10,
@@ -52,7 +59,10 @@ const ABILITIES = [
 ];
 
 const POWER_SLOT_KEYS = ["W", "E"];
-const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "rooster", "scarecrow", "chill"];
+const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "goose", "rooster", "scarecrow", "chill"];
+const GOOSE_SECONDS = 8;
+// Row height on the Powers screen, so every power fits above the BACK button.
+const POWER_ROW = 66;
 const SCARECROW_SECONDS = 6;
 const REINFORCE_COUNT = 4;
 const ROOSTER_SECONDS = 6;
@@ -92,6 +102,7 @@ const Abilities = {
   reset(game) {
     game.abilityCooldowns = {};
     game.decoy = null;
+    game.goose = null;
     for (const a of ABILITIES) game.abilityCooldowns[a.id] = 0;
     game.airstrikes = [];
   },
@@ -149,6 +160,23 @@ const Abilities = {
       game.abilityCooldowns[id] = Math.max(0, game.abilityCooldowns[id] - dt);
     }
     game.chillFlash = Math.max(0, (game.chillFlash || 0) - dt);
+    if (game.goose) {
+      const g = game.goose;
+      g.time += dt;
+      g.x = Math.min(g.x + s(40) * dt, g.stopX);
+      g.next -= dt;
+      if (g.next <= 0 && g.time < GOOSE_SECONDS) {
+        g.next = 1;
+        const coin = 5 + Math.floor(game.stage / 5);
+        game.gold += coin;
+        g.pops.push({ x: g.x - s(14), y: game.terrain.yAt(g.x) - s(10), life: 1, text: `+$${coin}` });
+        Effects.sparks(g.x - s(14), game.terrain.yAt(g.x) - s(6), 4, YOLK);
+        audio.play("coin");
+      }
+      for (const pop of g.pops) pop.life -= dt;
+      g.pops = g.pops.filter((pop) => pop.life > 0);
+      if (g.time > GOOSE_SECONDS + 1) game.goose = null;
+    }
     if (game.decoy && (game.decoy.timer -= dt) <= 0) {
       Effects.smoke(game.decoy.x, game.decoy.y, 6);
       game.decoy = null;
@@ -201,6 +229,12 @@ const Abilities = {
         game.units.push(trooper);
       }
       audio.play("start_reveille");
+    }
+    if (id === "goose") {
+      const castle = game.living(RIGHT).find((u) => u instanceof Castle);
+      const x = castle ? castle.x + s(30) : s(80);
+      game.goose = { x, stopX: x + s(120), time: 0, next: 0.6, pops: [] };
+      audio.play("bawk");
     }
     if (id === "scarecrow") {
       game.decoy = this.makeDecoy(game);
@@ -261,6 +295,18 @@ const Abilities = {
       ctx.lineTo(cx + 14, cy + 3);
       ctx.lineTo(cx + 6, cy + 6);
       ctx.fill();
+    } else if (id === "goose") {
+      ctx.fillStyle = WHITE;
+      ctx.beginPath();
+      ctx.ellipse(cx - 2, cy + 4, 11, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      line(cx + 6, cy, cx + 8, cy - 10, LINE, 2);
+      ctx.fillStyle = YOLK;
+      ctx.beginPath();
+      ctx.ellipse(cx - 9, cy + 11, 4, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
     } else if (id === "scarecrow") {
       line(cx, cy + 14, cx, cy - 6, "#8a5a2b", 2);
       line(cx - 12, cy - 2, cx + 12, cy - 2, "#8a5a2b", 2);
@@ -290,6 +336,66 @@ const Abilities = {
       ctx.quadraticCurveTo(cx - 13, cy - 10, cx, cy - 13);
       ctx.fill();
       ctx.stroke();
+    }
+    ctx.restore();
+  },
+
+  drawGoose(game) {
+    const g = game.goose;
+    if (!g) return;
+    const ground = game.terrain.yAt(g.x);
+    const waddle = Math.sin(g.time * 10) * 0.12;
+    const fade = Math.min(1, (GOOSE_SECONDS + 1 - g.time) * 2);
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, fade);
+    ctx.translate(g.x, ground);
+    ctx.rotate(waddle);
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.5;
+    line(-s(4), -s(8), -s(6), 0, "#f0a030", 2);
+    line(s(4), -s(8), s(6), 0, "#f0a030", 2);
+    ctx.fillStyle = WHITE;
+    ctx.beginPath();
+    ctx.ellipse(0, -s(16), s(16), s(10), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(s(10), -s(20));
+    ctx.quadraticCurveTo(s(18), -s(30), s(14), -s(40));
+    ctx.lineWidth = s(5);
+    ctx.strokeStyle = LINE;
+    ctx.stroke();
+    ctx.lineWidth = s(3.5);
+    ctx.strokeStyle = WHITE;
+    ctx.stroke();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = LINE;
+    ctx.fillStyle = WHITE;
+    ctx.beginPath();
+    ctx.arc(s(14), -s(42), s(5), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#f0a030";
+    ctx.beginPath();
+    ctx.moveTo(s(18), -s(43));
+    ctx.lineTo(s(25), -s(41));
+    ctx.lineTo(s(18), -s(39));
+    ctx.fill();
+    ctx.fillStyle = LINE;
+    ctx.beginPath();
+    ctx.arc(s(15), -s(43), 1.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.font = "bold 16px Courier New";
+    for (const pop of g.pops) {
+      ctx.globalAlpha = pop.life;
+      ctx.fillStyle = "#e0a100";
+      ctx.beginPath();
+      ctx.ellipse(pop.x, pop.y, s(6), s(8), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = LINE;
+      ctx.fillText(pop.text, pop.x - 10, pop.y - s(18) - (1 - pop.life) * 26);
     }
     ctx.restore();
   },
@@ -357,7 +463,7 @@ const Abilities = {
     centerText("Equip two powers: press W or E in battle (or tap their buttons).", 114);
     const x0 = W / 2 - 390;
     ABILITIES.forEach((a, i) => {
-      const y = 136 + i * 72;
+      const y = 128 + i * POWER_ROW;
       const open = this.unlocked(p, a);
       ctx.save();
       if (!open) ctx.globalAlpha = 0.45;
@@ -383,7 +489,7 @@ const Abilities = {
         b.hot = slots[slot] === a.id;
       });
     });
-    Menus.button("BACK", W / 2, 136 + ABILITIES.length * 72 + 14, 260, () => { game.scene = Menus.powersReturn; }).hot = true;
+    Menus.button("BACK", W / 2, 128 + ABILITIES.length * POWER_ROW + 8, 260, () => { game.scene = Menus.powersReturn; }).hot = true;
   },
 
   drawAirstrikes(game) {
