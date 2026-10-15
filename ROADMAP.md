@@ -241,8 +241,8 @@ events (at most 1 hit per unit), and a flat frame cost checked in the final revi
 
 - [x] **Weather: Rainbow** - after a shower, a rainbow arcs over the middle of the field; units under it fire 25% faster (both armies).
 - [x] **Biome: Jungle** - vines and giant leaves; creeping vines hazard briefly tangles ground units.
-- [ ] **Egg: Sleepy** - puts enemies in the splash to sleep (Zzz) for 4 s, or until something hits them.
-- [ ] **Vehicle: Pigeon Flock** - three pigeons fly over the enemy and dive-bomb ground troops.
+- [x] **Egg: Sleepy** - puts enemies in the splash to sleep (Zzz) for 4 s, or until something hits them.
+- [x] **Vehicle: Pigeon Flock** - three pigeons fly over the enemy and dive-bomb ground troops.
 - [ ] **Power: Mega Yolk** - your next Yolk Drop is giant: triple burst, and the cooldown resets.
 - [ ] **Boss: Blender Beast** - a giant blender whose vortex sucks ground troops toward it, then spits them out.
 

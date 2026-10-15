@@ -224,6 +224,7 @@ class Game {
       roller: settings.maxRightRollers,
       hover: settings.maxRightHovers,
       pogo: settings.maxRightPogos,
+      pigeon: settings.maxRightPigeons,
     };
   }
 
@@ -263,6 +264,7 @@ class Game {
       roller: settings.maxLeftRollers,
       hover: settings.maxLeftHovers,
       pogo: settings.maxLeftPogos,
+      pigeon: settings.maxLeftPigeons,
     };
   }
 
@@ -418,6 +420,7 @@ class Game {
       if (type === "roller") this.units.push(new RollingPinRoller(s(215) - n * s(60), side, this.terrain));
       if (type === "hover") this.units.push(new HoverCoop(s(180) - n * s(44), side, this.terrain));
       if (type === "pogo") this.units.push(new PogoTank(s(240) - n * s(50), side, this.terrain));
+      if (type === "pigeon") this.units.push(new PigeonFlock(-s(50) - n * s(110), side, this.terrain, n + 1));
     } else {
       if (type === "tank") this.units.push(new Tank(W - s(255) + n * s(64), side, this.terrain));
       if (type === "motorcycle") this.units.push(new Motorcycle(W - s(197) + n * s(46), side, this.terrain));
@@ -436,6 +439,7 @@ class Game {
       if (type === "roller") this.units.push(new RollingPinRoller(W - s(215) + n * s(60), side, this.terrain));
       if (type === "hover") this.units.push(new HoverCoop(W - s(180) + n * s(44), side, this.terrain));
       if (type === "pogo") this.units.push(new PogoTank(W - s(240) + n * s(50), side, this.terrain));
+      if (type === "pigeon") this.units.push(new PigeonFlock(W + s(50) + n * s(110), side, this.terrain, n + 1));
     }
   }
 
@@ -503,6 +507,10 @@ class Game {
         u.frozen = Math.max(0, u.frozen - dt);
         continue;
       }
+      if (u.asleep > 0) {
+        u.asleep = Math.max(0, u.asleep - dt);
+        continue;
+      }
       const udt = (u.stuck > 0 && !u.hover ? dt * STICKY_SLOW : dt) * Events.speedFactor(u) * Abilities.timeScale(u) * Weather.unitSpeed(u);
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
       if (Events.tickUnit(this, u, dt)) continue;
@@ -510,6 +518,15 @@ class Game {
       if (u.landed) {
         u.landed = false;
         this.pogoStomp(u, enemies);
+      }
+      if (u.diveStrike) {
+        u.diveStrike = false;
+        const t = u.diveTarget;
+        if (t && !t.dead && Math.abs(t.x - u.x) < s(50)) {
+          this.damageUnit(t, 1);
+          Effects.spawn("ring", t.x, t.y, 0, 0, 0.25, 8, YOLK);
+          audio.play("bawk");
+        }
       }
       if (u.isBoss) {
         u.updateBoss(this, udt, enemies);
@@ -690,6 +707,7 @@ class Game {
   fire(u, enemies) {
     if (!enemies.length) return;
     if (u instanceof ChickBalloon) return this.dropChick(u, enemies);
+    if (u instanceof PigeonFlock) return this.pigeonDive(u, enemies);
     if (u instanceof MonsterTruck) return this.crush(u, enemies);
     if (u instanceof RollingPinRoller) return this.bonk(u, enemies);
     if (u instanceof Helicopter) {
@@ -733,6 +751,20 @@ class Game {
     const vx = (tx - sx) / time;
     const vy = (ty - sy - 0.5 * GRAVITY * time * time) / time;
     this.eggs.push(new Egg(sx, sy, vx, vy, side, burst, kind));
+  }
+
+  // Pigeon Flock: dive at an enemy ground unit just ahead; the hit lands at the bottom of the dive.
+  pigeonDive(u, enemies) {
+    if (u.dive > 0) return;
+    const t = enemies.find((e) => !(e instanceof Airplane) && !e.airborne && (e.x - u.x) * u.side > 0 && Math.abs(e.x - u.x) < s(320));
+    if (!t) {
+      u.fireClock = 0.2;
+      return;
+    }
+    u.diveTarget = t;
+    u.dive = PIGEON_DIVE_SECONDS;
+    u.diveDone = false;
+    audio.play("bawk");
   }
 
   // Chick Balloon: once over enemy ground troops, drop a chick paratrooper.

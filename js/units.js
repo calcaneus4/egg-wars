@@ -71,6 +71,7 @@ class Unit {
   }
 
   takeHit() {
+    this.asleep = 0;
     if (this.shield > 0) {
       this.shield--;
       this.shieldFlash = 0.35;

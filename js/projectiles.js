@@ -88,6 +88,16 @@ class Egg {
       ctx.beginPath();
       ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.kind.band === "sleepy") {
+      // A little crescent moon and a star.
+      ctx.fillStyle = "#b9a0e6";
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = WHITE;
+      ctx.beginPath();
+      ctx.arc(this.radius * 0.25, -this.radius * 0.15, this.radius * 0.5, 0, Math.PI * 2);
+      ctx.fill();
     } else if (this.kind.band === "waffle") {
       ctx.fillStyle = "#e3a948";
       ctx.beginPath();

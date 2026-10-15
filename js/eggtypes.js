@@ -129,6 +129,19 @@ const EGG_TYPES = {
     yolkDrop: false,
     freeze: 1.5,
   },
+  sleepy: {
+    id: "sleepy",
+    name: "Sleepy",
+    desc: "A lullaby splash: enemies nearby fall asleep for 4 s, or until something hits them.",
+    level: 8,
+    damage: 1,
+    burst: 0,
+    band: "sleepy",
+    yolkDrop: true,
+    yolkBurst: 0,
+    sleepRadius: 160,
+    sleep: 4,
+  },
   bubble: {
     id: "bubble",
     name: "Bubble",
@@ -254,6 +267,16 @@ const EggTypes = {
   onImpact(game, egg, x, y, target = null) {
     const k = egg.kind;
     if (target && k.freeze && !target.dead) this.freeze(target, k.freeze);
+    if (k.sleepRadius && !egg.slept) {
+      egg.slept = true;
+      const r = s(k.sleepRadius);
+      for (const u of game.living(-egg.side)) {
+        if (u.isBoss || dist(u.x, u.y, x, y) > r + u.radius()) continue;
+        u.asleep = Math.max(u.asleep || 0, k.sleep);
+      }
+      Effects.spawn("ring", x, y, 0, 0, 0.5, r * 0.5, "#b9a0e6");
+      audio.play("boo");
+    }
     if (k.freezeRadius && !egg.froze) {
       // Icy splash: everything nearby in the other army freezes too.
       egg.froze = true;
@@ -465,6 +488,19 @@ const EggTypes = {
   // Ice blocks around frozen units.
   drawIce(units) {
     ctx.save();
+    // Sleeping units get a drifting "Zzz".
+    ctx.fillStyle = "#6a55b8";
+    ctx.font = "bold 14px Courier New";
+    const t = performance.now() * 0.002;
+    for (const u of units) {
+      if (!(u.asleep > 0) || u.dead) continue;
+      for (let i = 0; i < 3; i++) {
+        const k = (t + i / 3) % 1;
+        ctx.globalAlpha = 1 - k;
+        ctx.fillText("z", u.x + s(8) + k * s(14), u.y - u.size * 0.6 - k * s(26));
+      }
+    }
+    ctx.globalAlpha = 1;
     for (const u of units) {
       if (!(u.frozen > 0) || u.dead) continue;
       const r = u.radius() * 1.05;

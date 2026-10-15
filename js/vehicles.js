@@ -452,3 +452,77 @@ class PogoTank extends Unit {
     ctx.restore();
   }
 }
+
+// Pigeon Flock: three scruffy pigeons flying as one unit. They cross the sky like an airplane and
+// every so often swoop down on an enemy ground unit ahead (1 hit at the bottom of the dive).
+const PIGEON_DIVE_SECONDS = 0.7;
+
+class PigeonFlock extends Airplane {
+  constructor(x, side, terrain, lane = 0) {
+    super(x, side, terrain, lane);
+    this.speed = settings.airplaneSpeed * 0.75;
+    this.size = s(46);
+    this.hp = 6;
+    this.fireRate = 0.3;
+    this.dive = 0;
+    this.flap = rand(0, 6);
+  }
+
+  move(dt) {
+    // While diving, swoop straight at the target instead of flying on.
+    if (this.dive > 0 && this.diveTarget && !this.diveTarget.dead) this.x += (this.diveTarget.x - this.x) * Math.min(1, dt * 8);
+    else super.move(dt);
+    this.flap += dt * 14;
+    if (this.dive > 0) {
+      this.dive = Math.max(0, this.dive - dt);
+      if (!this.diveDone && this.dive < PIGEON_DIVE_SECONDS / 2) {
+        this.diveDone = true;
+        this.diveStrike = true;
+      }
+    }
+  }
+
+  get y() {
+    if (!(this.dive > 0) || !this.diveTarget) return this.flightY;
+    const k = 1 - this.dive / PIGEON_DIVE_SECONDS;
+    const bottom = this.diveTarget.dead ? this.flightY : this.diveTarget.y - this.diveTarget.size * 0.4;
+    return this.flightY + Math.sin(k * Math.PI) * (bottom - this.flightY);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const y = this.y;
+    ctx.save();
+    for (let i = 0; i < 3; i++) {
+      const px = this.x - this.side * i * s(16);
+      const py = y + (i === 1 ? -s(10) : i === 2 ? s(8) : 0);
+      const f = Math.sin(this.flap + i * 1.7);
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 1.5;
+      ctx.fillStyle = "#9aa0a8";
+      ctx.beginPath();
+      ctx.ellipse(px, py, s(9), s(5), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      // Head with a team-coloured neck ring.
+      ctx.beginPath();
+      ctx.arc(px + this.side * s(8), py - s(3), s(3.5), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = c;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(px + this.side * s(6), py - s(1), s(3), 0, Math.PI);
+      ctx.stroke();
+      // Flapping wing.
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(px - this.side * s(2), py - s(2));
+      ctx.lineTo(px - this.side * s(8), py - s(2) - f * s(9));
+      ctx.lineTo(px + this.side * s(3), py - s(1));
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
