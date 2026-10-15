@@ -268,3 +268,8 @@ yolk, use powers) or the hand-drawn side view:
 - Vehicles: **Pogo Tank** (lv 15, $30). A little tank on a giant spring. Every 4-6 s it boings up to 150 px toward the nearest enemy ground unit and lands with a stomp ring (1 hit to enemies underneath), firing small bursting eggs in between. It is heavy (tornado-proof), and Balanced enemy armies field it too.
 - Powers: **Time Freeze** (lv 20, 34 s cooldown). For 4 s every enemy egg already in the air (and any fired meanwhile) hangs frozen with a blue ring and a "TIME FREEZE" countdown, then drops almost straight down where it hung. Your own eggs keep flying. The Powers screen rows are a little shorter so all 8 powers fit.
 - Bosses: **Waffle Iron Warlord** (first at stage 40, then in the rotation). A hulking waffle iron with glowing eyes that flings waffles. Every 5 s it marks the nearest troops with a flickering waffle grid and slams a giant lid down 1.3 s later (1 hit plus a stagger); enraged, it marks two spots ("CRISPY TIME!"). winrate-sim: 1/10 idle, 8/10 active. 8 bosses in the rotation.
+- Final review V:
+  - The 60-stage stress test (forced events of all 18 kinds, all weather, random eggs, powers and purchases) had no errors.
+  - Frame time is flat: every new event and the pollen storm are within ~2 ms of a quiet frame.
+  - winrate-sim (10 runs at each of 7 stages): idle 29%, active 84%.
+  - The Waffle Iron Warlord now slams every 6 s instead of 5 (8/12 active).

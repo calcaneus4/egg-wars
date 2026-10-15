@@ -221,4 +221,4 @@ stage), neutral events, and a flat frame cost checked in the final review.
 
 ## 24. Final
 
-- [ ] **Final review V** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
+- [x] **Final review V** - winrate check, stress test, frame time, docs and a CHANGELOG summary.

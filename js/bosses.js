@@ -990,7 +990,7 @@ class WaffleWarlord extends Boss {
     this.groundOffset = s(60);
     this.slowAttack = 2.6;
     this.fastAttack = 1.8;
-    this.specialEvery = 5;
+    this.specialEvery = 6;
     this.clamps = [];
     this.lid = 0;
   }
