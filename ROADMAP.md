@@ -222,3 +222,30 @@ stage), neutral events, and a flat frame cost checked in the final review.
 ## 24. Final
 
 - [x] **Final review V** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
+
+---
+
+# Phase 6: Plagues, Pests & Blenders
+
+Sixth loop. Same rules: calm screen (6 cards, 3 eggs, 2 powers, one event per stage), neutral
+events (at most 1 hit per unit), and a flat frame cost checked in the final review.
+
+## 25. Surprise events
+
+- [ ] **Giant Bird** - a huge bird swoops down, snatches one trooper from each army and flies off with them.
+- [ ] **Chicken Pox** - a spotty itch spreads from unit to unit on contact; itchy units move and fire at half speed until it wears off (no damage).
+- [ ] **Hiccup Outbreak** - troops on both sides get the hiccups: they hop at random and every hiccup sends a shot wild.
+- [ ] **Mole Invasion** - moles pop out of molehills all over the field; troops trip in the holes and moles steal splats.
+
+## 26. New content (each arrives through the kit, Director or rotation)
+
+- [ ] **Weather: Rainbow** - after a shower, a rainbow arcs over the middle of the field; units under it fire 25% faster (both armies).
+- [ ] **Biome: Jungle** - vines and giant leaves; creeping vines hazard briefly tangles ground units.
+- [ ] **Egg: Sleepy** - puts enemies in the splash to sleep (Zzz) for 4 s, or until something hits them.
+- [ ] **Vehicle: Pigeon Flock** - three pigeons fly over the enemy and dive-bomb ground troops.
+- [ ] **Power: Mega Yolk** - your next Yolk Drop is giant: triple burst, and the cooldown resets.
+- [ ] **Boss: Blender Beast** - a giant blender whose vortex sucks ground troops toward it, then spits them out.
+
+## 27. Final
+
+- [ ] **Final review VI** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
