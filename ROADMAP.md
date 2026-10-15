@@ -248,4 +248,4 @@ events (at most 1 hit per unit), and a flat frame cost checked in the final revi
 
 ## 27. Final
 
-- [ ] **Final review VI** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
+- [x] **Final review VI** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
