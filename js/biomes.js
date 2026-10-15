@@ -1,7 +1,7 @@
 "use strict";
 
 // Biomes: each run of five stages takes place in a different land with its own terrain shape,
-// ground colour, background decorations and weather. After Sunny Beach the cycle repeats.
+// ground colour, background decorations and weather. After the Moon Base the cycle repeats.
 
 const BIOME_STAGES = 5;
 
@@ -13,7 +13,7 @@ const BIOMES = [
     ground: null,
     grass: true,
     decor: "trees",
-    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5, fog: 1, storm: 1.2, hail: 0.6 },
+    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5, fog: 1, storm: 1.2, hail: 0.6, pollen: 1.5 },
   },
   {
     id: "desert",
@@ -63,7 +63,7 @@ const BIOMES = [
     grass: false,
     reeds: true,
     decor: "willows",
-    weather: { clear: 2, rain: 2, fog: 2.5, storm: 1 },
+    weather: { clear: 2, rain: 2, fog: 2.5, storm: 1, pollen: 1 },
   },
   {
     id: "candy",
@@ -73,7 +73,7 @@ const BIOMES = [
     grass: false,
     candy: true,
     decor: "candy",
-    weather: { clear: 4, windy: 1.5, heat: 1, hail: 0.5 },
+    weather: { clear: 4, windy: 1.5, heat: 1, hail: 0.5, pollen: 1.5 },
   },
   {
     id: "graveyard",
@@ -94,6 +94,18 @@ const BIOMES = [
     beach: true,
     decor: "palms",
     weather: { clear: 5, windy: 2, heat: 1.5, storm: 0.5 },
+  },
+  {
+    id: "moon",
+    name: "Moon Base",
+    terrain: { minY: 0.64, maxY: 0.86, rough: 90, smooth: 6 },
+    ground: [150, 150, 160, 0.3],
+    grass: false,
+    craters: true,
+    decor: "domes",
+    gravity: 0.6,
+    // No air, no weather - just the odd meteor shower at night.
+    weather: { clear: 1 },
   },
 ];
 

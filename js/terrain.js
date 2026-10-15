@@ -232,6 +232,24 @@ class Terrain {
         g.restore();
       }
     }
+    if (biome.craters) {
+      // Pock-marked lunar ground.
+      for (let i = 0; i < 40; i++) {
+        const x = random() * W;
+        const y = this.yAt(x) + 10 + random() * 90;
+        const r = 4 + random() * 12;
+        g.fillStyle = "rgba(90,90,100,0.25)";
+        g.strokeStyle = rgbaFromHex(LINE, 0.35);
+        g.beginPath();
+        g.ellipse(x, y, r, r * 0.45, 0, 0, Math.PI * 2);
+        g.fill();
+        g.stroke();
+        g.strokeStyle = "rgba(255,255,255,0.5)";
+        g.beginPath();
+        g.ellipse(x, y + 1, r * 0.8, r * 0.3, 0, 0.2, Math.PI - 0.2);
+        g.stroke();
+      }
+    }
     if (biome.beach) {
       // Seashells and starfish in the sand.
       for (let i = 0; i < 26; i++) {

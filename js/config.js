@@ -14,7 +14,9 @@ let BLUE = "#245cc4";
 let RED = "#c4302a";
 let YOLK = "#eebc2d";
 let WHITE = "#fffffa";
-const GRAVITY = 420;
+const BASE_GRAVITY = 420;
+// Set per stage from the biome (the Moon Base has low gravity); every aim formula reads it.
+let GRAVITY = BASE_GRAVITY;
 
 const settings = {
   colorScheme: "sunset",

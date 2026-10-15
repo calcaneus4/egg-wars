@@ -36,6 +36,7 @@ const WEATHER_INFO = {
   fog: { label: "FOG", minStage: 6, tip: "Fog! Ground troops can only see enemies close by - aircraft see fine." },
   storm: { label: "THUNDERSTORM", minStage: 9, tip: "Thunderstorm! Lightning strikes where the ground flickers - both armies get zapped." },
   hail: { label: "HAIL", minStage: 12, tip: "Hail! Aircraft get dinged by hailstones now and then." },
+  pollen: { label: "POLLEN STORM", minStage: 7, tip: "Pollen storm! Troops sneeze now and then and their shots go wild." },
   meteor: { label: "METEOR SHOWER", minStage: 10, nightOnly: true, tip: "Meteor shower! Glowing rings mark where shooting stars will land - both armies get singed." },
   blizzard: { label: "BLIZZARD", minStage: 11, tip: "Blizzard! Heavy snow slows every ground unit a little." },
   sandstorm: { label: "SANDSTORM", minStage: 8, tip: "Sandstorm! Strong winds push every egg, and aircraft can barely aim through the dust." },
@@ -71,7 +72,7 @@ const Weather = {
     this.wind = this.baseWind;
     this.gust = 0;
     this.drops = [];
-    const count = { rain: 160, storm: 190, snow: 110, blizzard: 160, windy: 18, hail: 70, sandstorm: 70 }[this.type] || 0;
+    const count = { pollen: 90, rain: 160, storm: 190, snow: 110, blizzard: 160, windy: 18, hail: 70, sandstorm: 70 }[this.type] || 0;
     for (let i = 0; i < count; i++) this.drops.push(this.newDrop(true));
     this.fogBanks = [];
     if (this.type === "fog") {
@@ -109,6 +110,13 @@ const Weather = {
   // Movement multiplier for a ground unit (a blizzard slows everyone on foot or wheels).
   unitSpeed(u) {
     return this.type === "blizzard" && Hazards.isGround(u) ? BLIZZARD_SLOW : 1;
+  },
+
+  // Extra aim error when a unit sneezes in a pollen storm (about one shot in five).
+  sneeze(u, game) {
+    if (this.type !== "pollen" || !Hazards.isGround(u) || Math.random() > 0.2) return 0;
+    if (game.canSpeak(u) && Math.random() < 0.25) u.say("ACHOO!", 0.8);
+    return rand(-s(200), s(200));
   },
 
   isSnowy() {
@@ -231,6 +239,10 @@ const Weather = {
           d.x += rand(-4, 4);
           continue;
         }
+      } else if (this.type === "pollen") {
+        d.sway += dt * 2;
+        d.x += (windPx * 0.6 + Math.sin(d.sway) * 25) * dt;
+        d.y += (12 + Math.cos(d.sway * 0.7) * 15) * dt;
       } else if (this.isSnowy()) {
         d.sway += dt * 1.5;
         d.x += (windPx * (this.type === "blizzard" ? 2.5 : 0.8) + Math.sin(d.sway) * 18) * dt;
@@ -404,7 +416,16 @@ const Weather = {
   draw() {
     if (!this.drops.length) return;
     ctx.save();
-    if (this.type === "hail") {
+    if (this.type === "pollen") {
+      ctx.fillStyle = "rgba(240,200,40,0.75)";
+      ctx.beginPath();
+      for (const d of this.drops) {
+        const r = 2.4 * d.size;
+        ctx.moveTo(d.x + r, d.y);
+        ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+      }
+      ctx.fill();
+    } else if (this.type === "hail") {
       ctx.fillStyle = "#ffffff";
       ctx.strokeStyle = rgbaFromHex(LINE, 0.5);
       ctx.lineWidth = 1;

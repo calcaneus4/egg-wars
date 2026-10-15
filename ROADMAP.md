@@ -212,8 +212,8 @@ stage), neutral events, and a flat frame cost checked in the final review.
 
 ## 23. New content (each arrives through the kit, Director or rotation)
 
-- [ ] **Biome: Moon Base** - grey craters and Earth in the sky; low gravity makes every egg float further.
-- [ ] **Weather: Pollen Storm** - drifting pollen clouds; ground units sneeze and miss shots now and then.
+- [x] **Biome: Moon Base** - grey craters and Earth in the sky; low gravity makes every egg float further.
+- [x] **Weather: Pollen Storm** - drifting pollen clouds; ground units sneeze and miss shots now and then.
 - [ ] **Egg: Bubble** - traps the first enemies it touches in floating bubbles for a few seconds.
 - [ ] **Vehicle: Pogo Tank** - a tank on a giant spring that bounces over the front line and lands among the enemy.
 - [ ] **Power: Time Freeze** - stops every egg in the air for 4 s, then lets them fall.

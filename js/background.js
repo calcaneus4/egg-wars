@@ -177,6 +177,27 @@ class Background {
       g.closePath();
       g.fill();
       g.stroke();
+    } else if (kind === "domes") {
+      // Moon-base domes and radio masts.
+      if (random() < 0.6) {
+        g.arc(x, y + 2, h * 0.5, Math.PI, 0);
+        g.closePath();
+        g.fill();
+        g.stroke();
+        g.beginPath();
+        g.moveTo(x - h * 0.25, y - h * 0.2);
+        g.lineTo(x - h * 0.1, y - h * 0.35);
+        g.stroke();
+      } else {
+        g.moveTo(x, y + 2);
+        g.lineTo(x, y - h * 1.1);
+        g.moveTo(x - h * 0.2, y - h * 0.8);
+        g.lineTo(x + h * 0.2, y - h * 0.8);
+        g.stroke();
+        g.beginPath();
+        g.arc(x, y - h * 1.1, h * 0.12, 0, Math.PI * 2);
+        g.stroke();
+      }
     } else if (kind === "deadtrees") {
       // Bare, crooked trees.
       g.moveTo(x, y + 2);
@@ -304,6 +325,10 @@ class Background {
   }
 
   drawSunOrMoon() {
+    if (this.biome && this.biome.id === "moon") {
+      drawEarth(1010, 130);
+      return;
+    }
     if (Sky.isNight()) drawMoon(1010, 130, this.time);
     else this.drawSun();
   }
@@ -318,4 +343,26 @@ class Background {
       ctx.drawImage(image, span - offset, 0);
     }
   }
+}
+
+// The Earth hanging in the Moon Base sky.
+function drawEarth(x, y) {
+  ctx.save();
+  ctx.fillStyle = "#6fb3e8";
+  ctx.strokeStyle = LINE;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(x, y, 34, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#7cc06a";
+  ctx.beginPath();
+  ctx.ellipse(x - 10, y - 8, 12, 9, 0.4, 0, Math.PI * 2);
+  ctx.ellipse(x + 12, y + 10, 9, 12, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.beginPath();
+  ctx.ellipse(x + 4, y - 20, 14, 4, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
