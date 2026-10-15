@@ -43,6 +43,19 @@ following, all in the original hand-drawn side-view style:
   - A headless smoke test (`tools/smoke-test.js`).
   - The balance simulator.
 
+## Phase 6 summary
+
+The sixth loop:
+- **4 affliction events:** Giant Bird (steals a trooper from each army), Chicken Pox, Hiccup
+  Outbreak and Mole Invasion (22 events in all, still at most one per stage).
+- **Steamy Jungle biome** (stages 46-50) with creeping vines. 11 biomes.
+- **Rainbow** weather (faster firing underneath, for both armies).
+- **Sleepy egg, Pigeon Flock and Mega Yolk power.** All arrive through the same 6-card /
+  3-egg / 2-power kit, so the screen stays calm. The Powers screen fits all 9 powers.
+- **Blender Beast boss:** 9 bosses in the rotation.
+- **Balance:** the Toaster Titan was the hardest boss (about 60% active wins) and now fires 2
+  slices per volley instead of 3.
+
 ## Phase 5 summary
 
 The fifth loop:

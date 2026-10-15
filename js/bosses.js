@@ -870,7 +870,7 @@ class ToasterTitan extends Boss {
     this.size = s(140);
     this.groundOffset = s(66);
     this.slowAttack = 2.0;
-    this.fastAttack = 1.4;
+    this.fastAttack = 1.5;
     this.specialEvery = 6;
     this.pop = 0;
   }
@@ -886,7 +886,7 @@ class ToasterTitan extends Boss {
   attack(game, enemies) {
     const ground = enemies.filter((e) => !(e instanceof Airplane));
     const pool = ground.length ? ground : enemies;
-    const targets = pool.slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, 3);
+    const targets = pool.slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, 2);
     const top = this.terrain.yAt(this.x) - s(130);
     targets.forEach((t, i) => game.lobEgg(this.x + (i ? 1 : -1) * s(18), top, t.x + rand(-25, 25), t.y, this.side, 0, 1.6 + i * 0.2, "toast"));
     this.pop = 1;
