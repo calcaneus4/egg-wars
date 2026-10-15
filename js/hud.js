@@ -359,7 +359,7 @@ const Hud = {
     ctx.fillStyle = LINE;
     ctx.font = "bold 15px Courier New";
     const kind = EggTypes.selected(game.profile);
-    const name = kind.id === "normal" ? "YOLK DROP" : `${kind.name.toUpperCase()} DROP`;
+    const name = (game.megaYolk ? "MEGA " : "") + (kind.id === "normal" ? "YOLK DROP" : `${kind.name.toUpperCase()} DROP`);
     const label = ready ? `${name} READY - tap the battlefield` : `${name} ${game.powerUpCooldown.toFixed(1)}s`;
     ctx.fillText(label, x + r + 12, y + 5);
     ctx.restore();

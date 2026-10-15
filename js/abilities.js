@@ -63,14 +63,21 @@ const ABILITIES = [
     cooldown: 40,
     desc: "A blizzard freezes every enemy solid for 2.5 s (bosses less).",
   },
+  {
+    id: "mega",
+    name: "Mega Yolk",
+    level: 21,
+    cooldown: 30,
+    desc: "Your Yolk Drop is ready now, and the next one is GIANT: triple burst.",
+  },
 ];
 
 const POWER_SLOT_KEYS = ["W", "E"];
-const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "goose", "rooster", "scarecrow", "chill", "timefreeze"];
+const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "goose", "rooster", "scarecrow", "chill", "timefreeze", "mega"];
 const TIME_FREEZE_SECONDS = 4;
 const GOOSE_SECONDS = 8;
 // Row height on the Powers screen, so every power fits above the BACK button.
-const POWER_ROW = 58;
+const POWER_ROW = 52;
 const SCARECROW_SECONDS = 6;
 const REINFORCE_COUNT = 4;
 const ROOSTER_SECONDS = 6;
@@ -113,6 +120,7 @@ const Abilities = {
     game.goose = null;
     for (const a of ABILITIES) game.abilityCooldowns[a.id] = 0;
     game.airstrikes = [];
+    game.megaYolk = false;
   },
 
   unlocked(profile, ability) {
@@ -266,6 +274,12 @@ const Abilities = {
       for (let i = 0; i < 40; i++) Effects.spawn("drop", rand(W * 0.3, W), rand(0, H * 0.5), rand(-40, 40), rand(80, 200), rand(0.8, 1.4), rand(2, 3.5), WHITE);
       audio.play("freeze");
     }
+    if (id === "mega") {
+      game.megaYolk = true;
+      game.powerUpCooldown = 0;
+      Effects.spawn("ring", 46, H - 46, 0, 0, 0.6, 40, YOLK);
+      audio.play("levelup");
+    }
     if (id === "shield") {
       for (const u of game.living(RIGHT)) {
         u.shield = Math.max(u.shield || 0, 1);
@@ -347,6 +361,19 @@ const Abilities = {
         ctx.lineTo(cx + Math.cos(a) * 13, cy + Math.sin(a) * 13);
         ctx.stroke();
       }
+    } else if (id === "mega") {
+      ctx.fillStyle = WHITE;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 1, 11, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = YOLK;
+      ctx.beginPath();
+      ctx.arc(cx, cy + 3, 6, 0, Math.PI * 2);
+      ctx.fill();
+      line(cx - 17, cy - 12, cx - 12, cy - 8, RED, 2);
+      line(cx + 17, cy - 12, cx + 12, cy - 8, RED, 2);
+      line(cx, cy - 19, cx, cy - 15, RED, 2);
     } else {
       ctx.fillStyle = rgbaFromHex(YOLK, 0.6);
       ctx.beginPath();
@@ -514,19 +541,19 @@ const Abilities = {
       ctx.fillRect(x0, y, 780, POWER_ROW - 4);
       ctx.strokeRect(x0, y, 780, POWER_ROW - 4);
       ctx.beginPath();
-      ctx.arc(x0 + 34, y + 27, 20, 0, Math.PI * 2);
+      ctx.arc(x0 + 34, y + 24, 19, 0, Math.PI * 2);
       ctx.stroke();
-      this.drawIcon(a.id, x0 + 34, y + 27);
+      this.drawIcon(a.id, x0 + 34, y + 24);
       ctx.fillStyle = LINE;
       ctx.font = "bold 20px Courier New";
-      ctx.fillText(a.name, x0 + 68, y + 22);
+      ctx.fillText(a.name, x0 + 68, y + 20);
       ctx.font = "bold 13px Courier New";
-      ctx.fillText(a.desc, x0 + 68, y + 42);
-      ctx.fillText(open ? `cooldown ${Math.round(a.cooldown * Armory.cooldownScale(p))}s` : `unlocks at LV ${a.level}`, x0 + 68 + ctx.measureText(a.name).width * 1.6 + 16, y + 22);
+      ctx.fillText(a.desc, x0 + 68, y + 39);
+      ctx.fillText(open ? `cooldown ${Math.round(a.cooldown * Armory.cooldownScale(p))}s` : `unlocks at LV ${a.level}`, x0 + 68 + ctx.measureText(a.name).width * 1.6 + 16, y + 20);
       ctx.restore();
       if (!open) return;
       POWER_SLOT_KEYS.forEach((key, slot) => {
-        const b = Menus.button(key, x0 + 676 + slot * 56, y + 6, 46, () => this.setSlot(p, slot, a.id) || SaveManager.save(), 42);
+        const b = Menus.button(key, x0 + 676 + slot * 56, y + 5, 46, () => this.setSlot(p, slot, a.id) || SaveManager.save(), 38);
         b.hot = slots[slot] === a.id;
       });
     });

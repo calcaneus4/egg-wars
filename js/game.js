@@ -938,6 +938,10 @@ class Game {
   }
 
   burst(egg, x, y, leaveSplat) {
+    if (egg.mega) {
+      Effects.explosion(x, y, 2.2, YOLK);
+      Effects.shake(7);
+    }
     Effects.yolk(x, y, 6 + egg.burst, 1.2);
     Effects.spawn("ring", x, y, 0, 0, 0.3, 6 + egg.burst, YOLK);
     if (leaveSplat) this.splats.push(new Splat(x, y + rand(0, s(10)), this.terrain.slopeAt(x), 1 + Math.min(0.6, egg.burst * 0.05)));
@@ -1034,10 +1038,18 @@ class Game {
     const targetX = clamp(x, s(40), W - s(40));
     const kind = EggTypes.selected(this.profile);
     const count = kind.yolkCount || 1;
+    // Mega Yolk power: this drop is giant, with three times the burst (shared across the eggs).
+    const mega = this.megaYolk;
+    this.megaYolk = false;
     for (let i = 0; i < count; i++) {
       const vx = kind.dropVx ? kind.dropVx * RIGHT : count > 1 ? (i - (count - 1) / 2) * 60 : rand(-18, 18);
       const egg = new Egg(targetX + (i - (count - 1) / 2) * 20, 72, vx, 30, RIGHT, kind.yolkBurst, kind.id);
       egg.source = "yolk";
+      if (mega) {
+        egg.burst = Math.ceil((Math.max(8, egg.burst * count) * 3) / count);
+        egg.radius *= 2.2;
+        egg.mega = true;
+      }
       this.eggs.push(egg);
       Stats.add("eggsThrown");
     }
