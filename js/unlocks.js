@@ -40,10 +40,12 @@ const UNLOCKS = [
   { level: 13, kind: "feature", id: "smoke", name: "Smoke Egg", desc: "Yolk Drop option: a smoke cloud that spoils the enemy's aim" },
   { level: 14, kind: "feature", id: "scarecrow", name: "Scarecrow", desc: "Power: a scarecrow draws the enemy's fire for 6 s" },
   { level: 14, kind: "feature", id: "explosive", name: "Boomer Egg", desc: "Yolk Drop option: big blast that digs craters" },
+  { level: 15, kind: "unit", type: "pogo", name: "Pogo Tank", desc: "Boings over the front line and stomps down among the enemy" },
   { level: 15, kind: "feature", id: "zapper", name: "Zapper Egg", desc: "Yolk Drop option: chain lightning through up to 4 enemies" },
   { level: 16, kind: "feature", id: "magnet", name: "Magnet Egg", desc: "Yolk Drop option: pulls enemy troops into a clump" },
   { level: 16, kind: "unit", type: "rider", name: "Rooster Rider", desc: "Fast cavalry that charges in and pecks up close" },
   { level: 18, kind: "feature", id: "homing", name: "Seeker Egg", desc: "Yolk Drop option: four eggs that hunt enemies, aircraft first" },
+  { level: 19, kind: "feature", id: "bubble", name: "Bubble Egg", desc: "Yolk Drop option: floats up to 4 enemies away in bubbles" },
 ];
 
 // Unit types that every army always gets for free, whatever is unlocked (the home castle).

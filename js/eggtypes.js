@@ -129,6 +129,18 @@ const EGG_TYPES = {
     yolkDrop: false,
     freeze: 1.5,
   },
+  bubble: {
+    id: "bubble",
+    name: "Bubble",
+    desc: "Traps up to 4 enemies in floating bubbles; they drop with a bump when the bubbles pop.",
+    level: 19,
+    damage: 1,
+    burst: 0,
+    band: "bubble",
+    yolkDrop: true,
+    yolkBurst: 0,
+    bubble: { radius: 140, max: 4, life: 3.5 },
+  },
   magnet: {
     id: "magnet",
     name: "Magnet",
@@ -217,8 +229,11 @@ const EggTypes = {
   zaps: [],
   poppers: [],
   magnets: [],
+  bubbles: [],
 
   reset() {
+    for (const b of this.bubbles || []) if (!b.u.dead) Events.release(b.u, 0);
+    this.bubbles = [];
     this.magnets = [];
     this.clouds = [];
     this.zaps = [];
@@ -242,6 +257,22 @@ const EggTypes = {
       egg.smoked = true;
       this.clouds.push({ x, y: Math.min(y, game.terrain.yAt(clamp(x, 0, W))), r: s(k.smoke.radius), life: k.smoke.life, age: 0, puffs: Array.from({ length: 9 }, () => ({ dx: rand(-1, 1), dy: rand(-0.6, 0.2), r: rand(0.35, 0.6), p: rand(0, 6) })) });
       audio.play("egg_splat");
+    }
+    if (k.bubble && !egg.bubbled) {
+      egg.bubbled = true;
+      const r = s(k.bubble.radius);
+      const ground = game.terrain.yAt(clamp(x, 0, W));
+      const caught = game.living(-egg.side)
+        .filter((u) => Hazards.isGround(u) && !u.isBoss && !u.heavy && !(u instanceof Tank) && !u.airborne && Math.abs(u.x - x) < r)
+        .sort((a, b) => Math.abs(a.x - x) - Math.abs(b.x - x))
+        .slice(0, k.bubble.max);
+      for (const u of caught) {
+        u.caughtBy = "bubble";
+        u.airborne = true;
+        this.bubbles.push({ u, life: k.bubble.life, bob: rand(0, 6) });
+      }
+      Effects.spawn("ring", x, ground, 0, 0, 0.4, r * 0.4, "#9fd8ff");
+      audio.play("pop");
     }
     if (k.magnet && !egg.magnetized) {
       egg.magnetized = true;
@@ -299,6 +330,18 @@ const EggTypes = {
   },
 
   update(dt) {
+    for (const b of this.bubbles) {
+      b.life -= dt;
+      b.bob += dt;
+      if (b.u.dead) continue;
+      b.u.lift = Math.min(s(90), (b.u.lift || 0) + s(70) * dt) + Math.sin(b.bob * 3) * 0.5;
+      if (b.life <= 0) {
+        Effects.spawn("ring", b.u.x, b.u.y, 0, 0, 0.25, 10, "#9fd8ff");
+        audio.play("pop");
+        Events.release(b.u, 0);
+      }
+    }
+    this.bubbles = this.bubbles.filter((b) => b.life > 0 && !b.u.dead);
     for (const m of this.magnets) {
       m.life -= dt;
       const r = s(m.def.radius);
@@ -331,6 +374,23 @@ const EggTypes = {
 
   draw() {
     ctx.save();
+    for (const b of this.bubbles) {
+      const u = b.u;
+      const r = u.radius() * 1.3;
+      ctx.globalAlpha = 0.8;
+      ctx.fillStyle = "rgba(170,220,255,0.25)";
+      ctx.strokeStyle = "#7cc4f0";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(u.x, u.y - u.size * 0.2, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.beginPath();
+      ctx.arc(u.x - r * 0.3, u.y - u.size * 0.2 - r * 0.35, r * 0.3, Math.PI * 1.1, Math.PI * 1.6);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
     for (const m of this.magnets) {
       // A horseshoe magnet stuck in the ground with pulsing pull rings.
       const t = m.life * 6;

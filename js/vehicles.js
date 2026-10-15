@@ -367,3 +367,88 @@ class HoverCoop extends Unit {
     ctx.restore();
   }
 }
+
+// Pogo Tank: a little tank on a giant spring. Every few seconds it boings over the front line
+// and lands among the enemy with a stomp (1 hit to ground units it lands on).
+const POGO_HOP_SECONDS = 1;
+const POGO_HOP_DISTANCE = 300;
+
+class PogoTank extends Unit {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed = settings.tankSpeed * 2;
+    this.size = s(38);
+    this.groundOffset = s(30);
+    this.hp = 5;
+    this.fireRate = 0.12;
+    this.eggBurst = 2;
+    this.heavy = true;
+    this.hopIn = rand(1, 2.5);
+    this.hopT = 0;
+    this.hopLift = 0;
+  }
+
+  get y() {
+    return this.terrain.yAt(this.x) - this.groundOffset - (this.lift || 0) - this.hopLift;
+  }
+
+  muzzle() {
+    return [this.x + this.side * s(24), this.y - s(14)];
+  }
+
+  move(dt, enemies) {
+    if (this.hopT > 0) {
+      this.hopT -= dt;
+      const k = 1 - Math.max(0, this.hopT) / POGO_HOP_SECONDS;
+      this.hopLift = Math.sin(k * Math.PI) * s(80);
+      this.x = clamp(this.x + this.side * (this.hopDist / POGO_HOP_SECONDS) * dt, s(45), W - s(45));
+      if (this.hopT <= 0) {
+        this.hopLift = 0;
+        this.landed = true;
+      }
+      return;
+    }
+    super.move(dt, enemies);
+    // Aim each hop to land right on the nearest enemy ground unit ahead (up to a max distance).
+    const ahead = enemies.filter((e) => !(e instanceof Airplane) && !e.airborne && (e.x - this.x) * this.side > 0);
+    const gap = ahead.length ? Math.min(...ahead.map((e) => Math.abs(e.x - this.x))) : Infinity;
+    if ((this.hopIn -= dt) <= 0 && gap > s(40) && gap < Infinity) {
+      this.hopIn = rand(4, 6);
+      this.hopT = POGO_HOP_SECONDS;
+      this.hopDist = Math.min(s(POGO_HOP_DISTANCE), gap);
+      audio.play("boing");
+    }
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    const ground = this.terrain.yAt(x) - (this.lift || 0);
+    ctx.save();
+    // The spring, stretched when airborne.
+    const springTop = y + s(10);
+    const coils = 5;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(2);
+    ctx.beginPath();
+    ctx.moveTo(x, springTop);
+    for (let i = 1; i <= coils * 2; i++) {
+      const k = i / (coils * 2);
+      ctx.lineTo(x + (i % 2 ? s(8) : -s(8)), springTop + (ground - springTop) * k);
+    }
+    ctx.stroke();
+    // Little tank body.
+    ctx.strokeStyle = c;
+    ctx.beginPath();
+    ctx.rect(x - s(18), y - s(4), s(36), s(14));
+    teamFill(c, 0.35);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, y - s(4), s(9), Math.PI, 0);
+    teamFill(c, 0.2);
+    ctx.stroke();
+    line(x + this.side * s(6), y - s(8), x + this.side * s(24), y - s(14), c, sw(3));
+    ctx.restore();
+  }
+}

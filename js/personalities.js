@@ -10,7 +10,7 @@ const PERSONALITIES = {
     id: "balanced",
     name: "BALANCED ARMY",
     tell: "A bit of everything.",
-    weights: { soldier: 3, tank: 2, motorcycle: 1.5, drone: 1.5, airplane: 1, helicopter: 0.6, bomber: 0.5, medic: 0.5, mortar: 0.5, rider: 0.7, catapult: 0.4, truck: 0.5, balloon: 0.3, roller: 0.4 },
+    weights: { soldier: 3, tank: 2, motorcycle: 1.5, drone: 1.5, airplane: 1, helicopter: 0.6, bomber: 0.5, medic: 0.5, mortar: 0.5, rider: 0.7, catapult: 0.4, truck: 0.5, balloon: 0.3, roller: 0.4, pogo: 0.4 },
     budgetScale: 1,
     speedScale: 1,
     hpScale: 1,

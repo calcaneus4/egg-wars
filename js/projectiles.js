@@ -88,6 +88,14 @@ class Egg {
       ctx.beginPath();
       ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.kind.band === "bubble") {
+      ctx.strokeStyle = "#7cc4f0";
+      ctx.lineWidth = 1.5;
+      for (const [bx, by, br] of [[-0.35, 0.2, 0.3], [0.3, -0.15, 0.35], [0, 0.45, 0.2]]) {
+        ctx.beginPath();
+        ctx.arc(bx * this.radius, by * this.radius, br * this.radius, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     } else if (this.kind.band === "toast") {
       // A slice of burnt toast instead of an egg.
       ctx.fillStyle = "#c98a3a";

@@ -223,6 +223,7 @@ class Game {
       balloon: settings.maxRightBalloons,
       roller: settings.maxRightRollers,
       hover: settings.maxRightHovers,
+      pogo: settings.maxRightPogos,
     };
   }
 
@@ -261,6 +262,7 @@ class Game {
       balloon: settings.maxLeftBalloons,
       roller: settings.maxLeftRollers,
       hover: settings.maxLeftHovers,
+      pogo: settings.maxLeftPogos,
     };
   }
 
@@ -415,6 +417,7 @@ class Game {
       if (type === "balloon") this.units.push(new ChickBalloon(-s(60) - n * s(100), side, this.terrain, n));
       if (type === "roller") this.units.push(new RollingPinRoller(s(215) - n * s(60), side, this.terrain));
       if (type === "hover") this.units.push(new HoverCoop(s(180) - n * s(44), side, this.terrain));
+      if (type === "pogo") this.units.push(new PogoTank(s(240) - n * s(50), side, this.terrain));
     } else {
       if (type === "tank") this.units.push(new Tank(W - s(255) + n * s(64), side, this.terrain));
       if (type === "motorcycle") this.units.push(new Motorcycle(W - s(197) + n * s(46), side, this.terrain));
@@ -432,6 +435,7 @@ class Game {
       if (type === "balloon") this.units.push(new ChickBalloon(W + s(60) + n * s(100), side, this.terrain, n));
       if (type === "roller") this.units.push(new RollingPinRoller(W - s(215) + n * s(60), side, this.terrain));
       if (type === "hover") this.units.push(new HoverCoop(W - s(180) + n * s(44), side, this.terrain));
+      if (type === "pogo") this.units.push(new PogoTank(W - s(240) + n * s(50), side, this.terrain));
     }
   }
 
@@ -503,6 +507,10 @@ class Game {
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
       if (Events.tickUnit(this, u, dt)) continue;
       u.move(udt * Hazards.speedFactor(u), enemies);
+      if (u.landed) {
+        u.landed = false;
+        this.pogoStomp(u, enemies);
+      }
       if (u.isBoss) {
         u.updateBoss(this, udt, enemies);
         continue;
@@ -609,7 +617,7 @@ class Game {
       return;
     }
     let kind = null;
-    if (unit instanceof Tank || unit instanceof MonsterTruck || unit instanceof CatapultWagon || unit instanceof RollingPinRoller) kind = "tank";
+    if (unit instanceof Tank || unit instanceof MonsterTruck || unit instanceof CatapultWagon || unit instanceof RollingPinRoller || unit instanceof PogoTank) kind = "tank";
     if (unit instanceof Motorcycle) kind = "motorcycle";
     if (unit instanceof Castle) kind = "castle";
     if (!kind) return;
@@ -752,6 +760,18 @@ class Game {
       audio.play("tank_hit");
     } else {
       u.fireClock = 0.1;
+    }
+  }
+
+  // Pogo Tank landing: one hit to every enemy ground unit underneath.
+  pogoStomp(u, enemies) {
+    const ground = this.terrain.yAt(u.x);
+    Effects.spawn("ring", u.x, ground, 0, 0, 0.35, 12, YOLK);
+    Effects.debris(u.x, ground, 5, LINE);
+    audio.play("tank_hit");
+    for (const e of enemies) {
+      if (e instanceof Airplane || e.isBoss || e.airborne || Math.abs(e.x - u.x) > s(45)) continue;
+      this.damageUnit(e, 1);
     }
   }
 
