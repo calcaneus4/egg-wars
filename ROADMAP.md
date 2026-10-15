@@ -244,7 +244,7 @@ events (at most 1 hit per unit), and a flat frame cost checked in the final revi
 - [x] **Egg: Sleepy** - puts enemies in the splash to sleep (Zzz) for 4 s, or until something hits them.
 - [x] **Vehicle: Pigeon Flock** - three pigeons fly over the enemy and dive-bomb ground troops.
 - [x] **Power: Mega Yolk** - your next Yolk Drop is giant: triple burst, and the cooldown resets.
-- [ ] **Boss: Blender Beast** - a giant blender whose vortex sucks ground troops toward it, then spits them out.
+- [x] **Boss: Blender Beast** - a giant blender whose vortex sucks ground troops toward it, then spits them out.
 
 ## 27. Final
 

@@ -1112,7 +1112,234 @@ class WaffleWarlord extends Boss {
   }
 }
 
-const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake", "toaster", "waffle"];
+// Blender Beast: a giant countertop blender on stubby legs. It spits fruit-smoothie blobs at the
+// nearest troops, and every so often it switches to PULSE: a vortex drags light ground troops
+// toward it, and anyone dragged into the jar gets whizzed round and spat back out (1 hit).
+const BLENDER_VORTEX_SECONDS = 2.6;
+const BLENDER_VORTEX_REACH = 1100;
+const BLENDER_MAX_SPITS = 4;
+const BLENDER_FRUIT = ["#e2463f", "#f2a03d", "#8bc34a", "#7b4fb3"];
+
+class BlenderBeast extends Boss {
+  constructor(x, side, terrain, maxHp) {
+    super(x, side, terrain, maxHp);
+    this.name = "BLENDER BEAST";
+    this.speed = 5;
+    this.size = s(140);
+    this.groundOffset = s(66);
+    this.slowAttack = 2.1;
+    this.fastAttack = 1.5;
+    this.vortexClock = 7;
+    this.vortex = 0;
+    this.spits = 0;
+    this.swirl = 0;
+  }
+
+  radius() {
+    return this.size * 0.5;
+  }
+
+  blockingRadius() {
+    return this.size * 0.36;
+  }
+
+  attack(game, enemies) {
+    const ground = enemies.filter((e) => !(e instanceof Airplane));
+    const pool = ground.length ? ground : enemies;
+    const targets = pool.slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, 2);
+    const top = this.terrain.yAt(this.x) - s(200);
+    targets.forEach((t, i) => game.lobEgg(this.x, top, t.x + rand(-25, 25), t.y, this.side, 2, 1.5 + i * 0.25, "smoothie"));
+    audio.play("slime");
+  }
+
+  // The vortex is its own clock (both phases); enraged, it comes round sooner and pulls harder.
+  special() {}
+
+  // Light ground troops can be dragged in; tanks only budge a little, castles not at all.
+  canBlend(u) {
+    return !(u instanceof Airplane) && !(u instanceof Castle) && !u.isBoss && !u.airborne && !(u instanceof Tank) && !u.heavy;
+  }
+
+  updateBoss(game, dt, enemies) {
+    this.swirl += dt * (this.vortex > 0 ? 18 : 3);
+    this.vortexClock -= dt;
+    if (this.vortex <= 0 && this.vortexClock <= 0) {
+      this.vortexClock = this.enraged ? 7 : 10;
+      this.vortex = BLENDER_VORTEX_SECONDS;
+      this.spits = 0;
+      audio.play("wind_howl");
+      if (game.canSpeak(this)) this.say(choice(["WHIRRRRR!", "SMOOTHIE TIME!", "PULSE! PULSE!"]), 1.3);
+    }
+    if (this.vortex > 0) {
+      this.vortex = Math.max(0, this.vortex - dt);
+      const pull = s(this.enraged ? 45 : 30);
+      const near = enemies.filter((u) => this.canBlend(u) && Math.abs(u.x - this.x) < s(BLENDER_VORTEX_REACH)).sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x));
+      const grabs = this.enraged ? BLENDER_MAX_SPITS : BLENDER_MAX_SPITS - 1;
+      for (const u of near) {
+        // The nearest few are sucked right in; everyone else in reach gets tugged a little.
+        if (this.spits < grabs) {
+          this.spits++;
+          u.caughtBy = this;
+          u.airborne = true;
+          u.blendT = 0;
+          u.lift = u.lift || 0;
+          if (game.canSpeak(u) && Math.random() < 0.6) u.say(choice(["Noooo!", "It's got me!", "Not the blender!"]), 1.1);
+          continue;
+        }
+        u.x += Math.sign(this.x - u.x) * pull * dt;
+        if (Math.random() < dt * 4) Effects.spawn("smoke", u.x, u.y + rand(-6, 6), -this.side * 60, -10, 0.4, 3, LINE);
+      }
+    }
+    // Troops caught in the vortex fly into the jar, whizz round, then get spat back out (1 hit
+    // when they land).
+    const jarLift = s(170);
+    for (const u of game.units) {
+      if (u.caughtBy !== this || u.dead) continue;
+      const dx = this.x - u.x;
+      u.spin = (u.spin || 0) + dt * 10;
+      if (Math.abs(dx) > s(12)) {
+        u.x += Math.sign(dx) * Math.min(Math.abs(dx), s(520) * dt);
+        u.lift = Math.min(jarLift, u.lift + s(260) * dt);
+        continue;
+      }
+      u.lift = jarLift + Math.sin(this.swirl * 2) * s(10);
+      u.blendT += dt;
+      if (u.blendT >= 0.7) {
+        Events.release(u, this.side * rand(240, 340));
+        u.liftV = rand(180, 240);
+        Effects.yolk(u.x, u.y, 6, 0.9);
+        audio.play("boing");
+        if (game.canSpeak(u) && Math.random() < 0.6) u.say(choice(["BLENDED!", "WHEEE-urk!", "I'm a smoothie!"]), 1.2);
+      }
+    }
+    super.updateBoss(game, dt, enemies);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const ground = this.terrain.yAt(x);
+    const t = performance.now() * 0.004 + this.wobble;
+    const step = this.vortex > 0 ? Math.sin(t * 6) * 0.4 : Math.sin(t);
+    const shake = this.vortex > 0 ? Math.sin(t * 40) * s(2) : 0;
+    const baseH = s(44);
+    const baseW = s(110);
+    const baseTop = ground - s(22) - baseH;
+    const jarH = s(150);
+    const jarTop = baseTop - jarH;
+    ctx.save();
+    ctx.translate(shake, 0);
+    // Vortex: swirling streaks over the ground in front of the blender.
+    if (this.vortex > 0) {
+      const fade = Math.min(1, this.vortex * 2, (BLENDER_VORTEX_SECONDS - this.vortex) * 3);
+      ctx.globalAlpha = 0.7 * fade;
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = sw(3);
+      for (let k = 0; k < 10; k++) {
+        const f = ((k / 10 + this.swirl * 0.05) % 1);
+        const sx = x + this.side * s(BLENDER_VORTEX_REACH) * (1 - f);
+        const gy = this.terrain.yAt(clamp(sx, 0, W)) - s(12) - (k % 3) * s(14);
+        ctx.beginPath();
+        ctx.arc(sx, gy, s(22) * (0.5 + f), Math.PI * 0.2, Math.PI * 1.5);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    // Stubby legs and a cord tail.
+    line(x - s(34), ground - s(24), x - s(40) + step * s(6), ground, c, sw(6));
+    line(x + s(34), ground - s(24), x + s(40) - step * s(6), ground, c, sw(6));
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(2);
+    ctx.beginPath();
+    ctx.moveTo(x - this.side * baseW * 0.5, ground - s(36));
+    ctx.quadraticCurveTo(x - this.side * (baseW * 0.5 + s(40)), ground - s(8), x - this.side * (baseW * 0.5 + s(64)), ground - s(4));
+    ctx.stroke();
+    // Motor base with a dial and two buttons.
+    ctx.fillStyle = "#cfd5dc";
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(3);
+    ctx.beginPath();
+    ctx.moveTo(x - baseW * 0.42, baseTop);
+    ctx.lineTo(x + baseW * 0.42, baseTop);
+    ctx.lineTo(x + baseW * 0.5, baseTop + baseH);
+    ctx.lineTo(x - baseW * 0.5, baseTop + baseH);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = this.enraged ? RED : "#ffb347";
+    for (const ex of [-1, 1]) {
+      ctx.beginPath();
+      ctx.arc(x + ex * s(22), baseTop + s(18), s(6), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    line(x - s(30), baseTop + s(32), x + s(30), baseTop + s(32), LINE, sw(3));
+    // Glass jar: a tapered cup with a swirling smoothie inside.
+    const topW = s(124);
+    const botW = s(80);
+    ctx.beginPath();
+    ctx.moveTo(x - botW / 2, baseTop);
+    ctx.lineTo(x - topW / 2, jarTop);
+    ctx.lineTo(x + topW / 2, jarTop);
+    ctx.lineTo(x + botW / 2, baseTop);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(220,240,250,0.55)";
+    ctx.fill();
+    ctx.save();
+    ctx.clip();
+    const fill = jarTop + jarH * (this.vortex > 0 ? 0.25 : 0.45);
+    ctx.fillStyle = "#e86a8a";
+    ctx.beginPath();
+    ctx.moveTo(x - topW, baseTop);
+    for (let k = 0; k <= 8; k++) ctx.lineTo(x - topW / 2 + (k * topW) / 8, fill + Math.sin(this.swirl + k) * s(this.vortex > 0 ? 10 : 3));
+    ctx.lineTo(x + topW, baseTop);
+    ctx.closePath();
+    ctx.fill();
+    // Fruit chunks going round.
+    for (let k = 0; k < 6; k++) {
+      const a = this.swirl * 0.6 + (k * Math.PI * 2) / 6;
+      ctx.fillStyle = BLENDER_FRUIT[k % BLENDER_FRUIT.length];
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(a) * s(24), (fill + baseTop) / 2 + Math.sin(a) * s(14), s(7), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(3);
+    ctx.beginPath();
+    ctx.moveTo(x - botW / 2, baseTop);
+    ctx.lineTo(x - topW / 2, jarTop);
+    ctx.lineTo(x + topW / 2, jarTop);
+    ctx.lineTo(x + botW / 2, baseTop);
+    ctx.stroke();
+    // Spout, handle and lid with a cap that rattles while it whirs.
+    ctx.beginPath();
+    ctx.moveTo(x + this.side * topW / 2, jarTop);
+    ctx.lineTo(x + this.side * (topW / 2 + s(12)), jarTop - s(8));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x - this.side * (topW / 2 - s(4)), jarTop + s(20));
+    ctx.quadraticCurveTo(x - this.side * (topW / 2 + s(34)), jarTop + s(50), x - this.side * (botW / 2 + s(4)), baseTop - s(18));
+    ctx.lineWidth = sw(6);
+    ctx.stroke();
+    ctx.lineWidth = sw(3);
+    const hop = this.vortex > 0 ? Math.abs(Math.sin(t * 9)) * s(8) : 0;
+    ctx.fillStyle = "#4a4f56";
+    ctx.fillRect(x - topW / 2 - s(4), jarTop - s(12) - hop, topW + s(8), s(12));
+    ctx.strokeRect(x - topW / 2 - s(4), jarTop - s(12) - hop, topW + s(8), s(12));
+    ctx.fillRect(x - s(12), jarTop - s(24) - hop * 1.6, s(24), s(12));
+    // Angry eyebrows on the jar.
+    for (const ex of [-1, 1]) {
+      ctx.fillStyle = LINE;
+      ctx.beginPath();
+      ctx.arc(x + ex * s(20), jarTop + s(30), s(6), 0, Math.PI * 2);
+      ctx.fill();
+      line(x + ex * s(10), jarTop + s(16), x + ex * s(30), jarTop + s(21), this.enraged ? RED : LINE, sw(3));
+    }
+    ctx.restore();
+  }
+}
+
+const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake", "toaster", "waffle", "blender"];
 const BOSS_NAMES = {
   mech: "Giant Rooster Mech",
   fortress: "Omelet Fortress",
@@ -1122,6 +1349,7 @@ const BOSS_NAMES = {
   pancake: "Pancake Golem",
   toaster: "Toaster Titan",
   waffle: "Waffle Iron Warlord",
+  blender: "Blender Beast",
 };
 
 const Bosses = {
@@ -1151,6 +1379,7 @@ const Bosses = {
             : kind === "pancake" ? new PancakeGolem(W - s(340), LEFT, game.terrain, hp)
               : kind === "toaster" ? new ToasterTitan(W - s(330), LEFT, game.terrain, hp)
                 : kind === "waffle" ? new WaffleWarlord(W - s(330), LEFT, game.terrain, hp)
+                  : kind === "blender" ? new BlenderBeast(W - s(330), LEFT, game.terrain, hp)
             : new ScramblerZeppelin(W * 0.7, LEFT, game.terrain, hp);
     boss.statScaled = true;
     game.units.push(boss);

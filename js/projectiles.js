@@ -122,6 +122,17 @@ class Egg {
         ctx.arc(bx * this.radius, by * this.radius, br * this.radius, 0, Math.PI * 2);
         ctx.stroke();
       }
+    } else if (this.kind.band === "smoothie") {
+      // A wobbly blob of berry smoothie with a fruit chunk in it.
+      ctx.fillStyle = "#e86a8a";
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.radius * 1.1, this.radius * 0.85, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#8bc34a";
+      ctx.beginPath();
+      ctx.arc(this.radius * 0.3, -this.radius * 0.2, this.radius * 0.3, 0, Math.PI * 2);
+      ctx.fill();
     } else if (this.kind.band === "toast") {
       // A slice of burnt toast instead of an egg.
       ctx.fillStyle = "#c98a3a";

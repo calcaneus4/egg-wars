@@ -740,6 +740,8 @@ const Events = {
     if (u.itchy > 0) u.itchy = Math.max(0, u.itchy - dt);
     if (u.hicHop > 0) u.hicHop = Math.max(0, u.hicHop - dt);
     if (!u.airborne) return false;
+    // A boss that grabbed this unit was beaten while holding it: let go.
+    if (u.caughtBy && u.caughtBy.dead) Events.release(u, 0);
     if (u.caughtBy) return true;
     if (u.parachute) {
       // Chick paratroopers float gently down and land unhurt.

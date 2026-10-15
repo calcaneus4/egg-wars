@@ -198,6 +198,16 @@ const EGG_TYPES = {
     yolkDrop: false,
     radiusScale: 1.3,
   },
+  smoothie: {
+    id: "smoothie",
+    name: "Smoothie",
+    level: 99,
+    damage: 1,
+    burst: 0,
+    band: "smoothie",
+    yolkDrop: false,
+    radiusScale: 1.2,
+  },
   kernel: {
     id: "kernel",
     name: "Kernel",
