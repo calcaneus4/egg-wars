@@ -50,6 +50,13 @@ const ABILITIES = [
     desc: "Every unit in your army gains a shell shield that blocks one hit.",
   },
   {
+    id: "timefreeze",
+    name: "Time Freeze",
+    level: 20,
+    cooldown: 34,
+    desc: "Every enemy egg in the air freezes for 4 s, then drops straight down.",
+  },
+  {
     id: "chill",
     name: "Big Chill",
     level: 17,
@@ -59,10 +66,11 @@ const ABILITIES = [
 ];
 
 const POWER_SLOT_KEYS = ["W", "E"];
-const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "goose", "rooster", "scarecrow", "chill"];
+const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "goose", "rooster", "scarecrow", "chill", "timefreeze"];
+const TIME_FREEZE_SECONDS = 4;
 const GOOSE_SECONDS = 8;
 // Row height on the Powers screen, so every power fits above the BACK button.
-const POWER_ROW = 66;
+const POWER_ROW = 58;
 const SCARECROW_SECONDS = 6;
 const REINFORCE_COUNT = 4;
 const ROOSTER_SECONDS = 6;
@@ -160,6 +168,7 @@ const Abilities = {
       game.abilityCooldowns[id] = Math.max(0, game.abilityCooldowns[id] - dt);
     }
     game.chillFlash = Math.max(0, (game.chillFlash || 0) - dt);
+    game.timeFreeze = Math.max(0, (game.timeFreeze || 0) - dt);
     if (game.goose) {
       const g = game.goose;
       g.time += dt;
@@ -230,6 +239,10 @@ const Abilities = {
       }
       audio.play("start_reveille");
     }
+    if (id === "timefreeze") {
+      game.timeFreeze = TIME_FREEZE_SECONDS;
+      audio.play("freeze");
+    }
     if (id === "goose") {
       const castle = game.living(RIGHT).find((u) => u instanceof Castle);
       const x = castle ? castle.x + s(30) : s(80);
@@ -295,6 +308,14 @@ const Abilities = {
       ctx.lineTo(cx + 14, cy + 3);
       ctx.lineTo(cx + 6, cy + 6);
       ctx.fill();
+    } else if (id === "timefreeze") {
+      ctx.fillStyle = WHITE;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      line(cx, cy, cx, cy - 8, BLUE, 2);
+      line(cx, cy, cx + 6, cy + 3, BLUE, 2);
     } else if (id === "goose") {
       ctx.fillStyle = WHITE;
       ctx.beginPath();
@@ -444,6 +465,26 @@ const Abilities = {
     ctx.restore();
   },
 
+  // Frozen enemy eggs get a pale ring and a ticking clock tint over the field.
+  drawTimeFreeze(game) {
+    if (!(game.timeFreeze > 0)) return;
+    ctx.save();
+    ctx.fillStyle = "rgba(120,160,255,0.08)";
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "rgba(120,170,255,0.9)";
+    ctx.lineWidth = 2;
+    for (const e of game.eggs) {
+      if (!e.frozenInAir) continue;
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.radius * 1.8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = LINE;
+    ctx.font = "bold 22px Courier New";
+    centerText(`TIME FREEZE ${game.timeFreeze.toFixed(1)}`, 175);
+    ctx.restore();
+  },
+
   // Blue-white flash when the Big Chill hits.
   drawChill(game) {
     if (!(game.chillFlash > 0)) return;
@@ -470,22 +511,22 @@ const Abilities = {
       ctx.fillStyle = PAPER;
       ctx.strokeStyle = LINE;
       ctx.lineWidth = 2;
-      ctx.fillRect(x0, y, 780, 62);
-      ctx.strokeRect(x0, y, 780, 62);
+      ctx.fillRect(x0, y, 780, POWER_ROW - 4);
+      ctx.strokeRect(x0, y, 780, POWER_ROW - 4);
       ctx.beginPath();
-      ctx.arc(x0 + 34, y + 31, 22, 0, Math.PI * 2);
+      ctx.arc(x0 + 34, y + 27, 20, 0, Math.PI * 2);
       ctx.stroke();
-      this.drawIcon(a.id, x0 + 34, y + 31);
+      this.drawIcon(a.id, x0 + 34, y + 27);
       ctx.fillStyle = LINE;
       ctx.font = "bold 20px Courier New";
-      ctx.fillText(a.name, x0 + 68, y + 25);
+      ctx.fillText(a.name, x0 + 68, y + 22);
       ctx.font = "bold 13px Courier New";
-      ctx.fillText(a.desc, x0 + 68, y + 46);
-      ctx.fillText(open ? `cooldown ${Math.round(a.cooldown * Armory.cooldownScale(p))}s` : `unlocks at LV ${a.level}`, x0 + 68 + ctx.measureText(a.name).width * 1.6 + 16, y + 25);
+      ctx.fillText(a.desc, x0 + 68, y + 42);
+      ctx.fillText(open ? `cooldown ${Math.round(a.cooldown * Armory.cooldownScale(p))}s` : `unlocks at LV ${a.level}`, x0 + 68 + ctx.measureText(a.name).width * 1.6 + 16, y + 22);
       ctx.restore();
       if (!open) return;
       POWER_SLOT_KEYS.forEach((key, slot) => {
-        const b = Menus.button(key, x0 + 676 + slot * 56, y + 10, 46, () => this.setSlot(p, slot, a.id) || SaveManager.save(), 42);
+        const b = Menus.button(key, x0 + 676 + slot * 56, y + 6, 46, () => this.setSlot(p, slot, a.id) || SaveManager.save(), 42);
         b.hot = slots[slot] === a.id;
       });
     });

@@ -524,6 +524,16 @@ class Game {
     }
 
     for (const e of [...this.eggs]) {
+      // Time Freeze: enemy eggs hang in the air until it ends, then drop straight down.
+      if (this.timeFreeze > 0 && e.side === LEFT) {
+        e.frozenInAir = true;
+        continue;
+      }
+      if (e.frozenInAir) {
+        e.frozenInAir = false;
+        e.vx *= 0.1;
+        e.vy = Math.max(0, e.vy * 0.2);
+      }
       if (e.kind.homing) EggTypes.steer(e, e.side === RIGHT ? red : blue, dt);
       e.update(dt);
       const children = EggTypes.maybeSplit(e);
@@ -1043,6 +1053,7 @@ class Game {
     Weather.draw();
     Weather.drawOverlay(this);
     Abilities.drawChill(this);
+    Abilities.drawTimeFreeze(this);
     this.units.sort((a, b) => a.y - b.y).forEach((u) => {
       if (this.canSpeak(u)) drawSpeechBubble(u);
     });

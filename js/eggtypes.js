@@ -175,6 +175,16 @@ const EGG_TYPES = {
     yolkDrop: false,
     radiusScale: 1.3,
   },
+  waffle: {
+    id: "waffle",
+    name: "Waffle",
+    level: 99,
+    damage: 1,
+    burst: 2,
+    band: "waffle",
+    yolkDrop: false,
+    radiusScale: 1.3,
+  },
   kernel: {
     id: "kernel",
     name: "Kernel",

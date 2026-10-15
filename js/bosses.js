@@ -976,7 +976,143 @@ class ToasterTitan extends Boss {
   }
 }
 
-const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake", "toaster"];
+// Waffle Iron Warlord: a hulking waffle iron. It flings waffles, and every few seconds it marks a
+// patch of ground ahead of it (a flickering grid) and slams a giant waffle-iron lid down on it.
+const WAFFLE_CLAMP_WARN = 1.3;
+const WAFFLE_CLAMP_WIDTH = 150;
+
+class WaffleWarlord extends Boss {
+  constructor(x, side, terrain, maxHp) {
+    super(x, side, terrain, maxHp);
+    this.name = "WAFFLE IRON WARLORD";
+    this.speed = 5;
+    this.size = s(140);
+    this.groundOffset = s(60);
+    this.slowAttack = 2.6;
+    this.fastAttack = 1.8;
+    this.specialEvery = 5;
+    this.clamps = [];
+    this.lid = 0;
+  }
+
+  radius() {
+    return this.size * 0.5;
+  }
+
+  blockingRadius() {
+    return this.size * 0.38;
+  }
+
+  attack(game, enemies) {
+    const ground = enemies.filter((e) => !(e instanceof Airplane));
+    const targets = (ground.length ? ground : enemies).slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, 2);
+    targets.forEach((t, i) => game.lobEgg(this.x, this.y - s(60), t.x + rand(-25, 25), t.y, this.side, 0, 1.5 + i * 0.25, "waffle"));
+    this.lid = 1;
+    audio.play("fire");
+  }
+
+  // Marks a clamp zone on the nearest ground troops ahead (two when enraged).
+  special(game, enemies) {
+    const ground = enemies.filter((e) => !(e instanceof Airplane) && !(e instanceof Castle));
+    if (!ground.length) return;
+    const sorted = ground.slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x));
+    const picks = this.enraged ? [sorted[0], sorted[Math.min(sorted.length - 1, 2)]] : [sorted[0]];
+    for (const t of picks) this.clamps.push({ x: clamp(t.x, s(80), W - s(80)), timer: WAFFLE_CLAMP_WARN, slam: 0 });
+    if (game.canSpeak(this)) this.say("CRISPY TIME!", 1.2);
+  }
+
+  updateBoss(game, dt, enemies) {
+    this.lid = Math.max(0, this.lid - dt * 2);
+    for (const c of this.clamps) {
+      c.timer -= dt;
+      if (c.timer <= 0 && !c.slam) {
+        c.slam = 1;
+        Effects.shake(6);
+        Effects.debris(c.x, this.terrain.yAt(c.x), 8, LINE);
+        audio.play("tank_destroyed");
+        for (const u of enemies) {
+          if (u instanceof Airplane || Math.abs(u.x - c.x) > s(WAFFLE_CLAMP_WIDTH) / 2 + u.blockingRadius() * 0.5) continue;
+          game.damageUnit(u, 1);
+          u.stagger = Math.max(u.stagger || 0, 1);
+        }
+      }
+      if (c.slam) c.slam = Math.max(0, c.slam - dt * 1.5);
+    }
+    this.clamps = this.clamps.filter((c) => c.timer > -0.7);
+    super.updateBoss(game, dt, enemies);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const ground = this.terrain.yAt(x);
+    const t = performance.now() * 0.004 + this.wobble;
+    const step = Math.sin(t);
+    const w = s(130);
+    ctx.save();
+    // Clamp zones: a flickering waffle grid, then a giant lid slamming down.
+    for (const cz of this.clamps) {
+      const g = this.terrain.yAt(cz.x);
+      const half = s(WAFFLE_CLAMP_WIDTH) / 2;
+      if (!cz.slam && cz.timer > 0) {
+        ctx.globalAlpha = Math.floor(cz.timer * 10) % 2 ? 0.85 : 0.4;
+        ctx.strokeStyle = "#c98a3a";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(cz.x - half, g - s(6), half * 2, s(10));
+        for (let k = 1; k < 6; k++) line(cz.x - half + (k * half * 2) / 6, g - s(6), cz.x - half + (k * half * 2) / 6, g + s(4), "#c98a3a", 1.5);
+        const drop = (cz.timer / WAFFLE_CLAMP_WARN) * s(140);
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = "#5a5f66";
+        ctx.fillRect(cz.x - half, g - s(40) - drop, half * 2, s(26));
+      } else if (cz.slam > 0) {
+        ctx.globalAlpha = Math.min(1, cz.slam * 2);
+        ctx.fillStyle = "#5a5f66";
+        ctx.strokeStyle = LINE;
+        ctx.lineWidth = 2;
+        ctx.fillRect(cz.x - half, g - s(30), half * 2, s(26));
+        ctx.strokeRect(cz.x - half, g - s(30), half * 2, s(26));
+      }
+      ctx.globalAlpha = 1;
+    }
+    // Legs.
+    line(x - s(36), ground - s(22), x - s(40) + step * s(6), ground, c, sw(6));
+    line(x + s(36), ground - s(22), x + s(40) - step * s(6), ground, c, sw(6));
+    // Base plate with a waffle grid.
+    const by = ground - s(56);
+    ctx.fillStyle = "#6d737b";
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(3);
+    ctx.beginPath();
+    ctx.ellipse(x, by + s(20), w * 0.5, s(18), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#e3a948";
+    ctx.beginPath();
+    ctx.ellipse(x, by + s(14), w * 0.42, s(10), 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Hinged lid, opening a little when it flings a waffle.
+    ctx.save();
+    ctx.translate(x - this.side * w * 0.45, by + s(8));
+    ctx.rotate(this.side * (-0.25 - this.lid * 0.5));
+    ctx.fillStyle = "#7d838b";
+    ctx.beginPath();
+    ctx.ellipse(this.side * w * 0.45, -s(10), w * 0.5, s(22), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    // Handle and glowing eyes.
+    line(x + this.side * w * 0.48, by + s(14), x + this.side * (w * 0.48 + s(40)), by + s(6), "#3a3a3a", sw(7));
+    ctx.fillStyle = this.enraged ? RED : "#ffb347";
+    for (const ex of [-1, 1]) {
+      ctx.beginPath();
+      ctx.arc(x + ex * s(22), by + s(24), s(6), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake", "toaster", "waffle"];
 const BOSS_NAMES = {
   mech: "Giant Rooster Mech",
   fortress: "Omelet Fortress",
@@ -985,6 +1121,7 @@ const BOSS_NAMES = {
   kraken: "Sink Kraken",
   pancake: "Pancake Golem",
   toaster: "Toaster Titan",
+  waffle: "Waffle Iron Warlord",
 };
 
 const Bosses = {
@@ -1013,6 +1150,7 @@ const Bosses = {
           : kind === "kraken" ? new SinkKraken(W * 0.74, LEFT, game.terrain, hp)
             : kind === "pancake" ? new PancakeGolem(W - s(340), LEFT, game.terrain, hp)
               : kind === "toaster" ? new ToasterTitan(W - s(330), LEFT, game.terrain, hp)
+                : kind === "waffle" ? new WaffleWarlord(W - s(330), LEFT, game.terrain, hp)
             : new ScramblerZeppelin(W * 0.7, LEFT, game.terrain, hp);
     boss.statScaled = true;
     game.units.push(boss);

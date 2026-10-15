@@ -88,6 +88,22 @@ class Egg {
       ctx.beginPath();
       ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.kind.band === "waffle") {
+      ctx.fillStyle = "#e3a948";
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = "#a8743a";
+      ctx.lineWidth = 1.2;
+      for (const k of [-0.4, 0, 0.4]) {
+        ctx.beginPath();
+        ctx.moveTo(k * this.radius, -this.radius * 0.9);
+        ctx.lineTo(k * this.radius, this.radius * 0.9);
+        ctx.moveTo(-this.radius * 0.9, k * this.radius);
+        ctx.lineTo(this.radius * 0.9, k * this.radius);
+        ctx.stroke();
+      }
     } else if (this.kind.band === "bubble") {
       ctx.strokeStyle = "#7cc4f0";
       ctx.lineWidth = 1.5;

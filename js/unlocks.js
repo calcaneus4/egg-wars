@@ -46,6 +46,7 @@ const UNLOCKS = [
   { level: 16, kind: "unit", type: "rider", name: "Rooster Rider", desc: "Fast cavalry that charges in and pecks up close" },
   { level: 18, kind: "feature", id: "homing", name: "Seeker Egg", desc: "Yolk Drop option: four eggs that hunt enemies, aircraft first" },
   { level: 19, kind: "feature", id: "bubble", name: "Bubble Egg", desc: "Yolk Drop option: floats up to 4 enemies away in bubbles" },
+  { level: 20, kind: "feature", id: "timefreeze", name: "Time Freeze", desc: "Power: enemy eggs freeze in the air, then drop harmlessly" },
 ];
 
 // Unit types that every army always gets for free, whatever is unlocked (the home castle).
