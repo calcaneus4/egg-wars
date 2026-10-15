@@ -205,10 +205,10 @@ stage), neutral events, and a flat frame cost checked in the final review.
 
 ## 22. Surprise events
 
-- [ ] **Alien Jellyfish** - glowing jellyfish float down from a portal; a touch zaps a unit (1 hit) and leaves it buzzing.
-- [ ] **Killer Robot** - a clanky robot marches in from one side, scanning, and fires a laser at the nearest units of both armies; either army's eggs can short it out.
-- [ ] **Cat Stampede** - a flood of cats chases a red laser dot across the field, knocking troops aside and batting eggs out of the air.
-- [ ] **Bacon Monster** - a sizzling bacon creature rises out of a giant pan, flops onto troops and leaves greasy puddles that make units slide.
+- [x] **Alien Jellyfish** - glowing jellyfish float down from a portal; a touch zaps a unit (1 hit) and leaves it buzzing.
+- [x] **Killer Robot** - a clanky robot marches in from one side, scanning, and fires a laser at the nearest units of both armies; either army's eggs can short it out.
+- [x] **Cat Stampede** - a flood of cats chases a red laser dot across the field, knocking troops aside and batting eggs out of the air.
+- [x] **Bacon Monster** - a sizzling bacon creature rises out of a giant pan, flops onto troops and leaves greasy puddles that make units slide.
 
 ## 23. New content (each arrives through the kit, Director or rotation)
 

@@ -717,7 +717,9 @@ const Events = {
     if (u.knock > 0 || u.posing > 0) return 0;
     // Spooked troops back away from the front for a moment.
     if (u.spooked > 0) return -0.8;
-    return u.stagger > 0 ? 0.35 : 1;
+    if (u.stagger > 0) return 0.35;
+    // Grease: troops skid along much faster than they meant to.
+    return u.greasy > 0 ? 1.8 : 1;
   },
 
   // Lets go of a unit held by an event; it is flung sideways and falls back to the ground.
@@ -733,6 +735,7 @@ const Events = {
     if (u.knock > 0) u.knock = Math.max(0, u.knock - dt);
     if (u.posing > 0) u.posing = Math.max(0, u.posing - dt);
     if (u.spooked > 0) u.spooked = Math.max(0, u.spooked - dt);
+    if (u.greasy > 0) u.greasy = Math.max(0, u.greasy - dt);
     if (!u.airborne) return false;
     if (u.caughtBy) return true;
     if (u.parachute) {

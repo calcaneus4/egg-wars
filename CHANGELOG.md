@@ -245,3 +245,8 @@ yolk, use powers) or the hand-drawn side view:
   - Frame time is flat (~17 ms software-rendered). Every monster event is within 1.5 ms of a quiet frame.
   - Blizzard was 3.5 ms heavier, so it now draws its flakes in one path, uses 160 flakes instead of 240, and draws only the cached white-out edge strips instead of a full-screen wash; it is now ~1.5 ms heavier.
   - winrate-sim (10 runs at each of 7 stages): idle 37%, active 96%, Toaster Titan included.
+- Events (`js/oddities.js`), four new surprise events (18 in all):
+  - **Alien Jellyfish** (stage 9+, likelier at night): a purple portal opens in the sky, and six glowing jellyfish drift down and bob along the field. A touch zaps a unit once (1 hit) and leaves it buzzing.
+  - **Killer Robot** (stage 11+): a clanky robot with a scanning red eye patrols the middle of the field, lasering the nearest unit of either army every 1.6 s (each unit at most once). Eggs from either army short it out.
+  - **Cat Stampede** (stage 5+, likelier in the kitchen): fourteen cats chase a red laser dot across the field, bowling over infantry and bikes and swatting low eggs back into the air.
+  - **Bacon Monster** (stage 8+, likelier in the kitchen and volcano): a wavy, googly-eyed bacon strip rises from a giant frying pan, flops onto troops (1 hit each, at most once) and leaves grease puddles where troops skid along 80% faster.
