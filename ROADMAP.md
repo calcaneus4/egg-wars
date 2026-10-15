@@ -195,3 +195,30 @@ rotation, so a single stage never shows much at once.
 ## 21. Final
 
 - [x] **Final review IV** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
+
+---
+
+# Phase 5: Robots, Jellyfish & Bacon
+
+Fifth loop. Same rules as Phase 4: calm screen (6 cards, 3 eggs, 2 powers, one event per
+stage), neutral events, and a flat frame cost checked in the final review.
+
+## 22. Surprise events
+
+- [ ] **Alien Jellyfish** - glowing jellyfish float down from a portal; a touch zaps a unit (1 hit) and leaves it buzzing.
+- [ ] **Killer Robot** - a clanky robot marches in from one side, scanning, and fires a laser at the nearest units of both armies; either army's eggs can short it out.
+- [ ] **Cat Stampede** - a flood of cats chases a red laser dot across the field, knocking troops aside and batting eggs out of the air.
+- [ ] **Bacon Monster** - a sizzling bacon creature rises out of a giant pan, flops onto troops and leaves greasy puddles that make units slide.
+
+## 23. New content (each arrives through the kit, Director or rotation)
+
+- [ ] **Biome: Moon Base** - grey craters and Earth in the sky; low gravity makes every egg float further.
+- [ ] **Weather: Pollen Storm** - drifting pollen clouds; ground units sneeze and miss shots now and then.
+- [ ] **Egg: Bubble** - traps the first enemies it touches in floating bubbles for a few seconds.
+- [ ] **Vehicle: Pogo Tank** - a tank on a giant spring that bounces over the front line and lands among the enemy.
+- [ ] **Power: Time Freeze** - stops every egg in the air for 4 s, then lets them fall.
+- [ ] **Boss: Waffle Iron Warlord** - a giant waffle iron that clamps the field ahead of it shut, then flings waffles.
+
+## 24. Final
+
+- [ ] **Final review V** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
