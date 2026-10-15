@@ -186,7 +186,7 @@ Object.assign(EVENT_TYPES, {
 
   bees: {
     id: "bees",
-    biomes: { meadow: 2.5, candy: 2.5 },
+    biomes: { meadow: 2.5, candy: 2.5, jungle: 3 },
     name: "BEE SWARM",
     minStage: 7,
     weight: 1,

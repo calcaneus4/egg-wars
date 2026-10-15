@@ -13,7 +13,7 @@ const BIOMES = [
     ground: null,
     grass: true,
     decor: "trees",
-    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5, fog: 1, storm: 1.2, hail: 0.6, pollen: 1.5 },
+    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5, fog: 1, storm: 1.2, hail: 0.6, pollen: 1.5, rainbow: 1.2 },
   },
   {
     id: "desert",
@@ -73,7 +73,7 @@ const BIOMES = [
     grass: false,
     candy: true,
     decor: "candy",
-    weather: { clear: 4, windy: 1.5, heat: 1, hail: 0.5, pollen: 1.5 },
+    weather: { clear: 4, windy: 1.5, heat: 1, hail: 0.5, pollen: 1.5, rainbow: 2 },
   },
   {
     id: "graveyard",
@@ -93,7 +93,17 @@ const BIOMES = [
     grass: false,
     beach: true,
     decor: "palms",
-    weather: { clear: 5, windy: 2, heat: 1.5, storm: 0.5 },
+    weather: { clear: 5, windy: 2, heat: 1.5, storm: 0.5, rainbow: 1.5 },
+  },
+  {
+    id: "jungle",
+    name: "Steamy Jungle",
+    terrain: { minY: 0.64, maxY: 0.86, rough: 95, smooth: 5 },
+    ground: [40, 110, 50, 0.3],
+    grass: true,
+    jungle: true,
+    decor: "jungle",
+    weather: { rain: 3, clear: 2, storm: 1.5, fog: 1, rainbow: 1.5 },
   },
   {
     id: "moon",

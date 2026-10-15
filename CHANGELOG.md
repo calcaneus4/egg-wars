@@ -278,3 +278,5 @@ yolk, use powers) or the hand-drawn side view:
   - **Chicken Pox** (stage 6+): a patient zero in each army, and the spots spread on contact (up to 14 units). Itchy units are covered in red spots and move and fire at half speed for 6 s. No damage.
   - **Hiccup Outbreak** (stage 5+): about 45% of ground troops on both sides get the hiccups. Every 1-2 s each one jumps with a "hic!" and its next shot goes wild.
   - **Mole Invasion** (stage 4+, mostly meadows): eight molehills appear and moles pop up and down; troops passing the holes trip, and moles snack on splats.
+- Weather: **Rainbow** (stage 6+, meadow, beach, candy and jungle). A seven-band rainbow fades in over the middle of the field, and units standing under it (the middle 40%) fire 25% faster, for both armies. It only speeds up firing, not movement.
+- Biomes: **Steamy Jungle** (stages 46-50; the Moon Base moves to 51-55). Dark green soil with roots and fallen leaves, tall trees with big drooping leaves, lots of rain and storms, and **creeping vines** that whip up every 6-9 s and tangle anyone standing on them for 1.2 s. Bees are 3x likelier here. 11 biomes, 55 stages per lap.

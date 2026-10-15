@@ -177,6 +177,20 @@ class Background {
       g.closePath();
       g.fill();
       g.stroke();
+    } else if (kind === "jungle") {
+      // Tall trunks with big drooping leaves.
+      g.moveTo(x, y + 2);
+      g.lineTo(x + h * 0.05, y - h * 1.3);
+      g.lineWidth = 2.5;
+      g.stroke();
+      g.lineWidth = 1.5;
+      for (let k = 0; k < 4; k++) {
+        const a = -Math.PI / 2 + (k - 1.5) * 0.7;
+        g.beginPath();
+        g.ellipse(x + h * 0.05 + Math.cos(a) * h * 0.35, y - h * 1.3 + Math.sin(a) * h * 0.2 + h * 0.15, h * 0.35, h * 0.12, a, 0, Math.PI * 2);
+        g.fill();
+        g.stroke();
+      }
     } else if (kind === "domes") {
       // Moon-base domes and radio masts.
       if (random() < 0.6) {

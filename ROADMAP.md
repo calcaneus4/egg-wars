@@ -239,8 +239,8 @@ events (at most 1 hit per unit), and a flat frame cost checked in the final revi
 
 ## 26. New content (each arrives through the kit, Director or rotation)
 
-- [ ] **Weather: Rainbow** - after a shower, a rainbow arcs over the middle of the field; units under it fire 25% faster (both armies).
-- [ ] **Biome: Jungle** - vines and giant leaves; creeping vines hazard briefly tangles ground units.
+- [x] **Weather: Rainbow** - after a shower, a rainbow arcs over the middle of the field; units under it fire 25% faster (both armies).
+- [x] **Biome: Jungle** - vines and giant leaves; creeping vines hazard briefly tangles ground units.
 - [ ] **Egg: Sleepy** - puts enemies in the splash to sleep (Zzz) for 4 s, or until something hits them.
 - [ ] **Vehicle: Pigeon Flock** - three pigeons fly over the enemy and dive-bomb ground troops.
 - [ ] **Power: Mega Yolk** - your next Yolk Drop is giant: triple burst, and the cooldown resets.

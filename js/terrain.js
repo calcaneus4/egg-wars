@@ -232,6 +232,31 @@ class Terrain {
         g.restore();
       }
     }
+    if (biome.jungle) {
+      // Roots and fallen leaves in the dark soil.
+      g.strokeStyle = "rgba(90,60,30,0.45)";
+      g.lineWidth = 2;
+      for (let i = 0; i < 16; i++) {
+        let x = random() * W;
+        let y = this.yAt(x) + 6;
+        g.beginPath();
+        g.moveTo(x, y);
+        for (let k = 0; k < 4; k++) {
+          x += (random() - 0.5) * 30;
+          y += 8 + random() * 10;
+          g.lineTo(x, y);
+        }
+        g.stroke();
+      }
+      g.fillStyle = "rgba(60,140,60,0.5)";
+      for (let i = 0; i < 30; i++) {
+        const x = random() * W;
+        const y = this.yAt(x) + 8 + random() * 60;
+        g.beginPath();
+        g.ellipse(x, y, 7, 3, random() * Math.PI, 0, Math.PI * 2);
+        g.fill();
+      }
+    }
     if (biome.craters) {
       // Pock-marked lunar ground.
       for (let i = 0; i < 40; i++) {

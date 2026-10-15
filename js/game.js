@@ -520,7 +520,7 @@ class Game {
         continue;
       }
       if (u instanceof Drone) continue;
-      if (u.ready(udt)) this.fire(u, this.decoy && u.side === LEFT && !u.melee && !(u instanceof MonsterTruck) && !(u instanceof RollingPinRoller) && !(u instanceof Medic) ? [this.decoy] : enemies);
+      if (u.ready(udt * Weather.fireBoost(u))) this.fire(u, this.decoy && u.side === LEFT && !u.melee && !(u instanceof MonsterTruck) && !(u instanceof RollingPinRoller) && !(u instanceof Medic) ? [this.decoy] : enemies);
     }
 
     for (const e of [...this.eggs]) {

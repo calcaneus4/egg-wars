@@ -36,6 +36,7 @@ const WEATHER_INFO = {
   fog: { label: "FOG", minStage: 6, tip: "Fog! Ground troops can only see enemies close by - aircraft see fine." },
   storm: { label: "THUNDERSTORM", minStage: 9, tip: "Thunderstorm! Lightning strikes where the ground flickers - both armies get zapped." },
   hail: { label: "HAIL", minStage: 12, tip: "Hail! Aircraft get dinged by hailstones now and then." },
+  rainbow: { label: "RAINBOW", minStage: 6, tip: "A rainbow! Units standing under it fire 25% faster - both armies." },
   pollen: { label: "POLLEN STORM", minStage: 7, tip: "Pollen storm! Troops sneeze now and then and their shots go wild." },
   meteor: { label: "METEOR SHOWER", minStage: 10, nightOnly: true, tip: "Meteor shower! Glowing rings mark where shooting stars will land - both armies get singed." },
   blizzard: { label: "BLIZZARD", minStage: 11, tip: "Blizzard! Heavy snow slows every ground unit a little." },
@@ -117,6 +118,12 @@ const Weather = {
     if (this.type !== "pollen" || !Hazards.isGround(u) || Math.random() > 0.2) return 0;
     if (game.canSpeak(u) && Math.random() < 0.25) u.say("ACHOO!", 0.8);
     return rand(-s(200), s(200));
+  },
+
+  // Units under the rainbow (the middle 40% of the field) fire 25% faster.
+  fireBoost(u) {
+    if (this.type !== "rainbow" || Math.abs(u.x - W / 2) > W * 0.2) return 1;
+    return 1.25;
   },
 
   isSnowy() {
@@ -311,6 +318,22 @@ const Weather = {
       ctx.fillRect(0, 0, W, H);
       const puff = this.fogSprite();
       for (const f of this.fogBanks) ctx.drawImage(puff, f.x - f.r, f.y - f.r, f.r * 2, f.r * 2);
+      ctx.restore();
+    }
+    if (this.type === "rainbow") {
+      // Seven bands arching over the middle of the field; it fades in during the first seconds.
+      const cx = W / 2;
+      const cy = H * 0.86;
+      const colours = ["#e74c3c", "#f39c12", "#f1c40f", "#2ecc71", "#3498db", "#5b4bdb", "#9b59b6"];
+      ctx.save();
+      ctx.globalAlpha = 0.45 * Math.min(1, this.time / 3);
+      ctx.lineWidth = 9;
+      colours.forEach((c, i) => {
+        ctx.strokeStyle = c;
+        ctx.beginPath();
+        ctx.arc(cx, cy, W * 0.24 - i * 9, Math.PI * 1.04, Math.PI * 1.96);
+        ctx.stroke();
+      });
       ctx.restore();
     }
     if (this.type === "sandstorm") {

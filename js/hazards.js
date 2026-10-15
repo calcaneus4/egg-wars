@@ -14,6 +14,7 @@ const HAZARD_TYPES = {
   mud: { biome: "swamp", width: 130, speed: 0.3, name: "Mud pits", tip: "Mud pits bog ground units right down - perfect for a Yolk Drop." },
   syrup: { biome: "candy", width: 80, period: [6, 9], warn: 1.2, sticky: 2.5, name: "Syrup geysers", tip: "Syrup geysers glue troops in place for a moment - both armies." },
   grave: { biome: "graveyard", width: 70, period: [6, 9], warn: 1.2, hold: 1.6, name: "Restless graves", tip: "Restless graves! Skeleton hands grab anyone standing on them for a moment." },
+  vines: { biome: "jungle", width: 110, period: [6, 9], warn: 1.2, hold: 1.2, sound: "slime", name: "Creeping vines", tip: "Creeping vines lash out and tangle anyone standing on them for a moment." },
   tide: { biome: "beach", width: 140, speed: 0.55, name: "Tide pools", tip: "Tide pools slow ground units down - wade carefully." },
   geyser: { biome: "kitchen", width: 80, period: [6, 9], warn: 1.2, name: "Hot pans", tip: "Hot pans blast steam every few seconds - keep your troops clear." },
 };
@@ -75,7 +76,7 @@ const Hazards = {
       // Skeleton hands pop up and hold whoever stands on the grave (no damage).
       z.hands = 1;
       Effects.debris(z.x, ground, 5, LINE);
-      audio.play("boo");
+      audio.play(z.def.sound || "boo");
       for (const u of game.living()) {
         if (this.isGround(u) && Math.abs(u.x - z.x) <= z.half + u.blockingRadius() * 0.5) u.posing = Math.max(u.posing || 0, z.def.hold);
       }
@@ -121,6 +122,22 @@ const Hazards = {
           ctx.lineTo(x + 10, y - 1);
           ctx.stroke();
         }
+      } else if (z.type === "vines") {
+        // A tangle of vines on the ground that whips up when it strikes.
+        const up = Math.max(z.flash / 0.6, z.timer < z.def.warn ? 0.3 : 0.1);
+        ctx.strokeStyle = "#3f8f3a";
+        ctx.lineWidth = 3;
+        for (let k = 0; k < 5; k++) {
+          const vx = z.x - z.half * 0.8 + (k * z.half * 1.6) / 4;
+          ctx.beginPath();
+          ctx.moveTo(vx, ground);
+          ctx.quadraticCurveTo(vx + 10, ground - 18 * up, vx + Math.sin(performance.now() * 0.004 + k) * 6, ground - 30 * up);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#5cb85c";
+        ctx.beginPath();
+        ctx.ellipse(z.x, ground, z.half * 0.8, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
       } else if (z.type === "grave") {
         // A mound of fresh dirt; bony hands poke out when it erupts.
         ctx.fillStyle = "rgba(90,70,60,0.6)";
