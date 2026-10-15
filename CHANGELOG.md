@@ -43,6 +43,18 @@ following, all in the original hand-drawn side-view style:
   - A headless smoke test (`tools/smoke-test.js`).
   - The balance simulator.
 
+## Phase 5 summary
+
+The fifth loop:
+- **4 oddity events:** Alien Jellyfish, Killer Robot, Cat Stampede and Bacon Monster (18 events
+  in all, still at most one per stage).
+- **Moon Base biome** with 60% gravity: aim stays accurate because gravity is set per biome and
+  every aim formula reads it. 10 biomes.
+- **Pollen Storm** weather (sneezes spoil aim).
+- **Bubble egg, Pogo Tank and Time Freeze power.** All arrive through the same 6-card / 3-egg /
+  2-power kit, so the screen stays calm.
+- **Waffle Iron Warlord boss:** 8 bosses in the rotation.
+
 ## Phase 4 summary
 
 The fourth loop added more surprises and content while keeping the screen calm and the frame
