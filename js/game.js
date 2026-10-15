@@ -713,7 +713,7 @@ class Game {
     }
     const target = targets.reduce((a, b) => Math.abs(a.x - u.x) < Math.abs(b.x - u.x) ? a : b);
     const [sx, sy] = u.muzzle();
-    const tx = target.x + rand(-16, 16) + EggTypes.aimError(u) + Weather.sneeze(u, this);
+    const tx = target.x + rand(-16, 16) + EggTypes.aimError(u) + Weather.sneeze(u, this) + Events.aimError(u);
     const ty = target.y - target.size * 0.55 + rand(-12, 10);
     const t = u.lobTime ? rand(u.lobTime[0], u.lobTime[1]) : clamp(Math.abs(tx - sx) / rand(215, 275), 0.85, 2.6);
     const vx = (tx - sx) / t;

@@ -273,3 +273,8 @@ yolk, use powers) or the hand-drawn side view:
   - Frame time is flat: every new event and the pollen storm are within ~2 ms of a quiet frame.
   - winrate-sim (10 runs at each of 7 stages): idle 29%, active 84%.
   - The Waffle Iron Warlord now slams every 6 s instead of 5 (8/12 active).
+- Events (`js/afflictions.js`), four new surprise events (22 in all):
+  - **Giant Bird** (stage 7+, needs 3+ units per side): a huge hook-beaked bird swoops down with its shadow sweeping the ground, snatches one light trooper from each army in its talons ("Put me DOWN!") and carries them off the map. No kill credit, no wreckage.
+  - **Chicken Pox** (stage 6+): a patient zero in each army, and the spots spread on contact (up to 14 units). Itchy units are covered in red spots and move and fire at half speed for 6 s. No damage.
+  - **Hiccup Outbreak** (stage 5+): about 45% of ground troops on both sides get the hiccups. Every 1-2 s each one jumps with a "hic!" and its next shot goes wild.
+  - **Mole Invasion** (stage 4+, mostly meadows): eight molehills appear and moles pop up and down; troops passing the holes trip, and moles snack on splats.

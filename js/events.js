@@ -718,6 +718,7 @@ const Events = {
     // Spooked troops back away from the front for a moment.
     if (u.spooked > 0) return -0.8;
     if (u.stagger > 0) return 0.35;
+    if (u.itchy > 0) return 0.5;
     // Grease: troops skid along much faster than they meant to.
     return u.greasy > 0 ? 1.8 : 1;
   },
@@ -736,6 +737,8 @@ const Events = {
     if (u.posing > 0) u.posing = Math.max(0, u.posing - dt);
     if (u.spooked > 0) u.spooked = Math.max(0, u.spooked - dt);
     if (u.greasy > 0) u.greasy = Math.max(0, u.greasy - dt);
+    if (u.itchy > 0) u.itchy = Math.max(0, u.itchy - dt);
+    if (u.hicHop > 0) u.hicHop = Math.max(0, u.hicHop - dt);
     if (!u.airborne) return false;
     if (u.caughtBy) return true;
     if (u.parachute) {
@@ -768,11 +771,14 @@ const Events = {
   drawUnit(u, drawFn) {
     // Knocked-over units tip onto their back for a moment, then pop back up.
     const tip = u.knock > 0 ? u.knockDir * (Math.PI / 2) * Math.min(1, u.knock * 4) : 0;
-    if (!u.spin && !tip && !u.parachute) {
+    if (u.itchy > 0) this.drawSpots(u);
+    if (!u.spin && !tip && !u.parachute && !(u.hicHop > 0)) {
       drawFn();
       return;
     }
     ctx.save();
+    // A hiccup makes the unit jump a little.
+    if (u.hicHop > 0) ctx.translate(0, -Math.sin((u.hicHop / 0.25) * Math.PI) * s(10));
     ctx.translate(u.x, u.y);
     ctx.rotate((u.spin || 0) + tip);
     ctx.translate(-u.x, -u.y);
@@ -791,6 +797,27 @@ const Events = {
       line(u.x + s(16), top, u.x, u.y - s(14), LINE, 1);
     }
     ctx.restore();
+  },
+
+  // Itchy red spots (chicken pox), drawn behind the unit.
+  drawSpots(u) {
+    ctx.save();
+    ctx.fillStyle = "rgba(230,50,50,0.85)";
+    const r = u.radius();
+    for (let i = 0; i < 5; i++) {
+      const a = i * 2.4 + (u.wobble || 0);
+      ctx.beginPath();
+      ctx.arc(u.x + Math.cos(a) * r * 0.6, u.y - u.size * 0.2 + Math.sin(a) * r * 0.5, s(4), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  },
+
+  // A hiccup sends the unit's next shot wild.
+  aimError(u) {
+    if (!u.hicWild) return 0;
+    u.hicWild = false;
+    return rand(-s(220), s(220));
   },
 
   // World-space drawing (inside the screen shake).

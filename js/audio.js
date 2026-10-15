@@ -274,6 +274,9 @@ class AudioFx {
         this.tone(180 * v, 0.35, { type: "sine", volume: 0.12, slideTo: 520 * v });
         this.tone(520 * v, 0.2, { type: "sine", volume: 0.06, slideTo: 300 * v, delay: 0.3 });
         return 0.5;
+      case "hic":
+        this.tone(500 * v, 0.06, { type: "square", volume: 0.05, slideTo: 900 * v });
+        return 0.08;
       case "event_warn":
         [660, 880, 660, 880].forEach((f, i) => this.tone(f, 0.12, { type: "triangle", volume: 0.07, delay: i * 0.15 }));
         return 0.6;

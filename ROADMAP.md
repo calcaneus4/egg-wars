@@ -232,10 +232,10 @@ events (at most 1 hit per unit), and a flat frame cost checked in the final revi
 
 ## 25. Surprise events
 
-- [ ] **Giant Bird** - a huge bird swoops down, snatches one trooper from each army and flies off with them.
-- [ ] **Chicken Pox** - a spotty itch spreads from unit to unit on contact; itchy units move and fire at half speed until it wears off (no damage).
-- [ ] **Hiccup Outbreak** - troops on both sides get the hiccups: they hop at random and every hiccup sends a shot wild.
-- [ ] **Mole Invasion** - moles pop out of molehills all over the field; troops trip in the holes and moles steal splats.
+- [x] **Giant Bird** - a huge bird swoops down, snatches one trooper from each army and flies off with them.
+- [x] **Chicken Pox** - a spotty itch spreads from unit to unit on contact; itchy units move and fire at half speed until it wears off (no damage).
+- [x] **Hiccup Outbreak** - troops on both sides get the hiccups: they hop at random and every hiccup sends a shot wild.
+- [x] **Mole Invasion** - moles pop out of molehills all over the field; troops trip in the holes and moles steal splats.
 
 ## 26. New content (each arrives through the kit, Director or rotation)
 
