@@ -70,14 +70,23 @@ const ABILITIES = [
     cooldown: 30,
     desc: "Your Yolk Drop is ready now, and the next one is GIANT: triple burst.",
   },
+  {
+    id: "heal",
+    name: "Healing Rain",
+    level: 18,
+    cooldown: 32,
+    desc: "A warm shower over your army heals every unit by 2.",
+  },
 ];
 
 const POWER_SLOT_KEYS = ["W", "E"];
-const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "goose", "rooster", "scarecrow", "chill", "timefreeze", "mega"];
+const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "goose", "rooster", "scarecrow", "chill", "heal", "timefreeze", "mega"];
 const TIME_FREEZE_SECONDS = 4;
 const GOOSE_SECONDS = 8;
 // Row height on the Powers screen, so every power fits above the BACK button.
-const POWER_ROW = 52;
+const POWER_ROW = 46;
+const HEAL_AMOUNT = 2;
+const HEAL_RAIN_SECONDS = 1.2;
 const SCARECROW_SECONDS = 6;
 const REINFORCE_COUNT = 4;
 const ROOSTER_SECONDS = 6;
@@ -176,6 +185,7 @@ const Abilities = {
       game.abilityCooldowns[id] = Math.max(0, game.abilityCooldowns[id] - dt);
     }
     game.chillFlash = Math.max(0, (game.chillFlash || 0) - dt);
+    game.healRain = Math.max(0, (game.healRain || 0) - dt);
     game.timeFreeze = Math.max(0, (game.timeFreeze || 0) - dt);
     if (game.goose) {
       const g = game.goose;
@@ -274,6 +284,16 @@ const Abilities = {
       for (let i = 0; i < 40; i++) Effects.spawn("drop", rand(W * 0.3, W), rand(0, H * 0.5), rand(-40, 40), rand(80, 200), rand(0.8, 1.4), rand(2, 3.5), WHITE);
       audio.play("freeze");
     }
+    if (id === "heal") {
+      game.healRain = HEAL_RAIN_SECONDS;
+      for (const u of game.living(RIGHT)) {
+        if (u.maxHp && u.hp < u.maxHp) {
+          u.hp = Math.min(u.maxHp, u.hp + HEAL_AMOUNT);
+          for (let i = 0; i < 3; i++) Effects.spawn("spark", u.x + rand(-8, 8), u.y - u.size * 0.4, rand(-20, 20), rand(-70, -30), 0.6, 5, "#4caf50");
+        }
+      }
+      audio.play("unlock");
+    }
     if (id === "mega") {
       game.megaYolk = true;
       game.powerUpCooldown = 0;
@@ -361,6 +381,17 @@ const Abilities = {
         ctx.lineTo(cx + Math.cos(a) * 13, cy + Math.sin(a) * 13);
         ctx.stroke();
       }
+    } else if (id === "heal") {
+      ctx.fillStyle = "#cfe8f7";
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - 6, 12, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      line(cx - 6, cy + 2, cx - 8, cy + 8, "#5aa8e0", 2);
+      line(cx + 1, cy + 2, cx - 1, cy + 8, "#5aa8e0", 2);
+      ctx.fillStyle = "#4caf50";
+      ctx.fillRect(cx + 5, cy + 6, 8, 3);
+      ctx.fillRect(cx + 7.5, cy + 3.5, 3, 8);
     } else if (id === "mega") {
       ctx.fillStyle = WHITE;
       ctx.beginPath();
@@ -514,6 +545,24 @@ const Abilities = {
 
   // Blue-white flash when the Big Chill hits.
   drawChill(game) {
+    if (game.healRain > 0) {
+      // Healing Rain: a short shower of warm drops over your army's half of the field.
+      const k = 1 - game.healRain / HEAL_RAIN_SECONDS;
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, game.healRain * 3) * 0.7;
+      ctx.strokeStyle = "#5aa8e0";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let i = 0; i < 60; i++) {
+        const dx = ((i * 97) % 100) / 100;
+        const y = ((i * 53) % 100) / 100 * H * 0.7 + k * H * 0.5;
+        const x = dx * W * 0.55 + 10;
+        ctx.moveTo(x, y % (H * 0.85));
+        ctx.lineTo(x - 3, (y % (H * 0.85)) + 14);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
     if (!(game.chillFlash > 0)) return;
     ctx.fillStyle = `rgba(200,235,255,${(game.chillFlash * 0.6).toFixed(3)})`;
     ctx.fillRect(0, 0, W, H);
@@ -541,19 +590,19 @@ const Abilities = {
       ctx.fillRect(x0, y, 780, POWER_ROW - 4);
       ctx.strokeRect(x0, y, 780, POWER_ROW - 4);
       ctx.beginPath();
-      ctx.arc(x0 + 34, y + 24, 19, 0, Math.PI * 2);
+      ctx.arc(x0 + 34, y + 21, 18, 0, Math.PI * 2);
       ctx.stroke();
-      this.drawIcon(a.id, x0 + 34, y + 24);
+      this.drawIcon(a.id, x0 + 34, y + 21);
       ctx.fillStyle = LINE;
       ctx.font = "bold 20px Courier New";
-      ctx.fillText(a.name, x0 + 68, y + 20);
+      ctx.fillText(a.name, x0 + 68, y + 18);
       ctx.font = "bold 13px Courier New";
-      ctx.fillText(a.desc, x0 + 68, y + 39);
-      ctx.fillText(open ? `cooldown ${Math.round(a.cooldown * Armory.cooldownScale(p))}s` : `unlocks at LV ${a.level}`, x0 + 68 + ctx.measureText(a.name).width * 1.6 + 16, y + 20);
+      ctx.fillText(a.desc, x0 + 68, y + 35);
+      ctx.fillText(open ? `cooldown ${Math.round(a.cooldown * Armory.cooldownScale(p))}s` : `unlocks at LV ${a.level}`, x0 + 68 + ctx.measureText(a.name).width * 1.6 + 16, y + 18);
       ctx.restore();
       if (!open) return;
       POWER_SLOT_KEYS.forEach((key, slot) => {
-        const b = Menus.button(key, x0 + 676 + slot * 56, y + 5, 46, () => this.setSlot(p, slot, a.id) || SaveManager.save(), 38);
+        const b = Menus.button(key, x0 + 676 + slot * 56, y + 4, 46, () => this.setSlot(p, slot, a.id) || SaveManager.save(), 34);
         b.hot = slots[slot] === a.id;
       });
     });

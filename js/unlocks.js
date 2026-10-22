@@ -47,6 +47,7 @@ const UNLOCKS = [
   { level: 15, kind: "feature", id: "zapper", name: "Zapper Egg", desc: "Yolk Drop option: chain lightning through up to 4 enemies" },
   { level: 16, kind: "feature", id: "magnet", name: "Magnet Egg", desc: "Yolk Drop option: pulls enemy troops into a clump" },
   { level: 16, kind: "unit", type: "rider", name: "Rooster Rider", desc: "Fast cavalry that charges in and pecks up close" },
+  { level: 18, kind: "feature", id: "heal", name: "Healing Rain", desc: "Power: a warm shower heals every unit in your army by 2" },
   { level: 18, kind: "feature", id: "homing", name: "Seeker Egg", desc: "Yolk Drop option: four eggs that hunt enemies, aircraft first" },
   { level: 19, kind: "unit", type: "dino", name: "Dino Rider", desc: "A little T-rex that chomps enemies up close for 2 hits" },
   { level: 19, kind: "feature", id: "bubble", name: "Bubble Egg", desc: "Yolk Drop option: floats up to 4 enemies away in bubbles" },
