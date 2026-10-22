@@ -297,7 +297,7 @@ events (at most 1 hit per unit), and a flat frame cost checked in the final revi
 - [x] **Biome: Alien Planet** - purple soil, crystal spires, two moons, lighter gravity and warp pads that teleport troops.
 - [x] **Egg: Shrink** - enemies in the splash shrink for a while: tiny, slow and firing at half rate.
 - [x] **Vehicle: Saucer** - a little flying saucer whose tractor beam lifts an enemy trooper and drops it.
-- [ ] **Power: Haystack Wall** - a wall of hay bales pops up in front of your army and soaks up enemy eggs for 6 s.
+- [x] **Power: Haystack Wall** - a wall of hay bales pops up in front of your army and soaks up enemy eggs for 6 s.
 - [ ] **Boss: Alien Mothership** - a huge saucer that beams up troops and rains down ray blasts.
 
 ## 33. Final

@@ -77,14 +77,23 @@ const ABILITIES = [
     cooldown: 32,
     desc: "A warm shower over your army heals every unit by 2.",
   },
+  {
+    id: "hay",
+    name: "Haystack Wall",
+    level: 15,
+    cooldown: 30,
+    desc: "Hay bales pop up ahead of your army and soak up enemy eggs for 6 s.",
+  },
 ];
 
 const POWER_SLOT_KEYS = ["W", "E"];
-const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "goose", "rooster", "scarecrow", "chill", "heal", "timefreeze", "mega"];
+const POWER_FILL_ORDER = ["airstrike", "shield", "reinforce", "goose", "rooster", "scarecrow", "chill", "heal", "hay", "timefreeze", "mega"];
 const TIME_FREEZE_SECONDS = 4;
 const GOOSE_SECONDS = 8;
 // Row height on the Powers screen, so every power fits above the BACK button.
-const POWER_ROW = 46;
+const POWER_ROW = 42;
+const HAY_SECONDS = 6;
+const HAY_HEIGHT = 120;
 const HEAL_AMOUNT = 2;
 const HEAL_RAIN_SECONDS = 1.2;
 const SCARECROW_SECONDS = 6;
@@ -126,6 +135,7 @@ const Abilities = {
   reset(game) {
     game.abilityCooldowns = {};
     game.decoy = null;
+    game.hayWall = null;
     game.goose = null;
     for (const a of ABILITIES) game.abilityCooldowns[a.id] = 0;
     game.airstrikes = [];
@@ -203,6 +213,10 @@ const Abilities = {
       for (const pop of g.pops) pop.life -= dt;
       g.pops = g.pops.filter((pop) => pop.life > 0);
       if (g.time > GOOSE_SECONDS + 1) game.goose = null;
+    }
+    if (game.hayWall && (game.hayWall.timer -= dt) <= 0) {
+      Effects.debris(game.hayWall.x, game.terrain.yAt(game.hayWall.x) - s(20), 8, "#d9b24a");
+      game.hayWall = null;
     }
     if (game.decoy && (game.decoy.timer -= dt) <= 0) {
       Effects.smoke(game.decoy.x, game.decoy.y, 6);
@@ -283,6 +297,12 @@ const Abilities = {
       game.chillFlash = 0.6;
       for (let i = 0; i < 40; i++) Effects.spawn("drop", rand(W * 0.3, W), rand(0, H * 0.5), rand(-40, 40), rand(80, 200), rand(0.8, 1.4), rand(2, 3.5), WHITE);
       audio.play("freeze");
+    }
+    if (id === "hay") {
+      const front = game.living(RIGHT).filter((u) => Hazards.isGround(u)).reduce((m, u) => Math.max(m, u.x), s(150));
+      game.hayWall = { x: clamp(front + s(60), s(160), W * 0.65), timer: HAY_SECONDS, soaked: 0 };
+      Effects.debris(game.hayWall.x, game.terrain.yAt(game.hayWall.x) - s(20), 8, "#d9b24a");
+      audio.play("egg_splat");
     }
     if (id === "heal") {
       game.healRain = HEAL_RAIN_SECONDS;
@@ -381,6 +401,12 @@ const Abilities = {
         ctx.lineTo(cx + Math.cos(a) * 13, cy + Math.sin(a) * 13);
         ctx.stroke();
       }
+    } else if (id === "hay") {
+      ctx.fillStyle = "#e3c25a";
+      for (const [bx, by] of [[-11, 2], [1, 2], [-5, -9]]) {
+        ctx.fillRect(cx + bx, cy + by, 11, 9);
+        ctx.strokeRect(cx + bx, cy + by, 11, 9);
+      }
     } else if (id === "heal") {
       ctx.fillStyle = "#cfe8f7";
       ctx.beginPath();
@@ -475,6 +501,38 @@ const Abilities = {
       ctx.fill();
       ctx.fillStyle = LINE;
       ctx.fillText(pop.text, pop.x - 10, pop.y - s(18) - (1 - pop.life) * 26);
+    }
+    ctx.restore();
+  },
+
+  // Haystack Wall: a stack of bales that sags as it soaks up eggs.
+  drawHayWall(game) {
+    const h = game.hayWall;
+    if (!h) return;
+    const g = game.terrain.yAt(h.x);
+    const bw = s(46);
+    const bh = s(HAY_HEIGHT) / 3;
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, h.timer * 2);
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1.5;
+    for (let row = 0; row < 3; row++) {
+      for (let k = 0; k < 2 - (row === 2 ? 1 : 0); k++) {
+        const x = h.x - (row === 2 ? bw / 2 : bw) + k * bw;
+        const y = g - (row + 1) * bh + s(4);
+        ctx.fillStyle = row % 2 ? "#d9b24a" : "#e3c25a";
+        ctx.fillRect(x, y, bw, bh);
+        ctx.strokeRect(x, y, bw, bh);
+        line(x + 3, y + bh * 0.35, x + bw - 3, y + bh * 0.35, "#b8913a", 1);
+        line(x + 3, y + bh * 0.7, x + bw - 3, y + bh * 0.7, "#b8913a", 1);
+      }
+    }
+    // Splats of the eggs it has caught.
+    ctx.fillStyle = YOLK;
+    for (let i = 0; i < Math.min(8, h.soaked); i++) {
+      ctx.beginPath();
+      ctx.arc(h.x + s(18) + ((i * 7) % 3) * s(4) - s(4), g - s(10) - ((i * 13) % 70) * s(1), s(4), 0, Math.PI * 2);
+      ctx.fill();
     }
     ctx.restore();
   },
@@ -590,19 +648,19 @@ const Abilities = {
       ctx.fillRect(x0, y, 780, POWER_ROW - 4);
       ctx.strokeRect(x0, y, 780, POWER_ROW - 4);
       ctx.beginPath();
-      ctx.arc(x0 + 34, y + 21, 18, 0, Math.PI * 2);
+      ctx.arc(x0 + 34, y + 19, 16, 0, Math.PI * 2);
       ctx.stroke();
-      this.drawIcon(a.id, x0 + 34, y + 21);
+      this.drawIcon(a.id, x0 + 34, y + 19);
       ctx.fillStyle = LINE;
-      ctx.font = "bold 20px Courier New";
-      ctx.fillText(a.name, x0 + 68, y + 18);
+      ctx.font = "bold 18px Courier New";
+      ctx.fillText(a.name, x0 + 68, y + 16);
       ctx.font = "bold 13px Courier New";
-      ctx.fillText(a.desc, x0 + 68, y + 35);
-      ctx.fillText(open ? `cooldown ${Math.round(a.cooldown * Armory.cooldownScale(p))}s` : `unlocks at LV ${a.level}`, x0 + 68 + ctx.measureText(a.name).width * 1.6 + 16, y + 18);
+      ctx.fillText(a.desc, x0 + 68, y + 32);
+      ctx.fillText(open ? `cooldown ${Math.round(a.cooldown * Armory.cooldownScale(p))}s` : `unlocks at LV ${a.level}`, x0 + 68 + ctx.measureText(a.name).width * 1.45 + 16, y + 16);
       ctx.restore();
       if (!open) return;
       POWER_SLOT_KEYS.forEach((key, slot) => {
-        const b = Menus.button(key, x0 + 676 + slot * 56, y + 4, 46, () => this.setSlot(p, slot, a.id) || SaveManager.save(), 34);
+        const b = Menus.button(key, x0 + 676 + slot * 56, y + 3, 46, () => this.setSlot(p, slot, a.id) || SaveManager.save(), 32);
         b.hot = slots[slot] === a.id;
       });
     });

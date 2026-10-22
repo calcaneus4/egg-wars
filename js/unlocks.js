@@ -44,6 +44,7 @@ const UNLOCKS = [
   { level: 14, kind: "feature", id: "scarecrow", name: "Scarecrow", desc: "Power: a scarecrow draws the enemy's fire for 6 s" },
   { level: 14, kind: "feature", id: "explosive", name: "Boomer Egg", desc: "Yolk Drop option: big blast that digs craters" },
   { level: 15, kind: "unit", type: "pogo", name: "Pogo Tank", desc: "Boings over the front line and stomps down among the enemy" },
+  { level: 15, kind: "feature", id: "hay", name: "Haystack Wall", desc: "Power: a wall of hay bales soaks up enemy eggs for 6 s" },
   { level: 15, kind: "feature", id: "zapper", name: "Zapper Egg", desc: "Yolk Drop option: chain lightning through up to 4 enemies" },
   { level: 16, kind: "feature", id: "magnet", name: "Magnet Egg", desc: "Yolk Drop option: pulls enemy troops into a clump" },
   { level: 16, kind: "unit", type: "rider", name: "Rooster Rider", desc: "Fast cavalry that charges in and pecks up close" },

@@ -575,6 +575,15 @@ class Game {
         audio.play("fire");
         continue;
       }
+      // Haystack Wall: enemy eggs that fly into the bales get soaked up.
+      const hay = this.hayWall;
+      if (hay && e.side === LEFT && Math.abs(e.x - hay.x) < s(46) && e.y > this.terrain.yAt(hay.x) - s(HAY_HEIGHT)) {
+        hay.soaked++;
+        Effects.yolk(e.x, e.y, 3, 0.6);
+        Effects.spawn("debris", e.x, e.y, rand(-40, 40), rand(-80, -30), 0.5, 4, "#d9b24a");
+        this.removeEgg(e);
+        continue;
+      }
       const enemies = e.side === RIGHT ? red : blue;
       for (const t of enemies) {
         if (dist(e.x, e.y, t.x, t.y) <= e.radius + t.radius()) {
@@ -1128,6 +1137,7 @@ class Game {
     this.drawHealthBars();
     Abilities.drawAirstrikes(this);
     Abilities.drawDecoy(this);
+    Abilities.drawHayWall(this);
     Abilities.drawGoose(this);
     EggTypes.draw();
     Effects.draw();
