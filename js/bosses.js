@@ -1339,7 +1339,181 @@ class BlenderBeast extends Boss {
   }
 }
 
-const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake", "toaster", "waffle", "blender"];
+// Dino Mama: a giant T-rex. She lobs big speckled dino eggs at the nearest troops, and every so
+// often lets out a ROAR that sends enemy ground troops running back for a moment. Enraged, she also
+// whips her tail across the ground in front of her (1 hit, knocked over).
+const DINO_ROAR_REACH = 1100;
+const DINO_SWEEP_REACH = 280;
+
+class DinoMama extends Boss {
+  constructor(x, side, terrain, maxHp) {
+    super(x, side, terrain, maxHp);
+    this.name = "DINO MAMA";
+    this.speed = 6;
+    this.size = s(150);
+    this.groundOffset = s(70);
+    this.slowAttack = 2.3;
+    this.fastAttack = 1.6;
+    this.specialEvery = 7;
+    this.roarClock = 6;
+    this.roar = 0;
+    this.sweep = 0;
+    this.stride = 0;
+  }
+
+  radius() {
+    return this.size * 0.5;
+  }
+
+  blockingRadius() {
+    return this.size * 0.36;
+  }
+
+  attack(game, enemies) {
+    const ground = enemies.filter((e) => !(e instanceof Airplane));
+    const pool = ground.length ? ground : enemies;
+    const targets = pool.slice().sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x)).slice(0, 2);
+    const mouth = this.terrain.yAt(this.x) - s(170);
+    targets.forEach((t, i) => game.lobEgg(this.x + this.side * s(60), mouth, t.x + rand(-25, 25), t.y, this.side, 3, 1.5 + i * 0.25));
+    audio.play("fire");
+  }
+
+  // Enraged: a tail sweep across the ground in front of her.
+  special(game, enemies) {
+    this.sweep = 1;
+    Effects.shake(5);
+    audio.play("roar");
+    for (const u of enemies) {
+      if (!Hazards.isGround(u) || u.airborne || Math.abs(u.x - this.x) > s(DINO_SWEEP_REACH)) continue;
+      game.damageUnit(u, 1);
+      u.knock = Math.max(u.knock || 0, 1);
+      u.knockDir = this.side;
+    }
+    if (game.canSpeak(this)) this.say("TAIL WHIP!", 1.2);
+  }
+
+  updateBoss(game, dt, enemies) {
+    this.stride += dt * 3;
+    this.roar = Math.max(0, this.roar - dt);
+    this.sweep = Math.max(0, this.sweep - dt * 2);
+    this.roarClock -= dt;
+    if (this.roarClock <= 0) {
+      this.roarClock = this.enraged ? 7 : 10;
+      this.roar = 1.2;
+      Effects.shake(6);
+      audio.play("roar");
+      if (game.canSpeak(this)) this.say("ROOOOAAAR!", 1.3);
+      for (const u of enemies) {
+        if (!Hazards.isGround(u) || u instanceof Castle || u.airborne || Math.abs(u.x - this.x) > s(DINO_ROAR_REACH)) continue;
+        u.spooked = Math.max(u.spooked || 0, 1.2);
+      }
+    }
+    super.updateBoss(game, dt, enemies);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const d = this.side;
+    const ground = this.terrain.yAt(x);
+    const step = Math.sin(this.stride);
+    const by = ground - s(80);
+    ctx.save();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(3);
+    // Roar rings.
+    if (this.roar > 0) {
+      ctx.globalAlpha = Math.min(1, this.roar);
+      for (let k = 0; k < 3; k++) {
+        ctx.beginPath();
+        ctx.arc(x + d * s(110), by - s(70), s(30 + k * 26) * (1.6 - this.roar * 0.5), -0.6, 0.6);
+        if (d < 0) ctx.arc(x + d * s(110), by - s(70), s(30 + k * 26) * (1.6 - this.roar * 0.5), Math.PI - 0.6, Math.PI + 0.6);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    // Tail (swung forward low along the ground during a sweep).
+    const swing = this.sweep;
+    ctx.fillStyle = "#6f9e4c";
+    ctx.beginPath();
+    ctx.moveTo(x - d * s(40), by - s(20));
+    ctx.quadraticCurveTo(x - d * s(110), by - s(10) + swing * s(60), x - d * s(150) + d * swing * s(300), by + s(40) + swing * s(25));
+    ctx.quadraticCurveTo(x - d * s(100), by + s(20), x - d * s(30), by + s(20));
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    // Legs.
+    line(x - d * s(20), by + s(25), x - d * s(26) + step * s(10), ground, "#5c8a3c", sw(12));
+    line(x + d * s(25), by + s(25), x + d * s(30) - step * s(10), ground, "#5c8a3c", sw(12));
+    // Body with spots.
+    ctx.beginPath();
+    ctx.ellipse(x, by, s(62), s(44), -d * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#4e7a33";
+    for (const [sx, sy] of [[-20, -18], [5, -28], [-30, 8], [12, 4]]) {
+      ctx.beginPath();
+      ctx.arc(x + d * s(sx), by + s(sy), s(7), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Tiny arms.
+    line(x + d * s(48), by - s(10), x + d * s(64), by + s(4), "#5c8a3c", sw(5));
+    // Head with jaws that open wide for the roar.
+    const hx = x + d * s(70);
+    const hy = by - s(62);
+    const open = 0.15 + Math.min(1, this.roar * 2) * 0.55;
+    ctx.fillStyle = "#6f9e4c";
+    ctx.beginPath();
+    ctx.moveTo(hx - d * s(26), hy - s(22));
+    ctx.lineTo(hx + d * s(48), hy - s(14));
+    ctx.lineTo(hx + d * s(50), hy + s(2));
+    ctx.lineTo(hx - d * s(24), hy + s(8));
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(hx - d * s(20), hy + s(6));
+    ctx.rotate(d * open);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(d * s(64), 0);
+    ctx.lineTo(d * s(58), s(14));
+    ctx.lineTo(0, s(16));
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    // Teeth, eye and a team-coloured bow on her head.
+    ctx.fillStyle = WHITE;
+    for (let k = 0; k < 5; k++) {
+      ctx.beginPath();
+      ctx.moveTo(hx + d * s(k * 12 - 10), hy + s(3));
+      ctx.lineTo(hx + d * s(k * 12 - 5), hy + s(12));
+      ctx.lineTo(hx + d * s(k * 12), hy + s(3));
+      ctx.fill();
+    }
+    ctx.fillStyle = this.enraged ? RED : YOLK;
+    ctx.beginPath();
+    ctx.arc(hx + d * s(4), hy - s(10), s(6), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.moveTo(hx - d * s(14), hy - s(20));
+    ctx.lineTo(hx - d * s(30), hy - s(36));
+    ctx.lineTo(hx - d * s(30), hy - s(18));
+    ctx.closePath();
+    ctx.moveTo(hx - d * s(14), hy - s(20));
+    ctx.lineTo(hx + d * s(2), hy - s(36));
+    ctx.lineTo(hx + d * s(2), hy - s(18));
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake", "toaster", "waffle", "blender", "dino"];
 const BOSS_NAMES = {
   mech: "Giant Rooster Mech",
   fortress: "Omelet Fortress",
@@ -1350,6 +1524,7 @@ const BOSS_NAMES = {
   toaster: "Toaster Titan",
   waffle: "Waffle Iron Warlord",
   blender: "Blender Beast",
+  dino: "Dino Mama",
 };
 
 const Bosses = {
@@ -1380,6 +1555,7 @@ const Bosses = {
               : kind === "toaster" ? new ToasterTitan(W - s(330), LEFT, game.terrain, hp)
                 : kind === "waffle" ? new WaffleWarlord(W - s(330), LEFT, game.terrain, hp)
                   : kind === "blender" ? new BlenderBeast(W - s(330), LEFT, game.terrain, hp)
+                    : kind === "dino" ? new DinoMama(W - s(330), LEFT, game.terrain, hp)
             : new ScramblerZeppelin(W * 0.7, LEFT, game.terrain, hp);
     boss.statScaled = true;
     game.units.push(boss);
