@@ -88,6 +88,17 @@ class Egg {
       ctx.beginPath();
       ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.kind.band === "hotsauce") {
+      // A red egg with a little flame on top.
+      ctx.fillStyle = "#e2463f";
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius * 0.65, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#f2a03d";
+      ctx.beginPath();
+      ctx.moveTo(-this.radius * 0.3, -this.radius * 0.5);
+      ctx.quadraticCurveTo(0, -this.radius * 1.6, this.radius * 0.3, -this.radius * 0.5);
+      ctx.fill();
     } else if (this.kind.band === "sleepy") {
       // A little crescent moon and a star.
       ctx.fillStyle = "#b9a0e6";

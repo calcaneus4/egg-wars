@@ -717,6 +717,8 @@ const Events = {
     if (u.knock > 0 || u.posing > 0) return 0;
     // Spooked troops back away from the front for a moment.
     if (u.spooked > 0) return -0.8;
+    // Hot sauce: running back the way they came, fanning their mouths.
+    if (u.burning > 0) return -1.2;
     if (u.stagger > 0) return 0.35;
     if (u.itchy > 0) return 0.5;
     // Grease: troops skid along much faster than they meant to.
@@ -736,6 +738,7 @@ const Events = {
     if (u.knock > 0) u.knock = Math.max(0, u.knock - dt);
     if (u.posing > 0) u.posing = Math.max(0, u.posing - dt);
     if (u.spooked > 0) u.spooked = Math.max(0, u.spooked - dt);
+    if (u.burning > 0) u.burning = Math.max(0, u.burning - dt);
     if (u.greasy > 0) u.greasy = Math.max(0, u.greasy - dt);
     if (u.itchy > 0) u.itchy = Math.max(0, u.itchy - dt);
     if (u.hicHop > 0) u.hicHop = Math.max(0, u.hicHop - dt);

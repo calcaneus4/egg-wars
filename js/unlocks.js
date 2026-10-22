@@ -35,6 +35,7 @@ const UNLOCKS = [
   { level: 11, kind: "unit", type: "mortar", name: "Mortar Hen", desc: "Slow hen that lobs bursting eggs across the field" },
   { level: 10, kind: "feature", id: "rooster", name: "Rooster Rally", desc: "Power: your army moves and fires 40% faster for 6 s" },
   { level: 12, kind: "unit", type: "hover", name: "Hover Coop", desc: "Fast hovercraft that floats over hazards, mud and goo" },
+  { level: 12, kind: "feature", id: "hotsauce", name: "Hot Sauce Egg", desc: "Yolk Drop option: enemies in the splash panic and run back" },
   { level: 12, kind: "feature", id: "shield", name: "Shell Shield", desc: "Power: every unit gains a one-hit shield (pick powers on the Powers screen)" },
   { level: 17, kind: "unit", type: "pigeon", name: "Pigeon Flock", desc: "Three pigeons that swoop down on enemy troops" },
   { level: 17, kind: "feature", id: "chill", name: "Big Chill", desc: "Power: freezes every enemy solid for 2.5 s" },

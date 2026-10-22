@@ -142,6 +142,19 @@ const EGG_TYPES = {
     sleepRadius: 160,
     sleep: 4,
   },
+  hotsauce: {
+    id: "hotsauce",
+    name: "Hot Sauce",
+    desc: "A fiery splash: enemies nearby panic and run back for 2.5 s without firing.",
+    level: 12,
+    damage: 1,
+    burst: 0,
+    band: "hotsauce",
+    yolkDrop: true,
+    yolkBurst: 2,
+    sauceRadius: 130,
+    sauce: 2.5,
+  },
   bubble: {
     id: "bubble",
     name: "Bubble",
@@ -286,6 +299,22 @@ const EggTypes = {
       }
       Effects.spawn("ring", x, y, 0, 0, 0.5, r * 0.5, "#b9a0e6");
       audio.play("boo");
+    }
+    if (k.sauceRadius && !egg.sauced) {
+      egg.sauced = true;
+      const r = s(k.sauceRadius);
+      let yelled = false;
+      for (const u of game.living(-egg.side)) {
+        if (u.isBoss || !Hazards.isGround(u) || dist(u.x, u.y, x, y) > r + u.radius()) continue;
+        u.burning = Math.max(u.burning || 0, k.sauce);
+        if (!yelled && game.canSpeak(u)) {
+          u.say(choice(["HOT HOT HOT!", "WATER!", "My mouth is on fire!", "SPICY!"]), 1.2);
+          yelled = true;
+        }
+      }
+      Effects.spawn("ring", x, y, 0, 0, 0.4, r * 0.5, "#e2463f");
+      for (let i = 0; i < 12; i++) Effects.spawn("spark", x, y, rand(-140, 140), rand(-220, -60), 0.4, 6, i % 2 ? "#e2463f" : "#f2a03d");
+      audio.play("fire");
     }
     if (k.freezeRadius && !egg.froze) {
       // Icy splash: everything nearby in the other army freezes too.
@@ -511,6 +540,20 @@ const EggTypes = {
       }
     }
     ctx.globalAlpha = 1;
+    // Hot-sauced units get little flames dancing over their heads.
+    for (const u of units) {
+      if (!(u.burning > 0) || u.dead) continue;
+      const fy = u.y - u.size * 0.7;
+      for (let i = -1; i <= 1; i++) {
+        const h = s(16) * (0.7 + 0.3 * Math.sin(t * 9 + i * 2));
+        ctx.fillStyle = i ? "#f2a03d" : "#e2463f";
+        ctx.beginPath();
+        ctx.moveTo(u.x + i * s(9) - s(6), fy);
+        ctx.quadraticCurveTo(u.x + i * s(9), fy - h * 2, u.x + i * s(9) + s(6), fy);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
     for (const u of units) {
       if (!(u.frozen > 0) || u.dead) continue;
       const r = u.radius() * 1.05;
