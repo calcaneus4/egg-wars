@@ -721,6 +721,7 @@ const Events = {
     if (u.burning > 0) return -1.2;
     if (u.stagger > 0) return 0.35;
     if (u.itchy > 0) return 0.5;
+    if (u.shrunk > 0) return 0.6;
     // Grease: troops skid along much faster than they meant to.
     return u.greasy > 0 ? 1.8 : 1;
   },
@@ -739,6 +740,7 @@ const Events = {
     if (u.posing > 0) u.posing = Math.max(0, u.posing - dt);
     if (u.spooked > 0) u.spooked = Math.max(0, u.spooked - dt);
     if (u.burning > 0) u.burning = Math.max(0, u.burning - dt);
+    if (u.shrunk > 0) u.shrunk = Math.max(0, u.shrunk - dt);
     if (u.greasy > 0) u.greasy = Math.max(0, u.greasy - dt);
     if (u.itchy > 0) u.itchy = Math.max(0, u.itchy - dt);
     if (u.hicHop > 0) u.hicHop = Math.max(0, u.hicHop - dt);
@@ -777,13 +779,21 @@ const Events = {
     // Knocked-over units tip onto their back for a moment, then pop back up.
     const tip = u.knock > 0 ? u.knockDir * (Math.PI / 2) * Math.min(1, u.knock * 4) : 0;
     if (u.itchy > 0) this.drawSpots(u);
-    if (!u.spin && !tip && !u.parachute && !(u.hicHop > 0) && !(u.laughing > 0)) {
+    if (!u.spin && !tip && !u.parachute && !(u.hicHop > 0) && !(u.laughing > 0) && !(u.shrunk > 0)) {
       drawFn();
       return;
     }
     ctx.save();
     // A hiccup makes the unit jump a little.
     if (u.hicHop > 0) ctx.translate(0, -Math.sin((u.hicHop / 0.25) * Math.PI) * s(10));
+    // Shrunk units are drawn at half size, standing on the same spot.
+    if (u.shrunk > 0) {
+      const k = 1 - 0.45 * Math.min(1, u.shrunk * 4);
+      const feet = u.y + (u.groundOffset || 0);
+      ctx.translate(u.x, feet);
+      ctx.scale(k, k);
+      ctx.translate(-u.x, -feet);
+    }
     // Laughing units shake with giggles.
     if (u.laughing > 0) ctx.translate(Math.sin(u.laughing * 60) * s(3), -Math.abs(Math.sin(u.laughing * 30)) * s(4));
     ctx.translate(u.x, u.y);

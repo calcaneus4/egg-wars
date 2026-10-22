@@ -52,6 +52,7 @@ const UNLOCKS = [
   { level: 19, kind: "unit", type: "dino", name: "Dino Rider", desc: "A little T-rex that chomps enemies up close for 2 hits" },
   { level: 19, kind: "feature", id: "bubble", name: "Bubble Egg", desc: "Yolk Drop option: floats up to 4 enemies away in bubbles" },
   { level: 21, kind: "feature", id: "mega", name: "Mega Yolk", desc: "Power: your Yolk Drop is ready at once, and the next one is giant" },
+  { level: 20, kind: "feature", id: "shrink", name: "Shrink Egg", desc: "Yolk Drop option: enemies in the splash turn tiny and slow" },
   { level: 20, kind: "feature", id: "timefreeze", name: "Time Freeze", desc: "Power: enemy eggs freeze in the air, then drop harmlessly" },
 ];
 

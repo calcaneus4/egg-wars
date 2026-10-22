@@ -88,6 +88,20 @@ class Egg {
       ctx.beginPath();
       ctx.arc(this.radius * 0.3, -this.radius * 1.75, 2.5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.kind.band === "shrink") {
+      // Teal egg with two little inward arrows.
+      ctx.fillStyle = "#4fc3c9";
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius * 0.65, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = WHITE;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-this.radius * 0.5, 0);
+      ctx.lineTo(-this.radius * 0.1, 0);
+      ctx.moveTo(this.radius * 0.5, 0);
+      ctx.lineTo(this.radius * 0.1, 0);
+      ctx.stroke();
     } else if (this.kind.band === "hotsauce") {
       // A red egg with a little flame on top.
       ctx.fillStyle = "#e2463f";

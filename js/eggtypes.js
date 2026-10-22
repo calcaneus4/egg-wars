@@ -155,6 +155,19 @@ const EGG_TYPES = {
     sauceRadius: 130,
     sauce: 2.5,
   },
+  shrink: {
+    id: "shrink",
+    name: "Shrink",
+    desc: "A shrinking splash: enemies nearby turn tiny for 5 s, moving slowly and firing at half rate.",
+    level: 20,
+    damage: 1,
+    burst: 0,
+    band: "shrink",
+    yolkDrop: true,
+    yolkBurst: 2,
+    shrinkRadius: 140,
+    shrink: 5,
+  },
   bubble: {
     id: "bubble",
     name: "Bubble",
@@ -299,6 +312,17 @@ const EggTypes = {
       }
       Effects.spawn("ring", x, y, 0, 0, 0.5, r * 0.5, "#b9a0e6");
       audio.play("boo");
+    }
+    if (k.shrinkRadius && !egg.shrank) {
+      egg.shrank = true;
+      const r = s(k.shrinkRadius);
+      for (const u of game.living(-egg.side)) {
+        if (u.isBoss || u instanceof Castle || dist(u.x, u.y, x, y) > r + u.radius()) continue;
+        u.shrunk = Math.max(u.shrunk || 0, k.shrink);
+      }
+      Effects.spawn("ring", x, y, 0, 0, 0.5, r * 0.5, "#4fc3c9");
+      for (let i = 0; i < 10; i++) Effects.spawn("spark", x, y, rand(-150, 150), rand(-200, -50), 0.4, 5, "#4fc3c9");
+      audio.play("squeak");
     }
     if (k.sauceRadius && !egg.sauced) {
       egg.sauced = true;

@@ -548,7 +548,7 @@ class Game {
       if (u instanceof Drone) continue;
       // Hot sauce: too busy running around to shoot.
       if (u.burning > 0) continue;
-      if (u.ready(udt * Weather.fireBoost(u))) this.fire(u, this.decoy && u.side === LEFT && !u.melee && !(u instanceof MonsterTruck) && !(u instanceof RollingPinRoller) && !(u instanceof Medic) ? [this.decoy] : enemies);
+      if (u.ready(udt * Weather.fireBoost(u) * (u.shrunk > 0 ? 0.5 : 1))) this.fire(u, this.decoy && u.side === LEFT && !u.melee && !(u instanceof MonsterTruck) && !(u instanceof RollingPinRoller) && !(u instanceof Medic) ? [this.decoy] : enemies);
     }
 
     for (const e of [...this.eggs]) {
