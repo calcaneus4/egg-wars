@@ -43,6 +43,19 @@ following, all in the original hand-drawn side-view style:
   - A headless smoke test (`tools/smoke-test.js`).
   - The balance simulator.
 
+## Phase 8 summary
+
+The eighth loop:
+- **4 visitor events:** Alien Landing, Mystery Green Army, Egg Storm and Hungry Squirrel (30
+  events in all, still at most one per stage). They keep their own projectiles and give each unit
+  at most one hit.
+- **Alien Planet biome** (stages 61-65) with 80% gravity and warp pads. 13 biomes, 65 stages per
+  lap.
+- **Aurora** weather at night (dazzled pilots).
+- **Shrink egg, Saucer and Haystack Wall power.** All arrive through the same 6-card / 3-egg /
+  2-power kit, so the screen stays calm. The Powers screen fits all 11 powers.
+- **Alien Mothership boss:** 11 bosses in the rotation.
+
 ## Phase 7 summary
 
 The seventh loop:
