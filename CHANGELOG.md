@@ -327,3 +327,8 @@ yolk, use powers) or the hand-drawn side view:
   - The 60-stage stress test (forced events of all 26 kinds, all weather, random eggs, powers and purchases) had no errors. Update time averages 0.27 ms; peak 50 units and 64 eggs in flight.
   - Frame time is flat: the new events, gale, Prehistoric Valley and Dino Mama's roar all draw in 16-20 ms, the same as a clear frame (software rendering).
   - winrate-sim (10 runs at each of 7 stages, 6-50): active 96%, idle 26%; stage 57 (Prehistoric Valley) 10/10 active.
+- Events (`js/visitors.js`), four new surprise events (30 in all). They keep their own projectiles and give each unit at most one hit:
+  - **Alien Landing** (stage 10+, likelier at night, on the Moon and on the Alien Planet): a flying saucer lands mid-field, four big-headed green aliens walk out ("Take me to your leader!") and zap the nearest troops of either army with green ray guns, then walk back and beam up.
+  - **Mystery Green Army** (stage 8+): five green soldiers with question-mark helmets parachute into the middle of the field and lob eggs at everyone. Any egg that flies through one knocks him out; survivors march off after 16 s.
+  - **Egg Storm** (stage 6+): eggs pour out of the sky for 8 s, splatting all over the field. Anyone can get bonked, but only once.
+  - **Hungry Squirrel** (stage 5+, mostly meadows and jungle): a giant squirrel scampers across and back, leaping to snatch eggs out of the air from both armies, its cheeks puffing up as it goes.

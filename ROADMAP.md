@@ -276,3 +276,30 @@ events (at most 1 hit per unit), and a flat frame cost checked in the final revi
 ## 30. Final
 
 - [x] **Final review VII** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
+
+---
+
+# Phase 8: Little Green Men
+
+Eighth loop. Same rules: calm screen (6 cards, 3 eggs, 2 powers, one event per stage), neutral
+events (at most 1 hit per unit), and a flat frame cost checked in the final review.
+
+## 31. Surprise events
+
+- [x] **Alien Landing** - a flying saucer lands mid-field and little green aliens zap troops on both sides before beaming back up.
+- [x] **Mystery Green Army** - a squad of green soldiers nobody ordered marches in and lobs eggs at everyone; any egg splash knocks them out.
+- [x] **Egg Storm** - eggs rain down from the sky all over the field (at most one hit per unit).
+- [x] **Hungry Squirrel** - a giant squirrel scampers along snatching eggs out of the air.
+
+## 32. New content (each arrives through the kit, Director or rotation)
+
+- [ ] **Weather: Aurora** - night lights dazzle pilots: aircraft fly and fire more slowly.
+- [ ] **Biome: Alien Planet** - purple soil, crystal spires, two moons, lighter gravity and warp pads that teleport troops.
+- [ ] **Egg: Shrink** - enemies in the splash shrink for a while: tiny, slow and firing at half rate.
+- [ ] **Vehicle: Saucer** - a little flying saucer whose tractor beam lifts an enemy trooper and drops it.
+- [ ] **Power: Haystack Wall** - a wall of hay bales pops up in front of your army and soaks up enemy eggs for 6 s.
+- [ ] **Boss: Alien Mothership** - a huge saucer that beams up troops and rains down ray blasts.
+
+## 33. Final
+
+- [ ] **Final review VIII** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
