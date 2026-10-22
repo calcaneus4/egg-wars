@@ -511,6 +511,11 @@ class Game {
         u.asleep = Math.max(0, u.asleep - dt);
         continue;
       }
+      // Giggle fits: a laughing unit stops to hold its sides.
+      if (u.laughing > 0 && !u.airborne) {
+        u.laughing = Math.max(0, u.laughing - dt);
+        continue;
+      }
       const udt = (u.stuck > 0 && !u.hover ? dt * STICKY_SLOW : dt) * Events.speedFactor(u) * Abilities.timeScale(u) * Weather.unitSpeed(u);
       if (u.stuck > 0) u.stuck = Math.max(0, u.stuck - dt);
       if (Events.tickUnit(this, u, dt)) continue;

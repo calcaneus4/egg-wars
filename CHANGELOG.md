@@ -301,3 +301,8 @@ yolk, use powers) or the hand-drawn side view:
   - The 60-stage stress test (forced events of all 22 kinds, all weather, random eggs, powers and purchases) had no errors. Update time averages 0.25 ms.
   - Frame time is flat: the new events, rainbow, jungle and Blender vortex all draw in 15-18 ms, about the same as a quiet frame (software rendering).
   - winrate-sim (10 runs at each of 7 stages, 6-50): active 90%. The Toaster Titan was the outlier (7/12 active at stage 35) and now fires 2 slices per volley instead of 3 (10/12 at stage 35, 12/12 at stage 50).
+- Events (`js/detours.js`), four new surprise events (26 in all):
+  - **Dinosaur Stampede** (stage 9+, mostly the Prehistoric Valley, jungle and desert): a herd of 5-7 triceratops thunders across the field with the screen thudding. Light troops get tossed (1 hit when they land); tanks are shoved aside and rattled.
+  - **Lost Rideshare Driver** (stage 6+, needs 3+ units per side): a little car honks its way onto the field, picks up one trooper from each army ("Are you... Kevin?"), drives them back to their own castle and drops them off ("This isn't my stop!"). No damage.
+  - **Pizza Delivery** (stage 5+, mostly the kitchen): a scooter drops five pizza boxes along the field. Troops passing a box stop for a slice and heal 1 (two slices per box).
+  - **Giggle Fits** (stage 7+, mostly candy): a patient zero in each army, and the giggles spread on contact. Every couple of seconds a giggling unit shakes with laughter ("HA HA!") and stops moving and firing for about a second.

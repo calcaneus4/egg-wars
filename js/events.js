@@ -774,13 +774,15 @@ const Events = {
     // Knocked-over units tip onto their back for a moment, then pop back up.
     const tip = u.knock > 0 ? u.knockDir * (Math.PI / 2) * Math.min(1, u.knock * 4) : 0;
     if (u.itchy > 0) this.drawSpots(u);
-    if (!u.spin && !tip && !u.parachute && !(u.hicHop > 0)) {
+    if (!u.spin && !tip && !u.parachute && !(u.hicHop > 0) && !(u.laughing > 0)) {
       drawFn();
       return;
     }
     ctx.save();
     // A hiccup makes the unit jump a little.
     if (u.hicHop > 0) ctx.translate(0, -Math.sin((u.hicHop / 0.25) * Math.PI) * s(10));
+    // Laughing units shake with giggles.
+    if (u.laughing > 0) ctx.translate(Math.sin(u.laughing * 60) * s(3), -Math.abs(Math.sin(u.laughing * 30)) * s(4));
     ctx.translate(u.x, u.y);
     ctx.rotate((u.spin || 0) + tip);
     ctx.translate(-u.x, -u.y);

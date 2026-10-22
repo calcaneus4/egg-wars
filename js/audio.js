@@ -251,6 +251,15 @@ class AudioFx {
         this.noise(0.05, { volume: 0.3, filter: "bandpass", freq: 2200 * v, q: 3 });
         this.tone(900 * v, 0.04, { type: "square", volume: 0.04, slideTo: 500 });
         return 0.06;
+      case "honk":
+        this.tone(330 * v, 0.14, { type: "square", volume: 0.06 });
+        this.tone(415 * v, 0.14, { type: "square", volume: 0.05 });
+        this.tone(330 * v, 0.18, { type: "square", volume: 0.06, delay: 0.2 });
+        this.tone(415 * v, 0.18, { type: "square", volume: 0.05, delay: 0.2 });
+        return 0.4;
+      case "laugh":
+        for (let i = 0; i < 4; i++) this.tone((620 - i * 40) * v, 0.07, { type: "triangle", volume: 0.07, slideTo: (520 - i * 40) * v, delay: i * 0.12 });
+        return 0.5;
       case "roar":
         this.tone(110 * v, 0.7, { type: "sawtooth", volume: 0.08, slideTo: 70 });
         this.noise(0.6, { volume: 0.18, filter: "lowpass", freq: 500 * v, freqTo: 150 });

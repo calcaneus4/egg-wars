@@ -249,3 +249,30 @@ events (at most 1 hit per unit), and a flat frame cost checked in the final revi
 ## 27. Final
 
 - [x] **Final review VI** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
+
+---
+
+# Phase 7: Dinosaurs & Detours
+
+Seventh loop. Same rules: calm screen (6 cards, 3 eggs, 2 powers, one event per stage), neutral
+events (at most 1 hit per unit), and a flat frame cost checked in the final review.
+
+## 28. Surprise events
+
+- [x] **Dinosaur Stampede** - a herd of dinosaurs thunders across the field; anyone in the way is bowled over.
+- [x] **Lost Uber Driver** - a little car wanders the field honking, picks up one confused trooper and drops them off at the wrong end.
+- [x] **Pizza Delivery** - a delivery scooter drops pizza boxes; nearby troops stop to eat a slice (and heal 1).
+- [x] **Giggle Fits** - a contagious case of the giggles: laughing units stop to hold their sides for a moment.
+
+## 29. New content (each arrives through the kit, Director or rotation)
+
+- [ ] **Weather: Gusty Gale** - the wind keeps flipping direction every few seconds.
+- [ ] **Biome: Prehistoric Valley** - ferns and volcanoes in the distance, with bubbling tar pits that slow troops.
+- [ ] **Egg: Hot Sauce** - enemies in the splash panic and run backwards for a moment without firing.
+- [ ] **Vehicle: Dino Rider** - a small T-rex with a rider that chomps enemies up close.
+- [ ] **Power: Healing Rain** - a warm shower heals every unit in your army.
+- [ ] **Boss: Dino Mama** - a giant T-rex that roars troops back and sweeps its tail.
+
+## 30. Final
+
+- [ ] **Final review VII** - winrate check, stress test, frame time, docs and a CHANGELOG summary.
