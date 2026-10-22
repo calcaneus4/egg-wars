@@ -405,8 +405,8 @@ Object.assign(EVENT_TYPES, {
           ev.jumpV = 0;
         }
       }
-      const hx = ev.x + ev.dir * s(20);
-      const hy = ground - ev.jump - s(30);
+      const hx = ev.x + ev.dir * s(28);
+      const hy = ground - ev.jump - s(46);
       for (const e of [...game.eggs]) {
         if (dist(e.x, e.y, hx, hy) > s(40)) continue;
         game.removeEgg(e);
