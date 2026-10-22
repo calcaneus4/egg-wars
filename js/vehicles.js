@@ -629,3 +629,76 @@ class DinoRider extends Unit {
     ctx.restore();
   }
 }
+
+// Saucer: a little team-coloured flying saucer. Instead of eggs it uses a tractor beam: it hovers
+// over a light enemy trooper, lifts it up and lets go, and the fall costs the trooper 1 hit.
+const SAUCER_BEAM_SECONDS = 1.4;
+
+class Saucer extends Airplane {
+  constructor(x, side, terrain, lane = 0) {
+    super(x, side, terrain, lane);
+    this.speed = settings.airplaneSpeed * 0.6;
+    this.size = s(46);
+    this.hp = 5;
+    this.fireRate = 0.22;
+    this.beam = 0;
+    this.blink = rand(0, 6);
+  }
+
+  canBeam(e) {
+    return !(e instanceof Airplane) && !(e instanceof Castle) && !(e instanceof Tank) && !e.heavy && !e.isBoss && !e.airborne;
+  }
+
+  move(dt) {
+    this.blink += dt;
+    const t = this.beamTarget;
+    if (!(this.beam > 0) || !t || t.dead) {
+      this.beam = 0;
+      super.move(dt);
+      return;
+    }
+    // Hover over the target and reel it in.
+    this.x += (t.x - this.x) * Math.min(1, dt * 4);
+    this.beam = Math.max(0, this.beam - dt);
+    if (t.caughtBy === this) {
+      t.x += (this.x - t.x) * Math.min(1, dt * 3);
+      const top = Math.max(0, this.terrain.yAt(clamp(t.x, 0, W)) - t.groundOffset - (this.flightY + s(30)));
+      t.lift = Math.min(top, (t.lift || 0) + s(150) * dt);
+      t.spin = (t.spin || 0) + dt * 3;
+      if (this.beam <= 0) {
+        // Let go: it tumbles back down (Events.tickUnit lands it for 1 hit).
+        t.caughtBy = null;
+        Events.release(t, 0);
+        t.liftV = 0;
+        this.beamTarget = null;
+      }
+    }
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const y = this.y;
+    ctx.save();
+    if (this.beam > 0 && this.beamTarget && !this.beamTarget.dead) {
+      const t = this.beamTarget;
+      ctx.fillStyle = "rgba(120,255,140,0.22)";
+      ctx.beginPath();
+      ctx.moveTo(this.x - s(12), y + s(6));
+      ctx.lineTo(this.x + s(12), y + s(6));
+      ctx.lineTo(t.x + s(26), t.y + t.size * 0.5);
+      ctx.lineTo(t.x - s(26), t.y + t.size * 0.5);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.translate(this.x, y);
+    ctx.scale(0.9, 0.9);
+    drawUfo(0, 0, this.blink);
+    // Team-coloured rim.
+    ctx.strokeStyle = c;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(0, s(4), s(40), s(8), 0, 0, Math.PI);
+    ctx.stroke();
+    ctx.restore();
+  }
+}

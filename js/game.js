@@ -226,6 +226,7 @@ class Game {
       pogo: settings.maxRightPogos,
       pigeon: settings.maxRightPigeons,
       dino: settings.maxRightDinos,
+      saucer: settings.maxRightSaucers,
     };
   }
 
@@ -267,6 +268,7 @@ class Game {
       pogo: settings.maxLeftPogos,
       pigeon: settings.maxLeftPigeons,
       dino: settings.maxLeftDinos,
+      saucer: settings.maxLeftSaucers,
     };
   }
 
@@ -424,6 +426,7 @@ class Game {
       if (type === "hover") this.units.push(new HoverCoop(s(180) - n * s(44), side, this.terrain));
       if (type === "pogo") this.units.push(new PogoTank(s(240) - n * s(50), side, this.terrain));
       if (type === "pigeon") this.units.push(new PigeonFlock(-s(50) - n * s(110), side, this.terrain, n + 1));
+      if (type === "saucer") this.units.push(new Saucer(-s(50) - n * s(110), side, this.terrain, n + 2));
     } else {
       if (type === "tank") this.units.push(new Tank(W - s(255) + n * s(64), side, this.terrain));
       if (type === "motorcycle") this.units.push(new Motorcycle(W - s(197) + n * s(46), side, this.terrain));
@@ -444,6 +447,7 @@ class Game {
       if (type === "hover") this.units.push(new HoverCoop(W - s(180) + n * s(44), side, this.terrain));
       if (type === "pogo") this.units.push(new PogoTank(W - s(240) + n * s(50), side, this.terrain));
       if (type === "pigeon") this.units.push(new PigeonFlock(W + s(50) + n * s(110), side, this.terrain, n + 1));
+      if (type === "saucer") this.units.push(new Saucer(W + s(50) + n * s(110), side, this.terrain, n + 2));
     }
   }
 
@@ -719,6 +723,7 @@ class Game {
     if (!enemies.length) return;
     if (u instanceof ChickBalloon) return this.dropChick(u, enemies);
     if (u instanceof PigeonFlock) return this.pigeonDive(u, enemies);
+    if (u instanceof Saucer) return this.saucerBeam(u, enemies);
     if (u instanceof MonsterTruck) return this.crush(u, enemies);
     if (u instanceof RollingPinRoller) return this.bonk(u, enemies);
     if (u instanceof Helicopter) {
@@ -765,6 +770,23 @@ class Game {
   }
 
   // Pigeon Flock: dive at an enemy ground unit just ahead; the hit lands at the bottom of the dive.
+  // Saucer: lock a tractor beam onto a light enemy trooper just ahead and lift it up.
+  saucerBeam(u, enemies) {
+    if (u.beam > 0) return;
+    const t = enemies.find((e) => u.canBeam(e) && (e.x - u.x) * u.side > -s(40) && Math.abs(e.x - u.x) < s(240));
+    if (!t) {
+      u.fireClock = 0.2;
+      return;
+    }
+    u.beamTarget = t;
+    u.beam = SAUCER_BEAM_SECONDS;
+    t.caughtBy = u;
+    t.airborne = true;
+    t.lift = t.lift || 0;
+    if (this.canSpeak(t) && Math.random() < 0.5) t.say(choice(["Beam me down!", "I'm floating!", "Put me down!"]), 1.1);
+    audio.play("ufo");
+  }
+
   pigeonDive(u, enemies) {
     if (u.dive > 0) return;
     const t = enemies.find((e) => !(e instanceof Airplane) && !e.airborne && (e.x - u.x) * u.side > 0 && Math.abs(e.x - u.x) < s(320));

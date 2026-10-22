@@ -37,7 +37,7 @@ const PERSONALITIES = {
     id: "air",
     name: "AIR FORCE",
     tell: "The sky fills with planes - airplanes and helicopters shoot them down.",
-    weights: { airplane: 3, helicopter: 2.5, bomber: 2, drone: 2.5, soldier: 1.5, balloon: 1.5, pigeon: 2 },
+    weights: { airplane: 3, helicopter: 2.5, bomber: 2, drone: 2.5, soldier: 1.5, balloon: 1.5, pigeon: 2, saucer: 1.5 },
     budgetScale: 1,
     speedScale: 1,
     hpScale: 1,

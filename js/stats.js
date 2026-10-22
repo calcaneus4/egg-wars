@@ -5,7 +5,7 @@
 
 const UNIT_NAMES = {
   soldier: "Soldier", tank: "Tank", motorcycle: "Motorcycle", drone: "Drone", airplane: "Airplane",
-  helicopter: "Helicopter", bomber: "Bomber", castle: "Castle", medic: "Egg Medic", mortar: "Mortar Hen", rider: "Rooster Rider", catapult: "Catapult Wagon", truck: "Monster Truck", balloon: "Chick Balloon", roller: "Rolling-Pin Roller", hover: "Hover Coop", pogo: "Pogo Tank", pigeon: "Pigeon Flock", dino: "Dino Rider",
+  helicopter: "Helicopter", bomber: "Bomber", castle: "Castle", medic: "Egg Medic", mortar: "Mortar Hen", rider: "Rooster Rider", catapult: "Catapult Wagon", truck: "Monster Truck", balloon: "Chick Balloon", roller: "Rolling-Pin Roller", hover: "Hover Coop", pogo: "Pogo Tank", pigeon: "Pigeon Flock", dino: "Dino Rider", saucer: "Saucer",
 };
 
 const Stats = {
