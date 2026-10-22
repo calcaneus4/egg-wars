@@ -225,6 +225,7 @@ class Game {
       hover: settings.maxRightHovers,
       pogo: settings.maxRightPogos,
       pigeon: settings.maxRightPigeons,
+      dino: settings.maxRightDinos,
     };
   }
 
@@ -265,6 +266,7 @@ class Game {
       hover: settings.maxLeftHovers,
       pogo: settings.maxLeftPogos,
       pigeon: settings.maxLeftPigeons,
+      dino: settings.maxLeftDinos,
     };
   }
 
@@ -414,6 +416,7 @@ class Game {
       if (type === "medic") this.units.push(new Medic(s(110) - n * s(26), side, this.terrain));
       if (type === "mortar") this.units.push(new MortarHen(s(60) + n * s(40), side, this.terrain));
       if (type === "rider") this.units.push(new RoosterRider(s(230) - n * s(30), side, this.terrain));
+      if (type === "dino") this.units.push(new DinoRider(s(220) - n * s(40), side, this.terrain));
       if (type === "catapult") this.units.push(new CatapultWagon(s(40) + n * s(52), side, this.terrain));
       if (type === "truck") this.units.push(new MonsterTruck(s(200) - n * s(56), side, this.terrain));
       if (type === "balloon") this.units.push(new ChickBalloon(-s(60) - n * s(100), side, this.terrain, n));
@@ -433,6 +436,7 @@ class Game {
       if (type === "medic") this.units.push(new Medic(W - s(110) + n * s(26), side, this.terrain));
       if (type === "mortar") this.units.push(new MortarHen(W - s(60) - n * s(40), side, this.terrain));
       if (type === "rider") this.units.push(new RoosterRider(W - s(230) + n * s(30), side, this.terrain));
+      if (type === "dino") this.units.push(new DinoRider(W - s(220) + n * s(40), side, this.terrain));
       if (type === "catapult") this.units.push(new CatapultWagon(W - s(40) - n * s(52), side, this.terrain));
       if (type === "truck") this.units.push(new MonsterTruck(W - s(200) + n * s(56), side, this.terrain));
       if (type === "balloon") this.units.push(new ChickBalloon(W + s(60) + n * s(100), side, this.terrain, n));
@@ -866,7 +870,11 @@ class Game {
       u.fireClock = 0.1;
       return;
     }
-    this.damageUnit(target, 1);
+    this.damageUnit(target, u.biteDamage || 1);
+    if (u.biteDamage) {
+      u.chomp = 1;
+      audio.play("roar");
+    }
     Effects.sparks(target.x - u.side * target.radius() * 0.4, target.y - target.size * 0.3, 5);
   }
 

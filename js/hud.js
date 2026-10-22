@@ -3,7 +3,7 @@
 // Battle HUD: unit shop bar (top left), stage/time/gold panel (top centre), enemy roster
 // (top right), XP bar and next-unlock teaser, and the Yolk Drop ability ring (bottom left).
 
-const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle", "medic", "mortar", "rider", "catapult", "truck", "balloon", "roller", "hover", "pogo", "pigeon"];
+const SHOP_ORDER = ["soldier", "tank", "motorcycle", "drone", "airplane", "helicopter", "bomber", "castle", "medic", "mortar", "rider", "catapult", "truck", "balloon", "roller", "hover", "pogo", "pigeon", "dino"];
 const SHOP_KEYS = ["1", "2", "3", "4", "5", "6"];
 const SHOP_ROW = 8;
 // The enemy roster shows at most this many unit types (two rows of four).
@@ -124,6 +124,14 @@ function drawUnitIconDirect(type, x, y, size, color) {
     ctx.beginPath(); ctx.ellipse(0, 0, 17, 6, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     path([[-17, 0], [-24, -4]], false); ctx.lineWidth *= 1.6; ctx.stroke();
     ctx.beginPath(); ctx.rect(-4, -12, 10, 7); ctx.stroke();
+  } else if (type === "dino") {
+    ctx.beginPath(); ctx.ellipse(-4, 4, 11, 8, -0.25, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    path([[4, -4], [20, -6], [20, 0], [4, 2]]); ctx.fill(); ctx.stroke();
+    path([[-14, 4], [-22, 12]], false); ctx.stroke();
+    path([[-6, 12], [-8, 20]], false); ctx.stroke();
+    path([[2, 12], [4, 20]], false); ctx.stroke();
+    ring(-6, -12, 3);
+    path([[-6, -9], [-6, -2]], false); ctx.stroke();
   } else if (type === "pigeon") {
     for (const [px, py] of [[-8, 4], [6, -6], [8, 10]]) {
       ctx.beginPath(); ctx.ellipse(px, py, 7, 4, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();

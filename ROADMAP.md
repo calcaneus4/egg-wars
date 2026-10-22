@@ -269,7 +269,7 @@ events (at most 1 hit per unit), and a flat frame cost checked in the final revi
 - [x] **Weather: Gusty Gale** - the wind keeps flipping direction every few seconds.
 - [x] **Biome: Prehistoric Valley** - ferns and volcanoes in the distance, with bubbling tar pits that slow troops.
 - [x] **Egg: Hot Sauce** - enemies in the splash panic and run backwards for a moment without firing.
-- [ ] **Vehicle: Dino Rider** - a small T-rex with a rider that chomps enemies up close.
+- [x] **Vehicle: Dino Rider** - a small T-rex with a rider that chomps enemies up close.
 - [ ] **Power: Healing Rain** - a warm shower heals every unit in your army.
 - [ ] **Boss: Dino Mama** - a giant T-rex that roars troops back and sweeps its tail.
 

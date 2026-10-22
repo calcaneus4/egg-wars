@@ -526,3 +526,106 @@ class PigeonFlock extends Airplane {
     ctx.restore();
   }
 }
+
+const DINO_DRAW_SCALE = 1.4;
+
+// Dino Rider: a little T-rex with a rider on its back. Tough and fairly quick, it walks up to the
+// enemy line and chomps whatever is in front of it for 2 hits.
+class DinoRider extends Unit {
+  constructor(x, side, terrain) {
+    super(x, side, terrain);
+    this.speed = settings.soldierSpeed * 1.4;
+    this.size = s(62);
+    this.groundOffset = s(42);
+    this.hp = 7;
+    this.fireRate = 0.7;
+    this.melee = true;
+    this.heavy = true;
+    this.biteDamage = 2;
+    this.chomp = 0;
+    this.stride = 0;
+  }
+
+  move(dt, enemies) {
+    const before = this.x;
+    super.move(dt, enemies);
+    this.stride += Math.abs(this.x - before) * 0.15;
+    this.chomp = Math.max(0, this.chomp - dt * 3);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    const d = this.side;
+    const step = Math.sin(this.stride);
+    ctx.save();
+    // Drawn at 1.4x around its centre so it stands taller than the infantry.
+    ctx.translate(x, y);
+    ctx.scale(DINO_DRAW_SCALE, DINO_DRAW_SCALE);
+    ctx.translate(-x, -y);
+    ctx.strokeStyle = c;
+    ctx.lineWidth = sw(2);
+    // Legs and tail.
+    line(x - d * s(6), y + s(10), x - d * s(10) + step * s(6), y + s(30), c, sw(4));
+    line(x + d * s(6), y + s(10), x + d * s(10) - step * s(6), y + s(30), c, sw(4));
+    ctx.beginPath();
+    ctx.moveTo(x - d * s(14), y);
+    ctx.quadraticCurveTo(x - d * s(34), y + s(2), x - d * s(44), y + s(12));
+    ctx.quadraticCurveTo(x - d * s(30), y + s(10), x - d * s(12), y + s(10));
+    ctx.closePath();
+    teamFill(c, 0.35);
+    ctx.stroke();
+    // Body.
+    ctx.beginPath();
+    ctx.ellipse(x, y + s(2), s(18), s(13), -d * 0.25, 0, Math.PI * 2);
+    teamFill(c, 0.35);
+    ctx.stroke();
+    // Big head with a snapping jaw.
+    const hx = x + d * s(22);
+    const hy = y - s(14);
+    const open = 0.15 + this.chomp * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(hx - d * s(6), hy - s(8));
+    ctx.lineTo(hx + d * s(16), hy - s(5));
+    ctx.lineTo(hx + d * s(16), hy + s(1));
+    ctx.lineTo(hx - d * s(6), hy + s(3));
+    ctx.closePath();
+    teamFill(c, 0.45);
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(hx - d * s(4), hy + s(3));
+    ctx.rotate(d * open);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(d * s(18), 0);
+    ctx.lineTo(d * s(16), s(5));
+    ctx.lineTo(0, s(5));
+    ctx.closePath();
+    teamFill(c, 0.45);
+    ctx.stroke();
+    ctx.restore();
+    // Teeth, eye and tiny arms.
+    ctx.fillStyle = WHITE;
+    for (let k = 0; k < 3; k++) {
+      ctx.beginPath();
+      ctx.moveTo(hx + d * s(4 + k * 4), hy + s(1));
+      ctx.lineTo(hx + d * s(6 + k * 4), hy + s(4));
+      ctx.lineTo(hx + d * s(8 + k * 4), hy + s(1));
+      ctx.fill();
+    }
+    ctx.fillStyle = LINE;
+    ctx.beginPath();
+    ctx.arc(hx + d * s(2), hy - s(4), s(1.8), 0, Math.PI * 2);
+    ctx.fill();
+    line(x + d * s(14), y - s(2), x + d * s(20), y + s(3), c, sw(2));
+    // Rider holding the reins.
+    line(x - d * s(2), y - s(10), x - d * s(2), y - s(24), c);
+    ctx.beginPath();
+    ctx.arc(x - d * s(2), y - s(28), s(4), 0, Math.PI * 2);
+    teamFill(c, 0.75);
+    ctx.stroke();
+    line(x - d * s(2), y - s(18), hx, hy - s(4), LINE, sw(1));
+    ctx.restore();
+  }
+}
