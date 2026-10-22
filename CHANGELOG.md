@@ -43,6 +43,17 @@ following, all in the original hand-drawn side-view style:
   - A headless smoke test (`tools/smoke-test.js`).
   - The balance simulator.
 
+## Phase 7 summary
+
+The seventh loop:
+- **4 detour events:** Dinosaur Stampede, Lost Rideshare Driver, Pizza Delivery and Giggle Fits
+  (26 events in all, still at most one per stage).
+- **Prehistoric Valley biome** (stages 56-60) with tar pits. 12 biomes, 60 stages per lap.
+- **Gusty Gale** weather (the wind flips direction every 6 s).
+- **Hot Sauce egg, Dino Rider and Healing Rain power.** All arrive through the same 6-card /
+  3-egg / 2-power kit, so the screen stays calm. The Powers screen fits all 10 powers.
+- **Dino Mama boss:** 10 bosses in the rotation.
+
 ## Phase 6 summary
 
 The sixth loop:
