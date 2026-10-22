@@ -1,7 +1,7 @@
 "use strict";
 
 // Biomes: each run of five stages takes place in a different land with its own terrain shape,
-// ground colour, background decorations and weather. After the Moon Base the cycle repeats.
+// ground colour, background decorations and weather. After the Prehistoric Valley the cycle repeats.
 
 const BIOME_STAGES = 5;
 
@@ -13,7 +13,7 @@ const BIOMES = [
     ground: null,
     grass: true,
     decor: "trees",
-    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5, fog: 1, storm: 1.2, hail: 0.6, pollen: 1.5, rainbow: 1.2 },
+    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5, fog: 1, storm: 1.2, hail: 0.6, pollen: 1.5, rainbow: 1.2, gale: 1 },
   },
   {
     id: "desert",
@@ -33,7 +33,7 @@ const BIOMES = [
     grass: false,
     snowCap: true,
     decor: "pines",
-    weather: { snow: 5, clear: 2, windy: 2, fog: 1.5, hail: 1.5, blizzard: 2 },
+    weather: { snow: 5, clear: 2, windy: 2, fog: 1.5, hail: 1.5, blizzard: 2, gale: 1.2 },
   },
   {
     id: "volcano",
@@ -93,7 +93,7 @@ const BIOMES = [
     grass: false,
     beach: true,
     decor: "palms",
-    weather: { clear: 5, windy: 2, heat: 1.5, storm: 0.5, rainbow: 1.5 },
+    weather: { clear: 5, windy: 2, heat: 1.5, storm: 0.5, rainbow: 1.5, gale: 1.5 },
   },
   {
     id: "jungle",
@@ -116,6 +116,16 @@ const BIOMES = [
     gravity: 0.6,
     // No air, no weather - just the odd meteor shower at night.
     weather: { clear: 1 },
+  },
+  {
+    id: "prehistoric",
+    name: "Prehistoric Valley",
+    terrain: { minY: 0.62, maxY: 0.87, rough: 115, smooth: 4 },
+    ground: [125, 80, 45, 0.34],
+    grass: true,
+    fossils: true,
+    decor: "ferns",
+    weather: { clear: 4, rain: 1.5, heat: 1.5, storm: 1, fog: 1, gale: 1.5 },
   },
 ];
 

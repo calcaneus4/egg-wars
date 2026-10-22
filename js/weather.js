@@ -27,6 +27,7 @@ const METEOR_PERIOD = [4, 7];
 const METEOR_WARN = 1.4;
 const METEOR_RADIUS = 38;
 const BLIZZARD_SLOW = 0.85;
+const GALE_SWING = 6;
 
 const WEATHER_INFO = {
   clear: { label: "" },
@@ -36,6 +37,7 @@ const WEATHER_INFO = {
   fog: { label: "FOG", minStage: 6, tip: "Fog! Ground troops can only see enemies close by - aircraft see fine." },
   storm: { label: "THUNDERSTORM", minStage: 9, tip: "Thunderstorm! Lightning strikes where the ground flickers - both armies get zapped." },
   hail: { label: "HAIL", minStage: 12, tip: "Hail! Aircraft get dinged by hailstones now and then." },
+  gale: { label: "GUSTY GALE", minStage: 8, tip: "Gusty gale! A strong wind that flips direction every few seconds - watch the wind sock." },
   rainbow: { label: "RAINBOW", minStage: 6, tip: "A rainbow! Units standing under it fire 25% faster - both armies." },
   pollen: { label: "POLLEN STORM", minStage: 7, tip: "Pollen storm! Troops sneeze now and then and their shots go wild." },
   meteor: { label: "METEOR SHOWER", minStage: 10, nightOnly: true, tip: "Meteor shower! Glowing rings mark where shooting stars will land - both armies get singed." },
@@ -68,12 +70,12 @@ const Weather = {
     }
     if (force) this.type = force;
     const dir = random() < 0.5 ? -1 : 1;
-    const strength = this.type === "sandstorm" ? 0.85 + random() * 0.15 : this.type === "windy" ? 0.7 + random() * 0.3 : this.type === "clear" ? random() * 0.15 : 0.15 + random() * 0.3;
+    const strength = this.type === "sandstorm" ? 0.85 + random() * 0.15 : this.type === "windy" ? 0.7 + random() * 0.3 : this.type === "gale" ? 0.85 + random() * 0.15 : this.type === "clear" ? random() * 0.15 : 0.15 + random() * 0.3;
     this.baseWind = dir * strength;
     this.wind = this.baseWind;
     this.gust = 0;
     this.drops = [];
-    const count = { pollen: 90, rain: 160, storm: 190, snow: 110, blizzard: 160, windy: 18, hail: 70, sandstorm: 70 }[this.type] || 0;
+    const count = { pollen: 90, rain: 160, storm: 190, snow: 110, blizzard: 160, windy: 18, gale: 30, hail: 70, sandstorm: 70 }[this.type] || 0;
     for (let i = 0; i < count; i++) this.drops.push(this.newDrop(true));
     this.fogBanks = [];
     if (this.type === "fog") {
@@ -100,7 +102,7 @@ const Weather = {
   },
 
   isWindy() {
-    return this.type === "windy" || this.type === "sandstorm";
+    return this.type === "windy" || this.type === "sandstorm" || this.type === "gale";
   },
 
   // Extra random aim error (px) for aircraft dropping or shooting eggs through a sandstorm.
@@ -229,7 +231,14 @@ const Weather = {
       if (f.x - f.r > W) f.x = -f.r;
       if (f.x + f.r < 0) f.x = W + f.r;
     }
-    this.wind = this.baseWind * (1 + 0.25 * Math.sin(this.gust * 0.7));
+    if (this.type === "gale") {
+      // A gale swings round every GALE_SWING seconds, with a howl as it turns.
+      const prev = this.wind;
+      this.wind = this.baseWind * Math.tanh(3 * Math.cos((this.gust * Math.PI) / GALE_SWING));
+      if (Math.sign(prev) !== Math.sign(this.wind) && this.gust > 1) audio.play("wind_howl");
+    } else {
+      this.wind = this.baseWind * (1 + 0.25 * Math.sin(this.gust * 0.7));
+    }
     const windPx = this.wind * 120;
     for (const d of this.drops) {
       if (this.isRainy()) {

@@ -191,6 +191,42 @@ class Background {
         g.fill();
         g.stroke();
       }
+    } else if (kind === "ferns") {
+      if (random() < 0.25) {
+        // A smoking volcano far off.
+        g.moveTo(x - h * 0.9, y + 2);
+        g.lineTo(x - h * 0.2, y - h * 1.1);
+        g.lineTo(x + h * 0.2, y - h * 1.1);
+        g.lineTo(x + h * 0.9, y + 2);
+        g.closePath();
+        g.fill();
+        g.stroke();
+        for (let k = 0; k < 3; k++) {
+          g.beginPath();
+          g.arc(x + k * h * 0.12, y - h * (1.25 + k * 0.18), h * (0.1 + k * 0.04), 0, Math.PI * 2);
+          g.stroke();
+        }
+      } else {
+        // A clump of arching fern fronds.
+        g.lineWidth = 2;
+        for (let k = -2; k <= 2; k++) {
+          const tx = x + k * h * 0.3;
+          const ty = y - h * (0.9 - Math.abs(k) * 0.2);
+          g.beginPath();
+          g.moveTo(x, y + 2);
+          g.quadraticCurveTo(x + k * h * 0.05, ty - h * 0.2, tx, ty);
+          g.stroke();
+          for (let f = 1; f < 5; f++) {
+            const fx = x + (tx - x) * (f / 5);
+            const fy = y + (ty - y) * (f / 5) - h * 0.1 * Math.sin((f / 5) * Math.PI);
+            g.beginPath();
+            g.moveTo(fx - h * 0.08, fy - h * 0.05);
+            g.lineTo(fx + h * 0.08, fy + h * 0.05);
+            g.stroke();
+          }
+        }
+        g.lineWidth = 1.5;
+      }
     } else if (kind === "domes") {
       // Moon-base domes and radio masts.
       if (random() < 0.6) {

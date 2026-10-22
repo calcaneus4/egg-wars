@@ -232,6 +232,30 @@ class Terrain {
         g.restore();
       }
     }
+    if (biome.fossils) {
+      // Old bones buried in the soil.
+      g.strokeStyle = "rgba(240,232,210,0.7)";
+      g.lineWidth = 3;
+      g.lineCap = "round";
+      for (let i = 0; i < 9; i++) {
+        const x = random() * W;
+        const y = this.yAt(x) + 20 + random() * 80;
+        const a = random() * Math.PI;
+        const len = 10 + random() * 10;
+        const dx = Math.cos(a) * len;
+        const dy = Math.sin(a) * len;
+        g.beginPath();
+        g.moveTo(x - dx, y - dy);
+        g.lineTo(x + dx, y + dy);
+        g.stroke();
+        for (const e of [-1, 1]) {
+          g.beginPath();
+          g.arc(x + e * dx, y + e * dy, 3.5, 0, Math.PI * 2);
+          g.stroke();
+        }
+      }
+      g.lineCap = "butt";
+    }
     if (biome.jungle) {
       // Roots and fallen leaves in the dark soil.
       g.strokeStyle = "rgba(90,60,30,0.45)";

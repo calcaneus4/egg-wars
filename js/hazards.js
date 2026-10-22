@@ -15,6 +15,7 @@ const HAZARD_TYPES = {
   syrup: { biome: "candy", width: 80, period: [6, 9], warn: 1.2, sticky: 2.5, name: "Syrup geysers", tip: "Syrup geysers glue troops in place for a moment - both armies." },
   grave: { biome: "graveyard", width: 70, period: [6, 9], warn: 1.2, hold: 1.6, name: "Restless graves", tip: "Restless graves! Skeleton hands grab anyone standing on them for a moment." },
   vines: { biome: "jungle", width: 110, period: [6, 9], warn: 1.2, hold: 1.2, sound: "slime", name: "Creeping vines", tip: "Creeping vines lash out and tangle anyone standing on them for a moment." },
+  tar: { biome: "prehistoric", width: 120, speed: 0.35, name: "Tar pits", tip: "Bubbling tar pits slow ground units right down - a fine spot for a Yolk Drop." },
   tide: { biome: "beach", width: 140, speed: 0.55, name: "Tide pools", tip: "Tide pools slow ground units down - wade carefully." },
   geyser: { biome: "kitchen", width: 80, period: [6, 9], warn: 1.2, name: "Hot pans", tip: "Hot pans blast steam every few seconds - keep your troops clear." },
 };
@@ -167,8 +168,8 @@ const Hazards = {
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
-      } else if (z.type === "mud") {
-        ctx.fillStyle = "rgba(95,70,40,0.6)";
+      } else if (z.type === "mud" || z.type === "tar") {
+        ctx.fillStyle = z.type === "tar" ? "rgba(30,25,25,0.78)" : "rgba(95,70,40,0.6)";
         ctx.strokeStyle = rgbaFromHex(LINE, 0.55);
         ctx.lineWidth = 1.5;
         ctx.beginPath();
