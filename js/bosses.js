@@ -1513,7 +1513,173 @@ class DinoMama extends Boss {
   }
 }
 
-const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake", "toaster", "waffle", "blender", "dino"];
+// Alien Mothership: a huge saucer cruising over the field. It drops ray blasts on the troops
+// below, and every few seconds hovers and beams troopers up (two at once when enraged), then lets
+// them drop. Enraged, it also sweeps a line of blasts across the field.
+const MOTHERSHIP_BEAM_SECONDS = 1.8;
+
+class AlienMothership extends Airplane {
+  constructor(x, side, terrain, maxHp) {
+    super(x, side, terrain, 0);
+    this.isBoss = true;
+    this.name = "ALIEN MOTHERSHIP";
+    this.hp = maxHp;
+    this.maxHp = maxHp;
+    this.size = s(200);
+    this.flightY = H * 0.26;
+    this.speed = 38;
+    this.dir = -1;
+    this.fireRate = 0;
+    this.attackClock = 2;
+    this.specialClock = 6;
+    this.slowAttack = 1.6;
+    this.fastAttack = 1.1;
+    this.specialEvery = 6;
+    this.beamClock = 4;
+    this.beam = 0;
+    this.held = [];
+    this.blink = 0;
+  }
+
+  get enraged() {
+    return this.hp <= this.maxHp / 2;
+  }
+
+  radius() {
+    return this.size * 0.45;
+  }
+
+  ready() {
+    return false;
+  }
+
+  move(dt) {
+    this.blink += dt;
+    if (this.beam > 0) return;
+    const speed = this.speed * (this.enraged ? 1.4 : 1);
+    this.x += this.dir * speed * dt;
+    if (this.x < W * 0.25) this.dir = 1;
+    if (this.x > W * 0.85) this.dir = -1;
+    this.flightY = H * 0.26 + Math.sin(this.blink) * 8;
+  }
+
+  attack(game, enemies) {
+    const ground = enemies.filter((e) => Hazards.isGround(e));
+    const t = ground.sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x))[0];
+    const tx = t ? t.x : this.x;
+    game.lobEgg(this.x, this.y + s(30), tx + rand(-30, 30), t ? t.y : this.terrain.yAt(this.x), this.side, this.enraged ? 2 : 1, 1.1, "zapShard");
+    audio.play("zap");
+  }
+
+  special(game) {
+    for (let i = 0; i < 5; i++) {
+      const tx = clamp(this.x + this.side * s(120) * (i - 2) + rand(-20, 20), s(40), W - s(40));
+      game.lobEgg(this.x, this.y + s(30), tx, this.terrain.yAt(tx), this.side, 0, 1 + i * 0.1, "zapShard");
+    }
+    if (game.canSpeak(this)) this.say("RAY SWEEP!", 1.2);
+    audio.play("zap");
+  }
+
+  updateBoss(game, dt, enemies) {
+    this.beamClock -= dt;
+    if (this.beam <= 0 && this.beamClock <= 0) {
+      this.beamClock = this.enraged ? 6 : 8;
+      const picks = enemies.filter((e) => Hazards.isGround(e) && !e.isBoss && !e.heavy && !(e instanceof Tank) && !e.airborne && Math.abs(e.x - this.x) < s(900))
+        .sort((a, b) => Math.abs(a.x - this.x) - Math.abs(b.x - this.x))
+        .slice(0, this.enraged ? 2 : 1);
+      if (picks.length) {
+        this.beam = MOTHERSHIP_BEAM_SECONDS;
+        this.held = picks;
+        for (const u of picks) {
+          u.caughtBy = this;
+          u.airborne = true;
+          u.lift = u.lift || 0;
+          if (game.canSpeak(u)) u.say(choice(["NOT THE PROBE!", "Beam me down!", "Help!"]), 1.2);
+        }
+        audio.play("ufo");
+      } else {
+        // Nobody to grab yet: look again shortly.
+        this.beamClock = 1;
+      }
+    }
+    if (this.beam > 0) {
+      this.beam = Math.max(0, this.beam - dt);
+      for (const u of this.held) {
+        if (u.dead || u.caughtBy !== this) continue;
+        u.x += (this.x - u.x) * Math.min(1, dt * 2);
+        const top = Math.max(0, this.terrain.yAt(clamp(u.x, 0, W)) - u.groundOffset - (this.y + s(40)));
+        u.lift = Math.min(top, (u.lift || 0) + s(200) * dt);
+        u.spin = (u.spin || 0) + dt * 4;
+        if (this.beam <= 0) {
+          u.caughtBy = null;
+          Events.release(u, rand(-80, 80));
+          u.liftV = 0;
+        }
+      }
+      if (this.beam <= 0) this.held = [];
+    }
+    Boss.prototype.updateBoss.call(this, game, dt, enemies);
+  }
+
+  draw() {
+    const c = teamColor(this.side);
+    const x = this.x;
+    const y = this.y;
+    ctx.save();
+    if (this.beam > 0) {
+      const g = this.terrain.yAt(clamp(x, 0, W));
+      ctx.fillStyle = "rgba(120,255,140,0.2)";
+      ctx.beginPath();
+      ctx.moveTo(x - s(30), y + s(20));
+      ctx.lineTo(x + s(30), y + s(20));
+      ctx.lineTo(x + s(110), g);
+      ctx.lineTo(x - s(110), g);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(3);
+    // Glass dome with a big-headed pilot.
+    ctx.fillStyle = "rgba(170,230,255,0.8)";
+    ctx.beginPath();
+    ctx.ellipse(x, y - s(18), s(42), s(36), 0, Math.PI, 0);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#7fd36a";
+    ctx.beginPath();
+    ctx.ellipse(x, y - s(32), s(14), s(12), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = LINE;
+    ctx.beginPath();
+    ctx.ellipse(x - s(5), y - s(33), s(4), s(6), 0.3, 0, Math.PI * 2);
+    ctx.ellipse(x + s(5), y - s(33), s(4), s(6), -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    // Hull, team-coloured rim and running lights.
+    ctx.fillStyle = "#b8bcc6";
+    ctx.beginPath();
+    ctx.ellipse(x, y, s(100), s(24), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = c;
+    ctx.lineWidth = sw(4);
+    ctx.beginPath();
+    ctx.ellipse(x, y + s(4), s(92), s(16), 0, 0, Math.PI);
+    ctx.stroke();
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = sw(2);
+    for (let i = 0; i < 9; i++) {
+      ctx.fillStyle = Math.floor(this.blink * 6 + i) % 2 ? YOLK : this.enraged ? RED : "#7fd36a";
+      ctx.beginPath();
+      ctx.arc(x - s(76) + i * s(19), y + s(4), s(5), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+const BOSS_ROTATION = ["mech", "fortress", "zeppelin", "hen", "kraken", "pancake", "toaster", "waffle", "blender", "dino", "mothership"];
 const BOSS_NAMES = {
   mech: "Giant Rooster Mech",
   fortress: "Omelet Fortress",
@@ -1525,6 +1691,7 @@ const BOSS_NAMES = {
   waffle: "Waffle Iron Warlord",
   blender: "Blender Beast",
   dino: "Dino Mama",
+  mothership: "Alien Mothership",
 };
 
 const Bosses = {
@@ -1556,6 +1723,7 @@ const Bosses = {
                 : kind === "waffle" ? new WaffleWarlord(W - s(330), LEFT, game.terrain, hp)
                   : kind === "blender" ? new BlenderBeast(W - s(330), LEFT, game.terrain, hp)
                     : kind === "dino" ? new DinoMama(W - s(330), LEFT, game.terrain, hp)
+                      : kind === "mothership" ? new AlienMothership(W * 0.7, LEFT, game.terrain, hp)
             : new ScramblerZeppelin(W * 0.7, LEFT, game.terrain, hp);
     boss.statScaled = true;
     game.units.push(boss);
