@@ -1,7 +1,7 @@
 "use strict";
 
 // Biomes: each run of five stages takes place in a different land with its own terrain shape,
-// ground colour, background decorations and weather. After the Prehistoric Valley the cycle repeats.
+// ground colour, background decorations and weather. After the Alien Planet the cycle repeats.
 
 const BIOME_STAGES = 5;
 
@@ -126,6 +126,17 @@ const BIOMES = [
     fossils: true,
     decor: "ferns",
     weather: { clear: 4, rain: 1.5, heat: 1.5, storm: 1, fog: 1, gale: 1.5 },
+  },
+  {
+    id: "alien",
+    name: "Alien Planet",
+    terrain: { minY: 0.63, maxY: 0.86, rough: 100, smooth: 5 },
+    ground: [130, 70, 165, 0.3],
+    grass: false,
+    crystals: true,
+    decor: "spires",
+    gravity: 0.8,
+    weather: { clear: 4, fog: 1.5, storm: 1, gale: 1, heat: 0.8 },
   },
 ];
 

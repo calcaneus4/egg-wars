@@ -28,6 +28,7 @@ const METEOR_WARN = 1.4;
 const METEOR_RADIUS = 38;
 const BLIZZARD_SLOW = 0.85;
 const GALE_SWING = 6;
+const AURORA_DAZZLE = 0.75;
 
 const WEATHER_INFO = {
   clear: { label: "" },
@@ -40,6 +41,7 @@ const WEATHER_INFO = {
   gale: { label: "GUSTY GALE", minStage: 8, tip: "Gusty gale! A strong wind that flips direction every few seconds - watch the wind sock." },
   rainbow: { label: "RAINBOW", minStage: 6, tip: "A rainbow! Units standing under it fire 25% faster - both armies." },
   pollen: { label: "POLLEN STORM", minStage: 7, tip: "Pollen storm! Troops sneeze now and then and their shots go wild." },
+  aurora: { label: "AURORA", minStage: 9, nightOnly: true, tip: "Aurora! The shimmering lights dazzle pilots: aircraft fly and fire 25% slower." },
   meteor: { label: "METEOR SHOWER", minStage: 10, nightOnly: true, tip: "Meteor shower! Glowing rings mark where shooting stars will land - both armies get singed." },
   blizzard: { label: "BLIZZARD", minStage: 11, tip: "Blizzard! Heavy snow slows every ground unit a little." },
   sandstorm: { label: "SANDSTORM", minStage: 8, tip: "Sandstorm! Strong winds push every egg, and aircraft can barely aim through the dust." },
@@ -61,6 +63,8 @@ const Weather = {
       : WEATHER_TYPES).filter((w) => stage >= ((WEATHER_INFO[w.id] || {}).minStage || 0));
     // Meteor showers can happen on any night stage, whatever the biome.
     if (stage >= WEATHER_INFO.meteor.minStage && Sky.phaseForStage(stage) === "night") table.push({ id: "meteor", weight: 1.2 });
+    // So can an aurora, most of all in cold or alien skies.
+    if (stage >= WEATHER_INFO.aurora.minStage && Sky.phaseForStage(stage) === "night") table.push({ id: "aurora", weight: biome && (biome.id === "snow" || biome.id === "alien") ? 3 : 1.2 });
     if (stage <= 2) {
       this.type = "clear";
     } else {
@@ -112,6 +116,7 @@ const Weather = {
 
   // Movement multiplier for a ground unit (a blizzard slows everyone on foot or wheels).
   unitSpeed(u) {
+    if (this.type === "aurora" && u instanceof Airplane && !u.isBoss) return AURORA_DAZZLE;
     return this.type === "blizzard" && Hazards.isGround(u) ? BLIZZARD_SLOW : 1;
   },
 
@@ -124,6 +129,7 @@ const Weather = {
 
   // Units under the rainbow (the middle 40% of the field) fire 25% faster.
   fireBoost(u) {
+    if (this.type === "aurora") return u instanceof Airplane && !u.isBoss ? AURORA_DAZZLE : 1;
     if (this.type !== "rainbow" || Math.abs(u.x - W / 2) > W * 0.2) return 1;
     return 1.25;
   },
@@ -321,6 +327,29 @@ const Weather = {
 
   // Fog banks, heat shimmer, the storm's gloom and lightning; drawn over the battlefield.
   drawOverlay(game) {
+    if (this.type === "aurora") {
+      // Three slowly rippling curtains of light high in the sky.
+      ctx.save();
+      const t = this.time;
+      const fade = Math.min(1, t * 0.5);
+      [["rgba(90,240,160,", 0.1], ["rgba(140,110,240,", 0.17], ["rgba(80,200,230,", 0.24]].forEach(([col, base], k) => {
+        ctx.fillStyle = col + (0.3 * fade).toFixed(3) + ")";
+        ctx.beginPath();
+        for (let i = 0; i <= 24; i++) {
+          const x = (i / 24) * W;
+          const y = H * base + Math.sin(i * 0.5 + t * 0.6 + k * 2) * 18 + Math.sin(i * 0.17 - t * 0.3) * 12;
+          if (i) ctx.lineTo(x, y);
+          else ctx.moveTo(x, y);
+        }
+        for (let i = 24; i >= 0; i--) {
+          const x = (i / 24) * W;
+          ctx.lineTo(x, H * base - 50 - Math.sin(i * 0.4 + t * 0.5 + k) * 20);
+        }
+        ctx.closePath();
+        ctx.fill();
+      });
+      ctx.restore();
+    }
     if (this.type === "fog") {
       ctx.save();
       ctx.fillStyle = rgbaFromHex(PAPER, 0.12);

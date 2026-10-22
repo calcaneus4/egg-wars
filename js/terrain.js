@@ -232,6 +232,25 @@ class Terrain {
         g.restore();
       }
     }
+    if (biome.crystals) {
+      // Glowing crystals poking out of the soil.
+      for (let i = 0; i < 14; i++) {
+        const x = random() * W;
+        const y = this.yAt(x) + 14 + random() * 80;
+        const h = 8 + random() * 12;
+        g.fillStyle = random() < 0.5 ? "rgba(120,230,220,0.7)" : "rgba(220,140,255,0.7)";
+        g.strokeStyle = "rgba(60,30,80,0.6)";
+        g.lineWidth = 1;
+        g.beginPath();
+        g.moveTo(x - h * 0.3, y);
+        g.lineTo(x, y - h);
+        g.lineTo(x + h * 0.3, y);
+        g.lineTo(x, y + h * 0.3);
+        g.closePath();
+        g.fill();
+        g.stroke();
+      }
+    }
     if (biome.fossils) {
       // Old bones buried in the soil.
       g.strokeStyle = "rgba(240,232,210,0.7)";

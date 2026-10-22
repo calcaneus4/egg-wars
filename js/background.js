@@ -191,6 +191,34 @@ class Background {
         g.fill();
         g.stroke();
       }
+    } else if (kind === "spires") {
+      // Alien crystal spires and mushroom-like towers.
+      if (random() < 0.5) {
+        g.moveTo(x - h * 0.15, y + 2);
+        g.lineTo(x, y - h * 1.3);
+        g.lineTo(x + h * 0.15, y + 2);
+        g.closePath();
+        g.fill();
+        g.stroke();
+        g.beginPath();
+        g.moveTo(x + h * 0.2, y + 2);
+        g.lineTo(x + h * 0.3, y - h * 0.7);
+        g.lineTo(x + h * 0.42, y + 2);
+        g.closePath();
+        g.fill();
+        g.stroke();
+      } else {
+        g.moveTo(x, y + 2);
+        g.lineTo(x, y - h * 0.8);
+        g.lineWidth = 3;
+        g.stroke();
+        g.lineWidth = 1.5;
+        g.beginPath();
+        g.ellipse(x, y - h * 0.85, h * 0.4, h * 0.18, 0, Math.PI, 0);
+        g.closePath();
+        g.fill();
+        g.stroke();
+      }
     } else if (kind === "ferns") {
       if (random() < 0.25) {
         // A smoking volcano far off.
@@ -377,6 +405,16 @@ class Background {
   drawSunOrMoon() {
     if (this.biome && this.biome.id === "moon") {
       drawEarth(1010, 130);
+      return;
+    }
+    if (this.biome && this.biome.id === "alien") {
+      // Two moons in the alien sky, day or night.
+      drawMoon(1010, 130, this.time);
+      ctx.save();
+      ctx.translate(900, 90);
+      ctx.scale(0.5, 0.5);
+      drawMoon(0, 0, this.time);
+      ctx.restore();
       return;
     }
     if (Sky.isNight()) drawMoon(1010, 130, this.time);

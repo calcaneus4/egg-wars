@@ -16,6 +16,7 @@ const HAZARD_TYPES = {
   grave: { biome: "graveyard", width: 70, period: [6, 9], warn: 1.2, hold: 1.6, name: "Restless graves", tip: "Restless graves! Skeleton hands grab anyone standing on them for a moment." },
   vines: { biome: "jungle", width: 110, period: [6, 9], warn: 1.2, hold: 1.2, sound: "slime", name: "Creeping vines", tip: "Creeping vines lash out and tangle anyone standing on them for a moment." },
   tar: { biome: "prehistoric", width: 120, speed: 0.35, name: "Tar pits", tip: "Bubbling tar pits slow ground units right down - a fine spot for a Yolk Drop." },
+  warp: { biome: "alien", width: 60, name: "Warp pads", tip: "Warp pads! Step on one and you pop out of the other - both armies." },
   tide: { biome: "beach", width: 140, speed: 0.55, name: "Tide pools", tip: "Tide pools slow ground units down - wade carefully." },
   geyser: { biome: "kitchen", width: 80, period: [6, 9], warn: 1.2, name: "Hot pans", tip: "Hot pans blast steam every few seconds - keep your troops clear." },
 };
@@ -31,7 +32,7 @@ const Hazards = {
     // One pair mirrored around the centre, and sometimes one in the exact middle.
     const offset = rand(W * 0.1, W * 0.2);
     const xs = [W / 2 - offset, W / 2 + offset];
-    if (Math.random() < 0.5) xs.push(W / 2);
+    if (Math.random() < 0.5 && type !== "warp") xs.push(W / 2);
     for (const x of xs) {
       this.zones.push({ type, def, x, half: def.width / 2, timer: def.period ? rand(def.period[0], def.period[1]) : 0, flash: 0 });
     }
@@ -55,6 +56,7 @@ const Hazards = {
   },
 
   update(game, dt) {
+    if (this.zones.length && this.zones[0].type === "warp") this.warp(game, dt);
     for (const z of this.zones) {
       z.flash = Math.max(0, z.flash - dt);
       if (!z.def.period) continue;
@@ -69,6 +71,27 @@ const Hazards = {
         z.flash = 0.6;
         this.erupt(game, z, ground);
       }
+    }
+  },
+
+  // Warp pads come in a mirrored pair: a ground unit stepping on one pops out of the other.
+  warp(game, dt) {
+    const [a, b] = this.zones;
+    for (const u of game.living()) {
+      if (u.warpCool > 0) {
+        u.warpCool = Math.max(0, u.warpCool - dt);
+        continue;
+      }
+      if (!this.isGround(u) || u.isBoss || u.airborne) continue;
+      const from = Math.abs(u.x - a.x) <= a.half * 0.6 ? a : Math.abs(u.x - b.x) <= b.half * 0.6 ? b : null;
+      if (!from) continue;
+      const to = from === a ? b : a;
+      Effects.spawn("ring", u.x, u.y, 0, 0, 0.4, 10, "#b36cf0");
+      u.x = to.x + (u.x - from.x);
+      u.warpCool = 3;
+      from.flash = to.flash = 0.4;
+      Effects.spawn("ring", u.x, u.y, 0, 0, 0.4, 10, "#b36cf0");
+      audio.play("zap");
     }
   },
 
@@ -157,6 +180,26 @@ const Hazards = {
             for (let f = -1; f <= 1; f++) line(bx, ground - 16 * up, bx + f * 3, ground - 21 * up, "#eeeae0", 2);
           }
         }
+      } else if (z.type === "warp") {
+        // A glowing pad with rings rising off it.
+        const glow = 0.5 + 0.5 * Math.sin(performance.now() * 0.005) + z.flash;
+        ctx.fillStyle = `rgba(179,108,240,${Math.min(0.9, 0.35 + glow * 0.3).toFixed(3)})`;
+        ctx.strokeStyle = LINE;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(z.x, ground, z.half, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(179,108,240,0.6)";
+        const k = (performance.now() * 0.001) % 1;
+        for (const off of [0, 0.5]) {
+          const f = (k + off) % 1;
+          ctx.globalAlpha = 1 - f;
+          ctx.beginPath();
+          ctx.ellipse(z.x, ground - f * 34, z.half * (1 - f * 0.4), 5, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
       } else if (z.type === "tide") {
         ctx.fillStyle = "rgba(110,180,230,0.55)";
         ctx.strokeStyle = rgbaFromHex(LINE, 0.5);
