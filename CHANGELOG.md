@@ -323,3 +323,7 @@ yolk, use powers) or the hand-drawn side view:
 - Vehicles: **Dino Rider** (lv 19, $32). A little team-coloured T-rex with a rider holding the reins (7 HP, a bit faster than infantry). It walks up to the enemy line and chomps whatever is in front of it for 2 hits, with a snapping jaw and a roar. Rusher armies like them.
 - Powers: **Healing Rain** (lv 18, 32 s cooldown). A short shower of warm blue drops over your half of the field heals every unit in your army by 2 (up to full health), with green sparkles on each one it patches up. The Powers screen rows are shorter again so all 10 powers fit.
 - Bosses: **Dino Mama** (first at stage 50, then in the rotation). A giant spotted T-rex with a team-coloured bow who lobs big bursting dino eggs at the nearest troops. Every 10 s (7 s enraged) she lets out a ROAR with roar rings and a screen shake that sends enemy ground troops running back for 1.2 s; enraged, she also whips her tail across the ground in front of her (1 hit, knocked over). winrate-sim: 4/12 idle, 12/12 active. 10 bosses in the rotation.
+- Final review VII:
+  - The 60-stage stress test (forced events of all 26 kinds, all weather, random eggs, powers and purchases) had no errors. Update time averages 0.27 ms; peak 50 units and 64 eggs in flight.
+  - Frame time is flat: the new events, gale, Prehistoric Valley and Dino Mama's roar all draw in 16-20 ms, the same as a clear frame (software rendering).
+  - winrate-sim (10 runs at each of 7 stages, 6-50): active 96%, idle 26%; stage 57 (Prehistoric Valley) 10/10 active.
