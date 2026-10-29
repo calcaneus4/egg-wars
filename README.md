@@ -2,7 +2,9 @@
 
 Egg Wars is a playful 2-D battlefield game drawn in a loose black-line sketch style. Blue and red armies march, roll, fly, hover, and crash across randomly generated terrain while lobbing projectile eggs through the air. Eggs arc under gravity, splat on the ground, burst into smaller projectiles, and gradually turn the battlefield into breakfast chaos.
 
-This repository contains the browser version. Open `index.html` to play.
+**Play online: https://calcaneus4.github.io/egg-wars/** (works on computers, tablets and phones; your progress is saved in that browser).
+
+This repository contains the browser version. You can also download it and open `index.html` to play offline.
 
 ## Game Objective
 
