@@ -1,0 +1,151 @@
+"use strict";
+
+// Biomes: each run of five stages takes place in a different land with its own terrain shape,
+// ground colour, background decorations and weather. After the Alien Planet the cycle repeats.
+
+const BIOME_STAGES = 5;
+
+const BIOMES = [
+  {
+    id: "meadow",
+    name: "Meadow",
+    terrain: { minY: 0.64, maxY: 0.86, rough: 100, smooth: 5 },
+    ground: null,
+    grass: true,
+    decor: "trees",
+    weather: { clear: 5, rain: 2, snow: 0.5, windy: 1.5, fog: 1, storm: 1.2, hail: 0.6, pollen: 1.5, rainbow: 1.2, gale: 1 },
+  },
+  {
+    id: "desert",
+    name: "Desert Dunes",
+    terrain: { minY: 0.66, maxY: 0.84, rough: 70, smooth: 8 },
+    ground: [235, 190, 110, 0.32],
+    grass: false,
+    stipple: true,
+    decor: "cacti",
+    weather: { clear: 6, windy: 3, heat: 2.5, storm: 0.4, sandstorm: 2.5 },
+  },
+  {
+    id: "snow",
+    name: "Snowfield",
+    terrain: { minY: 0.62, maxY: 0.86, rough: 110, smooth: 4 },
+    ground: [210, 230, 255, 0.35],
+    grass: false,
+    snowCap: true,
+    decor: "pines",
+    weather: { snow: 5, clear: 2, windy: 2, fog: 1.5, hail: 1.5, blizzard: 2, gale: 1.2 },
+  },
+  {
+    id: "volcano",
+    name: "Volcano",
+    terrain: { minY: 0.6, maxY: 0.88, rough: 130, smooth: 3 },
+    ground: [70, 45, 40, 0.28],
+    grass: false,
+    cracks: true,
+    decor: "rocks",
+    weather: { clear: 4, windy: 2, heat: 2, storm: 1, fog: 0.8, sandstorm: 0.6 },
+  },
+  {
+    id: "kitchen",
+    name: "Kitchen Counter",
+    terrain: { minY: 0.7, maxY: 0.8, rough: 40, smooth: 9 },
+    ground: [255, 255, 255, 0.0],
+    grass: false,
+    tiles: true,
+    decor: "kitchen",
+    weather: { clear: 3, fog: 1, heat: 1.5 },
+  },
+  {
+    id: "swamp",
+    name: "Soggy Swamp",
+    terrain: { minY: 0.7, maxY: 0.84, rough: 60, smooth: 7 },
+    ground: [80, 105, 55, 0.3],
+    grass: false,
+    reeds: true,
+    decor: "willows",
+    weather: { clear: 2, rain: 2, fog: 2.5, storm: 1, pollen: 1 },
+  },
+  {
+    id: "candy",
+    name: "Candy Mountains",
+    terrain: { minY: 0.6, maxY: 0.86, rough: 120, smooth: 4 },
+    ground: [255, 160, 195, 0.3],
+    grass: false,
+    candy: true,
+    decor: "candy",
+    weather: { clear: 4, windy: 1.5, heat: 1, hail: 0.5, pollen: 1.5, rainbow: 2 },
+  },
+  {
+    id: "graveyard",
+    name: "Spooky Graveyard",
+    terrain: { minY: 0.66, maxY: 0.85, rough: 80, smooth: 6 },
+    ground: [70, 60, 85, 0.3],
+    grass: true,
+    graves: true,
+    decor: "deadtrees",
+    weather: { fog: 3, clear: 2, rain: 1, storm: 1 },
+  },
+  {
+    id: "beach",
+    name: "Sunny Beach",
+    terrain: { minY: 0.7, maxY: 0.84, rough: 55, smooth: 8 },
+    ground: [245, 215, 150, 0.35],
+    grass: false,
+    beach: true,
+    decor: "palms",
+    weather: { clear: 5, windy: 2, heat: 1.5, storm: 0.5, rainbow: 1.5, gale: 1.5 },
+  },
+  {
+    id: "jungle",
+    name: "Steamy Jungle",
+    terrain: { minY: 0.64, maxY: 0.86, rough: 95, smooth: 5 },
+    ground: [40, 110, 50, 0.3],
+    grass: true,
+    jungle: true,
+    decor: "jungle",
+    weather: { rain: 3, clear: 2, storm: 1.5, fog: 1, rainbow: 1.5 },
+  },
+  {
+    id: "moon",
+    name: "Moon Base",
+    terrain: { minY: 0.64, maxY: 0.86, rough: 90, smooth: 6 },
+    ground: [150, 150, 160, 0.3],
+    grass: false,
+    craters: true,
+    decor: "domes",
+    gravity: 0.6,
+    // No air, no weather - just the odd meteor shower at night.
+    weather: { clear: 1 },
+  },
+  {
+    id: "prehistoric",
+    name: "Prehistoric Valley",
+    terrain: { minY: 0.62, maxY: 0.87, rough: 115, smooth: 4 },
+    ground: [125, 80, 45, 0.34],
+    grass: true,
+    fossils: true,
+    decor: "ferns",
+    weather: { clear: 4, rain: 1.5, heat: 1.5, storm: 1, fog: 1, gale: 1.5 },
+  },
+  {
+    id: "alien",
+    name: "Alien Planet",
+    terrain: { minY: 0.63, maxY: 0.86, rough: 100, smooth: 5 },
+    ground: [130, 70, 165, 0.3],
+    grass: false,
+    crystals: true,
+    decor: "spires",
+    gravity: 0.8,
+    weather: { clear: 4, fog: 1.5, storm: 1, gale: 1, heat: 0.8 },
+  },
+];
+
+const Biomes = {
+  forStage(stage) {
+    return BIOMES[Math.floor((Math.max(1, stage) - 1) / BIOME_STAGES) % BIOMES.length];
+  },
+
+  rgba(c, alphaScale = 1) {
+    return `rgba(${c[0]},${c[1]},${c[2]},${(c[3] * alphaScale).toFixed(3)})`;
+  },
+};
