@@ -55,6 +55,11 @@ canvas.addEventListener("pointerdown", (event) => {
     return;
   }
   if (Tutorial.hit(point.x, point.y)) return;
+  if (Hud.pauseButtonAt(point.x, point.y)) {
+    game.togglePause();
+    audio.play("click");
+    return;
+  }
   const abilityButton = !game.winner && Hud.abilityButtonAt(point.x, point.y);
   if (abilityButton) {
     Abilities.use(game, abilityButton.id);
@@ -81,6 +86,9 @@ canvas.addEventListener("pointerdown", (event) => {
     holdAdd.repeatTimer = setInterval(addHeldButton, 120);
   }, 380);
 });
+
+// A long press (used to keep adding units) shouldn't open the phone's context menu.
+canvas.addEventListener("contextmenu", (event) => event.preventDefault());
 
 canvas.addEventListener("pointerup", clearHoldAdd);
 canvas.addEventListener("pointercancel", clearHoldAdd);

@@ -377,6 +377,7 @@ const Hud = {
     ctx.restore();
     this.drawEggPicker(game, x + r + 12, y - 34);
     this.drawAbilityButtons(game, 790, y);
+    this.drawPauseButton(game);
   },
 
   abilityButtons: [],
@@ -422,6 +423,35 @@ const Hud = {
     });
   },
 
+  // Round pause button in the bottom-right corner, so touch players can pause (no Esc key on phones).
+  pauseButton: null,
+
+  drawPauseButton(game) {
+    this.pauseButton = null;
+    if (game.winner) return;
+    const r = 22;
+    const cx = W - 42;
+    const cy = H - 46;
+    this.pauseButton = { x: cx - r - 8, y: cy - r - 8, w: (r + 8) * 2, h: (r + 8) * 2 };
+    ctx.save();
+    ctx.fillStyle = PAPER;
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = LINE;
+    ctx.fillRect(cx - 8, cy - 9, 5, 18);
+    ctx.fillRect(cx + 3, cy - 9, 5, 18);
+    ctx.restore();
+  },
+
+  pauseButtonAt(x, y) {
+    const r = this.pauseButton;
+    return !!r && x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
+  },
+
   abilityButtonAt(x, y) {
     return this.abilityButtons.find((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
   },
@@ -456,6 +486,8 @@ const Hud = {
   },
 
   eggButtonAt(x, y) {
-    return this.eggButtons.find((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
+    // A few pixels of slack around each chip makes them easier to hit with a finger.
+    const pad = 5;
+    return this.eggButtons.find((r) => x >= r.x - pad && x <= r.x + r.w + pad && y >= r.y - pad && y <= r.y + r.h + pad);
   },
 };
