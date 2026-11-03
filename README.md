@@ -4,6 +4,12 @@ Egg Wars is a playful 2-D battlefield game drawn in a loose black-line sketch st
 
 **Play online: https://calcaneus4.github.io/egg-wars/** (works on computers, tablets and phones; your progress is saved in that browser).
 
+**On a phone or tablet:** open the link, then add it to your home screen. It gets its own egg icon, opens full-screen and plays offline.
+- iPhone / iPad (Safari): tap the Share button, then **Add to Home Screen**.
+- Android (Chrome): tap the ⋮ menu, then **Install app** (or **Add to Home screen**).
+
+Hold the device sideways (landscape). Tap to buy units and drop yolks, hold a unit card to keep adding, and use the round **Ⅱ** button in the bottom-right corner to pause.
+
 This repository contains the browser version. You can also download it and open `index.html` to play offline.
 
 ## Game Objective

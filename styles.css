@@ -1,18 +1,74 @@
 html,
 body {
   margin: 0;
-  min-height: 100%;
-  background: #f4f4f0;
+  height: 100%;
+  background: #2b2620;
+  overscroll-behavior: none;
 }
 
 body {
   display: grid;
   place-items: center;
+  /* Fill the whole screen on phones (including notches when installed). */
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
+/* The game is 1200 x 680: show it as large as fits, keeping that shape. */
 canvas {
-  width: min(100vw, 1200px);
+  width: min(100vw, calc(100vh * 1200 / 680), 1200px);
+  width: min(100vw, calc(100dvh * 1200 / 680), 1200px);
   height: auto;
   display: block;
   background: #fafaf8;
+  /* Taps and holds go to the game, not to page zooming or scrolling. */
+  touch-action: none;
+}
+
+/* Phones held upright: the battlefield is wide, so ask for landscape. */
+#rotate {
+  display: none;
+}
+
+@media (orientation: portrait) and (max-width: 820px) {
+  #rotate {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-content: center;
+    gap: 18px;
+    padding: 24px;
+    text-align: center;
+    background: #f6efdc;
+    color: #1a1610;
+    font: bold 22px/1.35 "Courier New", monospace;
+  }
+  #rotate .phone {
+    width: 64px;
+    height: 104px;
+    margin: 0 auto;
+    border: 5px solid #1a1610;
+    border-radius: 14px;
+    animation: turn 2.4s ease-in-out infinite;
+  }
+  #rotate small {
+    font-size: 15px;
+    font-weight: normal;
+  }
+}
+
+@keyframes turn {
+  0%, 25% { transform: rotate(0deg); }
+  55%, 85% { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #rotate .phone { animation: none; transform: rotate(-90deg); }
 }

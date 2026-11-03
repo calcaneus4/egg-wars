@@ -8,6 +8,12 @@ const path = require("path");
 const { chromium } = require("playwright");
 
 (async () => {
+  // The offline copy (sw.js) must list every game file at its current version.
+  const fs = require("fs");
+  if (require("./update-sw.js").render() !== fs.readFileSync(path.join(__dirname, "..", "sw.js"), "utf8")) {
+    console.error("sw.js is out of date: run  node tools/update-sw.js");
+    process.exit(1);
+  }
   const seconds = Number(process.argv[2] || 6);
   const executablePath = process.env.CHROMIUM_PATH || undefined;
   const browser = await chromium.launch({ executablePath });
